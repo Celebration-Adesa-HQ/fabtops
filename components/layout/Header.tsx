@@ -7,9 +7,11 @@ import { ShoppingBag, Search, User, Menu, Heart } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/components/cart/CartProvider';
 import { useFavorites } from '@/lib/favorites-context';
+import { SearchModal } from './SearchModal';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const { scrollY } = useScroll();
   const { totalItems, setIsCartOpen } = useCart();
   const { count: favoritesCount } = useFavorites();
@@ -60,7 +62,10 @@ export function Header() {
       </Link>
 
       <div className="flex items-center gap-5 text-brand-dark">
-        <button className="hover:text-brand-primary transition-colors p-2">
+        <button 
+          onClick={() => setIsSearchOpen(true)}
+          className="hover:text-brand-primary transition-colors p-2"
+        >
           <Search className="h-5 w-5" />
         </button>
         
@@ -103,6 +108,11 @@ export function Header() {
           </AnimatePresence>
         </button>
       </div>
+
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
     </motion.header>
   );
 }
