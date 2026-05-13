@@ -135,9 +135,12 @@ export function CartDrawer() {
               <div className="space-y-3">
                 <a
                   href={checkoutUrl || '#'}
-                  className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.3em] font-bold py-5 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-500 shadow-xl shadow-brand-dark/5"
+                  className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
                 >
-                  Process Checkout <ArrowRight size={16} />
+                  <span className="relative z-10 flex items-center gap-3">
+                    Secure Checkout via Paystack <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 </a>
                 <Link
                   href="/cart"

@@ -233,10 +233,13 @@ export default function CartPage() {
               <div className="space-y-6">
                 <a
                   href={checkoutUrl || '#'}
-                  className="w-full bg-brand-dark text-white py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20"
+                  className="w-full bg-brand-dark text-white py-6 text-[11px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden"
                 >
-                  Process Checkout
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <span className="relative z-10 flex items-center gap-4">
+                    Secure Checkout via Paystack
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 </a>
                 <p className="text-[9px] text-brand-dark/30 uppercase tracking-[0.2em] text-center leading-relaxed font-black">
                   Shipping and taxes calculated at handoff.
