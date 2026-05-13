@@ -22,6 +22,7 @@ interface ProductCardProps {
   swatches?: string[];
   className?: string;
   availableForSale?: boolean;
+  variantId?: string;
 }
 
 export function ProductCard({ id, handle, title, amount, currencyCode = 'NGN', image, secondaryImage, swatches, className, variantId, availableForSale = true }: ProductCardProps) {

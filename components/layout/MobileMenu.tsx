@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { X, Instagram, Twitter, MessageCircle, ArrowRight, ShoppingBag, User, Heart } from 'lucide-react';
+import { X, MessageCircle, ArrowRight, ShoppingBag, User, Heart } from 'lucide-react';
 import Image from 'next/image';
 
 interface MobileMenuProps {

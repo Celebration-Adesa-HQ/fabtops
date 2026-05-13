@@ -4,7 +4,7 @@ import { useCart, getEnhancedCheckoutUrl } from '@/components/cart/CartProvider'
 import { useAuth } from '@/lib/use-auth';
 import { useCurrency } from '@/lib/currency-context';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck, Truck, RefreshCw, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
