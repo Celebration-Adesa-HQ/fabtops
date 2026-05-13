@@ -1,9 +1,12 @@
 'use client';
 
+import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/components/cart/CartProvider';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 
 interface ProductCardProps {
   handle: string;
@@ -13,9 +16,25 @@ interface ProductCardProps {
   secondaryImage?: string;
   swatches?: string[];
   className?: string;
+  variantId?: string;
 }
 
-export function ProductCard({ handle, title, price, image, secondaryImage, swatches, className }: ProductCardProps) {
+export function ProductCard({ handle, title, price, image, secondaryImage, swatches, className, variantId }: ProductCardProps) {
+  const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = React.useState(false);
+
+  const handleQuickAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!variantId) return;
+    
+    setIsAdding(true);
+    try {
+      await addToCart(variantId, 1);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   // Simple color mapping for common fashion colors
   const colorMap: Record<string, string> = {
     Black: '#000000',
@@ -49,15 +68,27 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
           />
         )}
         
-        {/* Quick View Overlay */}
+        {/* Quick Add Overlay */}
         <div className="absolute inset-0 flex items-end justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <motion.div
+          <motion.button
+            onClick={handleQuickAdd}
+            disabled={isAdding}
             initial={{ y: 20 }}
             whileHover={{ scale: 1.02 }}
-            className="w-full bg-brand-light/95 backdrop-blur-md py-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark text-center border border-brand-dark/5 shadow-2xl"
+            className="w-full bg-brand-light/95 backdrop-blur-md py-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark text-center border border-brand-dark/5 shadow-2xl flex items-center justify-center gap-3 group/btn"
           >
-            Quick View
-          </motion.div>
+            {isAdding ? (
+              <span className="flex items-center gap-2">
+                <div className="w-3 h-3 border border-brand-dark/20 border-t-brand-dark rounded-full animate-spin" />
+                Adding...
+              </span>
+            ) : (
+              <>
+                <ShoppingBag size={14} className="group-hover/btn:text-brand-primary transition-colors" />
+                Quick Add
+              </>
+            )}
+          </motion.button>
         </div>
       </div>
 
@@ -86,9 +117,9 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
               </div>
             )}
           </div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-brand-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            View Details
-          </p>
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-brand-primary font-bold opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-2 group-hover:translate-x-0">
+            View <ArrowRight size={12} />
+          </div>
         </div>
       </div>
     </Link>

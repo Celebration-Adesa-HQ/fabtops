@@ -1,7 +1,10 @@
 import { Hero } from '@/components/editorial/Hero';
 import { ProductCard } from '@/components/editorial/ProductCard';
+import { getProducts } from '@/lib/shopify';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const products = await getProducts({ first: 3 });
+
   return (
     <div className="bg-brand-light">
       <Hero />
@@ -16,37 +19,28 @@ export default function HomePage() {
               The Statement Pieces
             </h2>
           </div>
-          <p className="text-brand-dark/60 max-w-xs text-sm leading-relaxed">
+          <p className="text-brand-dark/60 max-w-xs text-sm leading-relaxed uppercase tracking-widest text-[11px]">
             Discover our most coveted designs, blending traditional craft with contemporary silhouettes.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-          <ProductCard
-            handle="silk-draped-set"
-            title="Silk Draped Set"
-            price="₦125,000"
-            image="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop"
-            secondaryImage="https://images.unsplash.com/photo-1539109132382-381bb3f1c2b3?q=80&w=1920&auto=format&fit=crop"
-          />
-          <ProductCard
-            handle="velvet-midi-dress"
-            title="Velvet Midi Dress"
-            price="₦95,000"
-            image="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1920&auto=format&fit=crop"
-            secondaryImage="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1920&auto=format&fit=crop"
-          />
-          <ProductCard
-            handle="asymmetric-top"
-            title="Asymmetric Top"
-            price="₦45,000"
-            image="https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&w=1920&auto=format&fit=crop"
-            secondaryImage="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1920&auto=format&fit=crop"
-          />
+          {products.map((product: any) => (
+            <ProductCard
+              key={product.id}
+              handle={product.handle}
+              title={product.title}
+              price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}
+              image={product.images.edges[0]?.node.url}
+              secondaryImage={product.images.edges[1]?.node.url}
+              variantId={product.variants.edges[0]?.node.id}
+              swatches={product.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
+            />
+          ))}
         </div>
       </section>
 
-      <section className="bg-brand-dark text-brand-light py-32 px-6 text-center">
+      <section className="bg-brand-dark text-brand-light py-40 px-6 text-center">
         <div className="max-w-3xl mx-auto space-y-12">
           <span className="text-[11px] uppercase tracking-[0.5em] font-bold opacity-40">The Philosophy</span>
           <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-tight leading-tight">

@@ -3,12 +3,13 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Search, User, Menu } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/components/cart/CartProvider';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { scrollY } = useScroll();
+  const { totalItems, setIsCartOpen } = useCart();
   
   const headerBg = useTransform(
     scrollY,
@@ -57,11 +58,23 @@ export function Header() {
         <Link href="/account" className="hover:text-brand-primary transition-colors">
           <User className="h-5 w-5" />
         </Link>
-        <button className="hover:text-brand-primary transition-colors relative">
+        <button 
+          onClick={() => setIsCartOpen(true)}
+          className="hover:text-brand-primary transition-colors relative"
+        >
           <ShoppingBag className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 bg-brand-primary text-brand-dark text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-            0
-          </span>
+          <AnimatePresence>
+            {totalItems > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute -top-1 -right-1 bg-brand-primary text-brand-dark text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold"
+              >
+                {totalItems}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </div>
     </motion.header>

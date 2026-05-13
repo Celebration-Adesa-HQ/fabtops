@@ -274,6 +274,7 @@ export function ShopContent({
                       image={product.images.edges[0]?.node.url || 'https://via.placeholder.com/600x800'}
                       secondaryImage={product.images.edges[1]?.node.url}
                       swatches={product.options.find(opt => opt.name.toLowerCase() === 'color')?.values}
+                      variantId={product.variants.edges[0]?.node.id}
                     />
                   </motion.div>
                 ))}

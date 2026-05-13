@@ -22,6 +22,10 @@ export const metadata: Metadata = {
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { CartProvider } from '@/components/cart/CartProvider';
+import { CartDrawer } from '@/components/cart/CartDrawer';
+import { CurrencyProvider } from '@/lib/currency-context';
+import { FavoritesProvider } from '@/lib/favorites-context';
 
 export default function RootLayout({
   children,
@@ -31,13 +35,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${raleway.variable} ${playfair.variable}`}>
       <body className="min-h-screen flex flex-col">
-        <Header />
-        
-        <main className="flex-grow">
-          {children}
-        </main>
+        <CurrencyProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <Header />
+              <CartDrawer />
+              
+              <main className="flex-grow">
+                {children}
+              </main>
 
-        <Footer />
+              <Footer />
+            </CartProvider>
+          </FavoritesProvider>
+        </CurrencyProvider>
       </body>
     </html>
   );

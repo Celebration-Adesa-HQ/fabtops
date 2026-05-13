@@ -1,5 +1,5 @@
 import { getProductByHandle, getProducts } from '@/lib/shopify';
-import { ProductView } from '@/components/product/ProductView';
+import { ProductView } from '@/components/editorial/ProductView';
 import { notFound } from 'next/navigation';
 
 interface ProductPageProps {

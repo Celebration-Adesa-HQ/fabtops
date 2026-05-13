@@ -1,6 +1,6 @@
 // lib/shopify.ts
-const DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
-const TOKEN = process.env.SHOPIFY_STOREFRONT_API_TOKEN;
+const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_API_TOKEN;
 
 // 🔍 DEBUG: Log env vars on server startup (only visible in terminal)
 if (typeof window === "undefined") {
