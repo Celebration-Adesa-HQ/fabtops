@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { Package, User, MapPin, CreditCard, LogOut, Heart, Settings, ChevronRight, Loader2, Trash2, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useFavorites } from '@/lib/favorites-context';
 
@@ -217,7 +218,12 @@ export default function AccountPage() {
                       {favorites.map((item) => (
                         <div key={item.id} className="group relative bg-white/20 backdrop-blur-md border border-brand-dark/5 p-6 rounded-[2rem] flex gap-6 hover:border-brand-dark transition-all">
                           <div className="relative w-32 aspect-[3/4] overflow-hidden rounded-xl">
-                            <img src={item.imageUrl} alt={item.title} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" />
+                            <Image 
+                              src={item.imageUrl} 
+                              alt={item.title} 
+                              fill 
+                              className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                            />
                           </div>
                           <div className="flex flex-col justify-between py-2">
                             <div>

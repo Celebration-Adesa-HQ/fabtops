@@ -1,4 +1,7 @@
+'use client';
+
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function AboutPage() {
   return (
@@ -14,10 +17,11 @@ export default function AboutPage() {
           </p>
         </div>
         <div className="aspect-editorial relative bg-neutral-100 overflow-hidden">
-          <img 
+          <Image 
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1920&auto=format&fit=crop" 
             alt="Editorial model"
-            className="object-cover w-full h-full"
+            fill
+            className="object-cover"
           />
         </div>
       </section>

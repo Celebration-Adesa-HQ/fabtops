@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { ProductCard } from './ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X, ChevronDown, Check, SlidersHorizontal } from 'lucide-react';
@@ -145,10 +146,11 @@ export function ShopContent({
         {/* Hero Section if provided */}
         {heroImage && (
           <div className="relative w-full h-[40vh] mb-20 overflow-hidden">
-            <img
+            <Image
               src={heroImage}
               alt={title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-brand-dark/20" />
             <div className="absolute inset-0 flex items-center justify-center text-center p-6">

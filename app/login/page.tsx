@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
@@ -46,10 +47,11 @@ export default function LoginPage() {
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
         {/* Editorial Side */}
         <div className="hidden lg:block relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl shadow-brand-dark/10">
-          <img 
+          <Image 
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200" 
             alt="Fabtops Heritage" 
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-brand-dark/20 backdrop-blur-[2px]" />
           <div className="absolute bottom-12 left-12 right-12 text-white">

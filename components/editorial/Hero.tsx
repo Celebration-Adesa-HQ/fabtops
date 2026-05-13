@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -8,7 +9,14 @@ export function Hero() {
   return (
     <section className="relative h-screen w-full overflow-hidden bg-brand-secondary">
       {/* Background Image/Video Placeholder */}
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+          alt="Fabtops Heritage Hero"
+          fill
+          priority
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-brand-dark/10" />
       </div>
 
