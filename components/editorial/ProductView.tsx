@@ -62,7 +62,7 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
   };
 
   return (
-    <div className="bg-brand-secondary min-h-screen pt-32 pb-20">
+    <div className="bg-brand-light min-h-screen pt-32 pb-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/40 mb-12">

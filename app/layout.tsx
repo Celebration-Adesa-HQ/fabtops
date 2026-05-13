@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { FloatingContact } from '@/components/layout/FloatingContact';
 import { CartProvider } from '@/components/cart/CartProvider';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { CurrencyProvider } from '@/lib/currency-context';
@@ -45,6 +46,7 @@ export default function RootLayout({
                 {children}
               </main>
 
+              <FloatingContact />
               <Footer />
             </CartProvider>
           </FavoritesProvider>

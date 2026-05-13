@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 const SOCIAL_LINKS = [
@@ -45,6 +46,7 @@ const SOCIAL_LINKS = [
 const FOOTER_LINKS = {
   Shopping: [
     { name: 'New Arrivals', href: '/shop' },
+    { name: 'The Circle', href: '/circle' },
     { name: 'Best Sellers', href: '/shop/best-sellers' },
     { name: 'Collections', href: '/shop/collections' },
     { name: 'Archive', href: '/archive' },
@@ -65,7 +67,7 @@ export function Footer() {
           {/* Brand & Newsletter */}
           <div className="md:col-span-5 space-y-10">
             <div className="space-y-6">
-              <h2 className="font-heading text-5xl uppercase tracking-tighter text-brand-light">FabTops</h2>
+              <Image src="/logo/Fab and Luxe Combined.png" alt="FabTops" width={200} height={200} className='w-48' priority />
               <p className="text-brand-light/60 max-w-sm text-sm leading-relaxed">
                 Contemporary, premium fashion rooted in confidence, femininity, and self-expression. 
                 Crafted for the modern woman who lives with intention.

@@ -3,8 +3,11 @@
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { Heart, Zap, Sparkles, Star, ArrowRight, Gem, ShieldCheck, Globe, Clock } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from '@/lib/use-auth';
 
 export default function CirclePage() {
+  const { customer, isAuthenticated, loading } = useAuth();
   return (
     <div className="relative min-h-screen bg-brand-secondary selection:bg-brand-primary/20 selection:text-brand-dark overflow-hidden">
       {/* Background Glows */}
@@ -101,20 +104,36 @@ export default function CirclePage() {
                 </h2>
                 
                 <p className="text-sm md:text-base text-brand-dark/60 font-medium mb-16 max-w-xl mx-auto leading-relaxed uppercase tracking-widest text-[11px]">
-                  Enter your digital identifier to apply for membership. By joining the Circle, you unlock the full Fabtops heritage experience.
+                  {isAuthenticated 
+                    ? `Welcome back to your sanctuary, ${customer?.firstName}. Your elite heritage benefits are active across the flagship.`
+                    : "Enter your digital identifier to apply for membership. By joining the Circle, you unlock the full Fabtops heritage experience."}
                 </p>
                 
                 <div className="max-w-md mx-auto space-y-6">
-                  <div className="relative">
-                    <input 
-                      type="email" 
-                      placeholder="Enter your email address" 
-                      className="w-full px-12 py-8 rounded-full bg-brand-secondary/40 backdrop-blur-md border-2 border-brand-dark/5 focus:border-brand-dark outline-none transition-all text-center text-sm font-black uppercase tracking-widest placeholder:text-brand-dark/20 shadow-sm"
-                    />
-                  </div>
-                  <button className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95">
-                    Join the Movement <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                  </button>
+                  {isAuthenticated ? (
+                    <Link 
+                      href="/account"
+                      className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
+                    >
+                      Enter My Styling Vault <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                    </Link>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <input 
+                          type="email" 
+                          placeholder="Enter your email address" 
+                          className="w-full px-12 py-8 rounded-full bg-brand-secondary/40 backdrop-blur-md border-2 border-brand-dark/5 focus:border-brand-dark outline-none transition-all text-center text-sm font-black uppercase tracking-widest placeholder:text-brand-dark/20 shadow-sm"
+                        />
+                      </div>
+                      <Link 
+                        href="/register"
+                        className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
+                      >
+                        Join the Movement <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                      </Link>
+                    </>
+                  )}
                 </div>
                 
                 <div className="mt-16 pt-10 border-t border-brand-dark/5 flex items-center justify-center gap-8">

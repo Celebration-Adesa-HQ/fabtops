@@ -8,6 +8,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useCart } from '@/components/cart/CartProvider';
 import { useFavorites } from '@/lib/favorites-context';
 import { SearchModal } from './SearchModal';
+import { MobileMenu } from './MobileMenu';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -40,13 +41,18 @@ export function Header() {
       className="fixed top-0 left-0 right-0 z-40 px-6 md:px-12 transition-all duration-300 border-b flex items-center justify-between backdrop-blur-md"
     >
       <div className="flex items-center gap-6">
-        <button className="md:hidden text-brand-dark">
+        <button 
+          onClick={() => setIsMenuOpen(true)}
+          className="md:hidden text-brand-dark p-2 hover:text-brand-primary transition-colors"
+        >
           <Menu className="h-6 w-6" />
         </button>
         <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-dark">
           <Link href="/shop" className="hover:text-brand-primary transition-colors">Shop</Link>
           <Link href="/collections" className="hover:text-brand-primary transition-colors">Collections</Link>
+          <Link href="/circle" className="hover:text-brand-primary transition-colors">The Circle</Link>
           <Link href="/about" className="hover:text-brand-primary transition-colors">About</Link>
+          <Link href="/contact" className="hover:text-brand-primary transition-colors">Concierge</Link>
         </nav>
       </div>
 
@@ -112,6 +118,11 @@ export function Header() {
       <SearchModal 
         isOpen={isSearchOpen} 
         onClose={() => setIsSearchOpen(false)} 
+      />
+
+      <MobileMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
       />
     </motion.header>
   );
