@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { ProductCard } from './ProductCard';
 import { useCart } from '@/components/cart/CartProvider';
 import { useCurrency } from '@/lib/currency-context';
+import { FavoriteButton } from './FavoriteButton';
 
 interface ProductViewProps {
   product: any;
@@ -28,6 +29,18 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
   const images = product.images.edges.map((edge: any) => edge.node);
   const price = product.priceRange.minVariantPrice.amount;
   const currencyCode = product.priceRange.minVariantPrice.currencyCode;
+
+  // Prepare product object for FavoriteButton
+  const productData = {
+    id: product.id,
+    variantId: product.variants.edges[0]?.node.id || '',
+    title: product.title,
+    handle: product.handle,
+    price: price,
+    currencyCode: currencyCode,
+    imageUrl: images[0]?.url || '',
+    imageAlt: product.title
+  };
 
   // Extract sizes and colors
   const sizes = product.options.find((opt: any) => opt.name.toLowerCase() === 'size')?.values || [];
@@ -219,9 +232,11 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                   >
                     Add to Bag
                   </button>
-                  <button className="p-5 border border-brand-dark/10 hover:border-brand-dark transition-colors group">
-                    <Heart size={20} className="group-hover:fill-brand-primary group-hover:text-brand-primary transition-all" />
-                  </button>
+                  <FavoriteButton 
+                    product={productData} 
+                    size="lg" 
+                    className="p-5"
+                  />
                 </div>
                 
                 <div className="flex items-center justify-center gap-8 pt-4">

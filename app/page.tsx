@@ -28,6 +28,7 @@ export default async function HomePage() {
           {products.map((product: any) => (
             <ProductCard
               key={product.id}
+              id={product.id}
               handle={product.handle}
               title={product.title}
               price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}

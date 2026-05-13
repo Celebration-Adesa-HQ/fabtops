@@ -7,8 +7,10 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/components/cart/CartProvider';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { FavoriteButton } from '@/components/editorial/FavoriteButton';
 
 interface ProductCardProps {
+  id?: string; // Add id to props
   handle: string;
   title: string;
   price: string;
@@ -19,7 +21,7 @@ interface ProductCardProps {
   variantId?: string;
 }
 
-export function ProductCard({ handle, title, price, image, secondaryImage, swatches, className, variantId }: ProductCardProps) {
+export function ProductCard({ id, handle, title, price, image, secondaryImage, swatches, className, variantId }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = React.useState(false);
 
@@ -33,6 +35,18 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
     } finally {
       setIsAdding(false);
     }
+  };
+
+  // Prepare product object for FavoriteButton
+  const productData = {
+    id: id || handle, // Fallback to handle if id is missing
+    variantId: variantId || '',
+    title,
+    handle,
+    price: price.replace(/[^0-9.]/g, ''), // Extract numeric price
+    currencyCode: 'NGN',
+    imageUrl: image,
+    imageAlt: title
   };
 
   // Simple color mapping for common fashion colors
@@ -49,33 +63,40 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
   };
 
   return (
-    <Link href={`/product/${handle}`} className={cn('group block w-full', className)}>
+    <div className={cn('group block w-full relative', className)}>
       <div className="relative aspect-editorial overflow-hidden bg-brand-light">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        {secondaryImage && (
+        <Link href={`/product/${handle}`} className="block w-full h-full">
           <Image
-            src={secondaryImage}
-            alt={`${title} - alternative view`}
+            src={image}
+            alt={title}
             fill
-            className="object-cover opacity-0 transition-all duration-[0.8s] ease-in-out group-hover:opacity-100 group-hover:scale-105"
+            className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-        )}
+          {secondaryImage && (
+            <Image
+              src={secondaryImage}
+              alt={`${title} - alternative view`}
+              fill
+              className="object-cover opacity-0 transition-all duration-[0.8s] ease-in-out group-hover:opacity-100 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
+        </Link>
+        
+        {/* Favorite Button */}
+        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <FavoriteButton product={productData} size="sm" />
+        </div>
         
         {/* Quick Add Overlay */}
-        <div className="absolute inset-0 flex items-end justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="absolute inset-0 flex items-end justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
           <motion.button
             onClick={handleQuickAdd}
             disabled={isAdding}
             initial={{ y: 20 }}
             whileHover={{ scale: 1.02 }}
-            className="w-full bg-brand-light/95 backdrop-blur-md py-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark text-center border border-brand-dark/5 shadow-2xl flex items-center justify-center gap-3 group/btn"
+            className="w-full bg-brand-light/95 backdrop-blur-md py-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark text-center border border-brand-dark/5 shadow-2xl flex items-center justify-center gap-3 group/btn pointer-events-auto"
           >
             {isAdding ? (
               <span className="flex items-center gap-2">
@@ -92,7 +113,7 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
         </div>
       </div>
 
-      <div className="mt-6 space-y-3 text-center md:text-left">
+      <Link href={`/product/${handle}`} className="mt-6 space-y-3 text-center md:text-left block">
         <h3 className="font-heading text-xl md:text-2xl tracking-tight text-brand-dark group-hover:text-brand-primary transition-colors duration-300">
           {title}
         </h3>
@@ -121,7 +142,7 @@ export function ProductCard({ handle, title, price, image, secondaryImage, swatc
             View <ArrowRight size={12} />
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

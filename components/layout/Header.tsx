@@ -2,14 +2,17 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Search, User, Menu } from 'lucide-react';
+import Image from 'next/image';
+import { ShoppingBag, Search, User, Menu, Heart } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/components/cart/CartProvider';
+import { useFavorites } from '@/lib/favorites-context';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { scrollY } = useScroll();
   const { totalItems, setIsCartOpen } = useCart();
+  const { count: favoritesCount } = useFavorites();
   
   const headerBg = useTransform(
     scrollY,
@@ -32,7 +35,7 @@ export function Header() {
   return (
     <motion.header
       style={{ backgroundColor: headerBg, borderBottomColor: headerBorder, paddingTop: headerPadding, paddingBottom: headerPadding }}
-      className="fixed top-0 left-0 right-0 z-40 px-6 md:px-12 transition-all duration-300 border-b flex items-center justify-between"
+      className="fixed top-0 left-0 right-0 z-40 px-6 md:px-12 transition-all duration-300 border-b flex items-center justify-between backdrop-blur-md"
     >
       <div className="flex items-center gap-6">
         <button className="md:hidden text-brand-dark">
@@ -46,21 +49,44 @@ export function Header() {
       </div>
 
       <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-        <h1 className="font-heading text-3xl md:text-4xl tracking-tighter text-brand-dark uppercase">
-          FabTops
-        </h1>
+        <Image
+          src="/logo/Fab and Luxe Combined.png"
+          alt="FabTops"
+          width={100}
+          height={100}
+          className="object-contain"
+          priority
+        />
       </Link>
 
       <div className="flex items-center gap-5 text-brand-dark">
-        <button className="hover:text-brand-primary transition-colors">
+        <button className="hover:text-brand-primary transition-colors p-2">
           <Search className="h-5 w-5" />
         </button>
-        <Link href="/account" className="hover:text-brand-primary transition-colors">
+        
+        <Link href="/wishlist" className="hover:text-brand-primary transition-colors p-2 relative group">
+          <Heart className="h-5 w-5" />
+          <AnimatePresence>
+            {favoritesCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute top-0 right-0 bg-brand-primary text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-light shadow-sm"
+              >
+                {favoritesCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </Link>
+
+        <Link href="/account" className="hover:text-brand-primary transition-colors p-2">
           <User className="h-5 w-5" />
         </Link>
+        
         <button 
           onClick={() => setIsCartOpen(true)}
-          className="hover:text-brand-primary transition-colors relative"
+          className="relative hover:text-brand-primary transition-colors p-2 group"
         >
           <ShoppingBag className="h-5 w-5" />
           <AnimatePresence>
@@ -69,7 +95,7 @@ export function Header() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className="absolute -top-1 -right-1 bg-brand-primary text-brand-dark text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold"
+                className="absolute top-0 right-0 bg-brand-dark text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-light shadow-sm group-hover:bg-brand-primary transition-colors"
               >
                 {totalItems}
               </motion.span>
