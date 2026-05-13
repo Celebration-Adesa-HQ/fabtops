@@ -70,6 +70,7 @@ export default async function HomePage() {
               secondaryImage={product.images.edges[1]?.node.url}
               variantId={product.variants.edges[0]?.node.id}
               swatches={product.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
+              availableForSale={product.variants.edges.some((v: any) => v.node.availableForSale)}
             />
           ))}
         </div>

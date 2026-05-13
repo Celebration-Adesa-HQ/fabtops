@@ -41,7 +41,7 @@ export function Header() {
     ["rgba(59, 59, 68, 1)", "rgba(59, 59, 68, 1)"],
   );
 
-  const headerPadding = useTransform(scrollY, [0, 50], ["2.5rem", "2.5rem"]);
+  const headerPadding = useTransform(scrollY, [0, 50], ["1rem", "1rem"]);
 
   return (
     <>
@@ -53,133 +53,175 @@ export function Header() {
           paddingBottom: headerPadding,
           color: headerColor,
         }}
-        className="fixed top-0 left-0 right-0 z-40 px-6 md:px-12 transition-all duration-300 border-b flex items-center justify-between backdrop-blur-md"
+        className="
+    fixed top-0 left-0 right-0 z-40
+    border-b backdrop-blur-md
+    transition-all duration-300
+    px-4 sm:px-6 md:px-10 lg:px-12
+  "
       >
-        <div className="flex-1 flex items-center gap-6">
-          <button
-            onClick={() => setIsMenuOpen(true)}
-            className="md:hidden p-2 hover:text-brand-primary transition-colors"
-            style={{ color: "inherit" }}
+        <div className="flex items-center justify-between w-full relative">
+          {/* LEFT */}
+          <div className="flex items-center gap-2 sm:gap-4 flex-1">
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="lg:hidden p-2 hover:text-brand-primary transition-colors"
+              style={{ color: "inherit" }}
+            >
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] uppercase tracking-[0.2em] font-black">
+              <Link
+                href="/shop"
+                className="hover:text-brand-primary transition-colors"
+              >
+                Shop
+              </Link>
+
+              <Link
+                href="/collections"
+                className="hover:text-brand-primary transition-colors"
+              >
+                Collections
+              </Link>
+
+              <Link
+                href="/circle"
+                className="hover:text-brand-primary transition-colors"
+              >
+                The Circle
+              </Link>
+
+              <Link
+                href="/about"
+                className="hover:text-brand-primary transition-colors"
+              >
+                About
+              </Link>
+
+              <Link
+                href="/contact"
+                className="hover:text-brand-primary transition-colors"
+              >
+                Concierge
+              </Link>
+            </nav>
+          </div>
+
+          {/* LOGO */}
+          <motion.div
+            className="
+        absolute left-1/2 -translate-x-1/2
+        lg:static lg:translate-x-0
+        lg:flex lg:justify-center
+        flex-shrink-0
+      "
+            style={{
+              filter: useTransform(
+                scrollY,
+                [0, 50],
+                ["brightness(0) invert(1)", "brightness(1) invert(0)"],
+              ),
+            }}
           >
-            <Menu className="h-6 w-6" />
-          </button>
-          <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-black">
-            <Link
-              href="/shop"
-              className="hover:text-brand-primary transition-colors"
-            >
-              Shop
+            <Link href="/">
+              <Image
+                src="/logo/Fab and Luxe Combined.png"
+                alt="FabTops"
+                width={100}
+                height={100}
+                priority
+                className="
+            object-contain
+            w-16 sm:w-20 md:w-24
+            h-auto
+          "
+              />
             </Link>
-            <Link
-              href="/collections"
-              className="hover:text-brand-primary transition-colors"
+          </motion.div>
+
+          {/* RIGHT */}
+          <div className="flex items-center justify-end gap-1 sm:gap-2 md:gap-4 flex-1">
+            <CurrencySelector className="hidden xl:block mr-2" />
+
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="hover:text-brand-primary transition-colors p-2"
+              style={{ color: "inherit" }}
             >
-              Collections
-            </Link>
+              <Search className="h-5 w-5" />
+            </button>
+
             <Link
-              href="/circle"
-              className="hover:text-brand-primary transition-colors"
+              href="/wishlist"
+              className="hover:text-brand-primary transition-colors p-2 relative group"
+              style={{ color: "inherit" }}
             >
-              The Circle
+              <Heart className="h-5 w-5" />
+
+              <AnimatePresence>
+                {favoritesCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="
+                absolute top-0 right-0
+                bg-brand-primary text-white
+                text-[8px] font-black
+                w-4 h-4 rounded-full
+                flex items-center justify-center
+                border-2 border-brand-light
+                shadow-sm
+              "
+                  >
+                    {favoritesCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </Link>
+
             <Link
-              href="/about"
-              className="hover:text-brand-primary transition-colors"
+              href="/account"
+              className="hover:text-brand-primary transition-colors p-2"
+              style={{ color: "inherit" }}
             >
-              About
+              <User className="h-5 w-5" />
             </Link>
-            <Link
-              href="/contact"
-              className="hover:text-brand-primary transition-colors"
+
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative hover:text-brand-primary transition-colors p-2 group"
+              style={{ color: "inherit" }}
             >
-              Concierge
-            </Link>
-          </nav>
+              <ShoppingBag className="h-5 w-5" />
+
+              <AnimatePresence>
+                {totalItems > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="
+                absolute top-0 right-0
+                bg-brand-dark text-white
+                text-[8px] font-black
+                w-4 h-4 rounded-full
+                flex items-center justify-center
+                border-2 border-brand-light
+                shadow-sm
+                group-hover:bg-brand-primary
+                transition-colors
+              "
+                  >
+                    {totalItems}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
         </div>
-
-        <motion.div
-          className="absolute left-1/2 -translate-x-1/2 z-10"
-          style={{
-            filter: useTransform(
-              scrollY,
-              [0, 50],
-              ["brightness(0) invert(1)", "brightness(1) invert(0)"],
-            ),
-          }}
-        >
-          <Link href="/">
-            <Image
-              src="/logo/Fab and Luxe Combined.png"
-              alt="FabTops"
-              width={100}
-              height={100}
-              className="object-contain w-18 md:w-24"
-              priority
-            />
-          </Link>
-        </motion.div>
-
-        <div className="flex-1 flex items-center justify-end gap-2 md:gap-5">
-          <CurrencySelector className="hidden lg:block mr-4" />
-
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="hover:text-brand-primary transition-colors p-2"
-            style={{ color: "inherit" }}
-          >
-            <Search className="h-5 w-5" />
-          </button>
-
-          <Link
-            href="/wishlist"
-            className="hover:text-brand-primary transition-colors p-2 relative group"
-            style={{ color: "inherit" }}
-          >
-            <Heart className="h-5 w-5" />
-            <AnimatePresence>
-              {favoritesCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute top-0 right-0 bg-brand-primary text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-light shadow-sm"
-                >
-                  {favoritesCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Link>
-
-          <Link
-            href="/account"
-            className="hover:text-brand-primary transition-colors p-2"
-            style={{ color: "inherit" }}
-          >
-            <User className="h-5 w-5" />
-          </Link>
-
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="relative hover:text-brand-primary transition-colors p-2 group"
-            style={{ color: "inherit" }}
-          >
-            <ShoppingBag className="h-5 w-5" />
-            <AnimatePresence>
-              {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute top-0 right-0 bg-brand-dark text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-brand-light shadow-sm group-hover:bg-brand-primary transition-colors"
-                >
-                  {totalItems}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        </div>
-
-
       </motion.header>
       <SearchModal
         isOpen={isSearchOpen}

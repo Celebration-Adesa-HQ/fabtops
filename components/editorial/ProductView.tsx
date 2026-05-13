@@ -32,33 +32,53 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
   const price = product.priceRange.minVariantPrice.amount;
   const currencyCode = product.priceRange.minVariantPrice.currencyCode;
 
-  // Prepare product object for FavoriteButton
-  const productData = {
-    id: product.id,
-    variantId: product.variants.edges[0]?.node.id || '',
-    title: product.title,
-    handle: product.handle,
-    price: price,
-    currencyCode: currencyCode,
-    imageUrl: images[0]?.url || '',
-    imageAlt: product.title
-  };
-
   // Extract sizes and colors
   const sizes = product.options.find((opt: any) => opt.name.toLowerCase() === 'size')?.values || [];
   const colors = product.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values || [];
 
-  const handleAddToCart = async () => {
-    // Find matching variant
-    const variant = product.variants.edges.find((v: any) => {
+  // Find currently selected variant
+  const currentVariant = React.useMemo(() => {
+    return product.variants.edges.find((v: any) => {
       const options = v.node.selectedOptions;
       const sizeMatch = !sizes.length || options.some((o: any) => o.name.toLowerCase() === 'size' && o.value === selectedSize);
       const colorMatch = !colors.length || options.some((o: any) => o.name.toLowerCase() === 'color' && o.value === selectedColor);
       return sizeMatch && colorMatch;
-    });
+    })?.node;
+  }, [product.variants.edges, selectedSize, selectedColor, sizes.length, colors.length]);
 
-    if (variant) {
-      await addToCart(variant.node.id, quantity);
+  const isAvailable = currentVariant ? currentVariant.availableForSale : product.variants.edges.some((v: any) => v.node.availableForSale);
+
+  // Function to check if a specific size is available in ANY color
+  const isSizeAvailable = (size: string) => {
+    return product.variants.edges.some((v: any) => 
+      v.node.availableForSale && 
+      v.node.selectedOptions.some((o: any) => o.name.toLowerCase() === 'size' && o.value === size)
+    );
+  };
+
+  // Function to check if a specific color is available in ANY size
+  const isColorAvailable = (color: string) => {
+    return product.variants.edges.some((v: any) => 
+      v.node.availableForSale && 
+      v.node.selectedOptions.some((o: any) => o.name.toLowerCase() === 'color' && o.value === color)
+    );
+  };
+
+  // Prepare product object for FavoriteButton
+  const productData = {
+    id: product.id,
+    variantId: currentVariant?.id || product.variants.edges[0]?.node.id || '',
+    title: product.title,
+    handle: product.handle,
+    price: currentVariant?.price?.amount || price,
+    currencyCode: currentVariant?.price?.currencyCode || currencyCode,
+    imageUrl: images[0]?.url || '',
+    imageAlt: product.title
+  };
+
+  const handleAddToCart = async () => {
+    if (currentVariant && currentVariant.availableForSale) {
+      await addToCart(currentVariant.id, quantity);
     }
   };
 
@@ -163,12 +183,22 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                   </button>
                 </div>
               </div>
-              <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl uppercase tracking-tighter text-brand-dark leading-[0.85]">
-                {product.title}
-              </h1>
+              <div className="flex justify-between items-start">
+                <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl uppercase tracking-tighter text-brand-dark leading-[0.85] flex-1">
+                  {product.title}
+                </h1>
+                {!isAvailable && (
+                  <span className="bg-brand-dark text-white text-[10px] uppercase tracking-[0.3em] font-black px-4 py-2 mt-2">
+                    Sold Out
+                  </span>
+                )}
+              </div>
               <div className="flex items-baseline gap-4">
-                <p className="text-3xl font-medium text-brand-dark tracking-tight">
-                  {formatPrice(price, currencyCode)}
+                <p className={cn(
+                  "text-3xl font-medium tracking-tight",
+                  isAvailable ? "text-brand-dark" : "text-brand-dark/20 line-through"
+                )}>
+                  {formatPrice(currentVariant?.price?.amount || price, currentVariant?.price?.currencyCode || currencyCode)}
                 </p>
                 <span className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Inclusive of VAT</span>
               </div>
@@ -186,20 +216,29 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                     <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark">{selectedColor || 'Select Color'}</span>
                   </div>
                   <div className="flex flex-wrap gap-4">
-                    {colors.map((color: string) => (
-                      <button
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        className={cn(
-                          "px-8 py-4 border text-[11px] uppercase tracking-widest font-black transition-all duration-500",
-                          selectedColor === color 
-                            ? "bg-brand-dark text-white border-brand-dark" 
-                            : "border-brand-dark/10 hover:border-brand-dark/40 text-brand-dark/60"
-                        )}
-                      >
-                        {color}
-                      </button>
-                    ))}
+                    {colors.map((color: string) => {
+                      const available = isColorAvailable(color);
+                      return (
+                        <button
+                          key={color}
+                          onClick={() => setSelectedColor(color)}
+                          className={cn(
+                            "px-8 py-4 border text-[11px] uppercase tracking-widest font-black transition-all duration-500 relative overflow-hidden",
+                            selectedColor === color 
+                              ? "bg-brand-dark text-white border-brand-dark" 
+                              : "border-brand-dark/10 hover:border-brand-dark/40 text-brand-dark/60",
+                            !available && "opacity-40 cursor-not-allowed grayscale"
+                          )}
+                        >
+                          <span className={cn(!available && "line-through")}>{color}</span>
+                          {!available && (
+                            <div className="absolute inset-0 bg-white/10 flex items-center justify-center">
+                              <div className="w-full h-px bg-brand-dark/20 -rotate-12" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -220,20 +259,29 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                     <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark">{selectedSize || 'Select Size'}</span>
                   </div>
                   <div className="flex flex-wrap gap-4">
-                    {sizes.map((size: string) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={cn(
-                          "w-16 h-16 border flex items-center justify-center text-xs font-black transition-all duration-500",
-                          selectedSize === size 
-                            ? "bg-brand-dark text-white border-brand-dark" 
-                            : "border-brand-dark/10 hover:border-brand-dark/40 text-brand-dark/60"
-                        )}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                    {sizes.map((size: string) => {
+                      const available = isSizeAvailable(size);
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={cn(
+                            "w-16 h-16 border flex items-center justify-center text-xs font-black transition-all duration-500 relative overflow-hidden",
+                            selectedSize === size 
+                              ? "bg-brand-dark text-white border-brand-dark" 
+                              : "border-brand-dark/10 hover:border-brand-dark/40 text-brand-dark/60",
+                            !available && "opacity-40 cursor-not-allowed"
+                          )}
+                        >
+                          <span className={cn(!available && "line-through opacity-40")}>{size}</span>
+                          {!available && (
+                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                               <div className="w-8 h-px bg-brand-dark/20 -rotate-45" />
+                             </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -241,7 +289,10 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
               {/* Quantity and CTA */}
               <div className="pt-6 space-y-6">
                 <div className="flex gap-4">
-                  <div className="flex items-center border border-brand-dark/10 px-6 py-4">
+                  <div className={cn(
+                    "flex items-center border border-brand-dark/10 px-6 py-4",
+                    !isAvailable && "opacity-20 pointer-events-none"
+                  )}>
                     <button 
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="p-2 hover:text-brand-primary transition-colors"
@@ -258,11 +309,15 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                   </div>
                   <button
                     onClick={handleAddToCart}
-                    disabled={(!selectedSize && sizes.length > 0) || (!selectedColor && colors.length > 0)}
+                    disabled={(!selectedSize && sizes.length > 0) || (!selectedColor && colors.length > 0) || !isAvailable}
                     className="flex-1 bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 px-10 hover:bg-brand-primary transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-brand-dark/10 group overflow-hidden relative"
                   >
-                    <span className="relative z-10">Add to Bag</span>
-                    <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <span className="relative z-10">
+                      {!isAvailable ? 'Sold Out' : (selectedSize || !sizes.length) && (selectedColor || !colors.length) ? 'Add to Bag' : 'Select Silhouette'}
+                    </span>
+                    {isAvailable && (
+                      <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    )}
                   </button>
                 </div>
                 
@@ -329,19 +384,23 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-                {relatedProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    handle={p.handle}
-                    title={p.title}
-                    amount={p.priceRange.minVariantPrice.amount}
-                    currencyCode={p.priceRange.minVariantPrice.currencyCode}
-                    image={p.images.edges[0]?.node.url}
-                    secondaryImage={p.images.edges[1]?.node.url}
-                    swatches={p.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
-                    variantId={p.variants.edges[0]?.node.id}
-                  />
-                ))}
+                {relatedProducts.map((p) => {
+                  const isAvailable = p.variants.edges.some((v: any) => v.node.availableForSale);
+                  return (
+                    <ProductCard
+                      key={p.id}
+                      handle={p.handle}
+                      title={p.title}
+                      amount={p.priceRange.minVariantPrice.amount}
+                      currencyCode={p.priceRange.minVariantPrice.currencyCode}
+                      image={p.images.edges[0]?.node.url}
+                      secondaryImage={p.images.edges[1]?.node.url}
+                      swatches={p.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
+                      variantId={p.variants.edges[0]?.node.id}
+                      availableForSale={isAvailable}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>

@@ -356,6 +356,7 @@ export function ShopContent({
                         )?.values
                       }
                       variantId={product.variants.edges[0]?.node.id}
+                      availableForSale={product.variants.edges.some((v: any) => v.node.availableForSale)}
                     />
                   </motion.div>
                 ))}
