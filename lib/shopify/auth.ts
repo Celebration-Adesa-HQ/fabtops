@@ -17,6 +17,24 @@ export const CUSTOMER_CREATE_MUTATION = `
   }
 `;
 
+export const CUSTOMER_UPDATE_MUTATION = `
+  mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phone
+      }
+      customerUserErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 export const CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION = `
   mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
     customerAccessTokenCreate(input: $input) {
@@ -105,4 +123,12 @@ export async function getCustomer(customerAccessToken: string) {
     variables: { customerAccessToken },
   });
   return data.customer;
+}
+
+export async function updateCustomer(customerAccessToken: string, customer: any) {
+  const data: any = await shopifyFetch({
+    query: CUSTOMER_UPDATE_MUTATION,
+    variables: { customerAccessToken, customer },
+  });
+  return data.customerUpdate;
 }
