@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { CurrencySelector } from './CurrencySelector';
+import { NewsletterForm } from './NewsletterForm';
 
 const SOCIAL_LINKS = [
   {
@@ -75,20 +76,7 @@ export function Footer() {
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-primary">Join the Circle</h3>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md">
-                <input 
-                  type="email" 
-                  placeholder="ENTER YOUR EMAIL" 
-                  className="bg-transparent border-b border-brand-light/20 py-3 text-xs tracking-widest focus:outline-none focus:border-brand-primary transition-colors flex-1"
-                />
-                <button className="text-[10px] uppercase tracking-[0.3em] font-bold border border-brand-light/20 px-8 py-3 hover:bg-brand-light hover:text-brand-dark transition-all duration-500">
-                  Subscribe
-                </button>
-              </div>
-              <p className="text-[9px] text-brand-light/30 uppercase tracking-widest">By subscribing, you agree to our Privacy Policy.</p>
-            </div>
+            <NewsletterForm />
           </div>
 
           {/* Navigation Links */}
