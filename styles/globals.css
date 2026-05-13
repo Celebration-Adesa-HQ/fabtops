@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-brand-primary: #F8ACAE;
+  --color-brand-secondary: #ED99BB;
+  --color-brand-accent: #BF88BD;
+  --color-brand-purple: #937FBE;
+  --color-brand-dark: #3B3B44;
+  --color-brand-light: #F9EBE8;
+
+  /* Luxury Spacing */
+  --spacing-luxury-sm: 2rem;
+  --spacing-luxury-md: 4rem;
+  --spacing-luxury-lg: 8rem;
+
+  /* Fonts */
+  --font-heading: var(--font-heading), serif;
+  --font-body: var(--font-body), sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-brand-light);
+    color: var(--color-brand-dark);
+    @apply antialiased font-body;
+  }
+
+  /* Custom selection colors */
+  ::selection {
+    background: var(--color-brand-primary);
+    color: var(--color-brand-dark);
+  }
+}
+
+@layer utilities {
+  .luxury-padding {
+    @apply p-luxury-sm md:p-luxury-md lg:p-luxury-lg;
+  }
+
+  /* CLS Prevention: Aspect Ratio Placeholders */
+  .aspect-editorial {
+    aspect-ratio: 4 / 5;
+    @apply bg-neutral-100;
+  }
+
+  .aspect-hero {
+    aspect-ratio: 16 / 9;
+    @apply bg-neutral-100;
+  }
+}

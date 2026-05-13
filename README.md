@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Fabtops Headless E-Commerce
 
-## Getting Started
+A high-performance, aesthetically stunning headless e-commerce store for **Fabtops**, built with Next.js 14, Shopify Storefront API, and Framer Motion.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework**: Next.js 14 (App Router) with TypeScript
+- **Styling**: Tailwind CSS with a custom Pinkish Design System
+- **Shopify Integration**: GraphQL-based Storefront API client
+- **Animations**: Fluid page transitions and micro-interactions using Framer Motion
+- **Cart System**: Client-side state management with Shopify checkout redirection
+- **Performance**: Static generation with Incremental Static Regeneration (ISR)
+- **Responsive**: Mobile-first, touch-friendly UI
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Lucide React
+- Shopify Storefront API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📋 Prerequisites
 
-## Learn More
+- Node.js 18+
+- Shopify Store with Storefront API enabled
+- Shopify Storefront Access Token
 
-To learn more about Next.js, take a look at the following resources:
+## ⚙️ Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone the repository**
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Configure Environment Variables**
+   Create a `.env.local` file in the root directory:
+   ```env
+   SHOPIFY_STORE_DOMAIN=fabtops.myshopify.com
+   SHOPIFY_STOREFRONT_API_TOKEN=your_access_token_here
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   ```
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📦 Shopify Storefront API Scopes
 
-## Deploy on Vercel
+Ensure your Storefront API token has the following scopes:
+- `unauthenticated_read_product_listings`
+- `unauthenticated_read_product_inventory`
+- `unauthenticated_write_checkouts`
+- `unauthenticated_read_checkouts`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎨 Design System
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The project uses a custom pink theme defined in `tailwind.config.ts`.
+- **Primary**: Pink shades (#ff6b8a, #ff4d73, etc.)
+- **Neutral**: Gray shades for typography and backgrounds
+- **Typography**: Inter (Google Fonts)
+
+## 🚀 Deployment
+
+The project is ready to be deployed on **Vercel**:
+1. Connect your GitHub repository to Vercel.
+2. Add the environment variables from `.env.local`.
+3. Deploy!
+
+## 📄 License
+
+MIT

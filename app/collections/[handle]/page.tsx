@@ -1,0 +1,76 @@
+import { getProducts, getCollections } from '@/lib/shopify';
+import { ShopContent } from '@/components/editorial/ShopContent';
+import { notFound } from 'next/navigation';
+
+// Collection metadata & hero images
+const collectionMeta: Record<string, { subtitle: string; heroImage?: string }> = {
+  tops: {
+    subtitle: 'Signature Silhouettes',
+    heroImage: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=2000&auto=format&fit=crop',
+  },
+  sets: {
+    subtitle: 'Coordinated Elegance',
+    heroImage: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=2000&auto=format&fit=crop',
+  },
+  dresses: {
+    subtitle: 'Statement Pieces',
+    heroImage: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop',
+  },
+  accessories: {
+    subtitle: 'Luxe Finishing Touches',
+    heroImage: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=2000&auto=format&fit=crop',
+  },
+  archive: {
+    subtitle: 'Heritage Vault',
+    heroImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop',
+  },
+  'new-arrivals': {
+    subtitle: 'Just Dropped',
+    heroImage: 'https://images.unsplash.com/photo-1590736962031-6ec32a39a2d8?q=80&w=2000&auto=format&fit=crop',
+  },
+};
+
+interface CollectionPageProps {
+  params: Promise<{
+    handle: string;
+  }>;
+}
+
+export async function generateMetadata({ params }: CollectionPageProps) {
+  const { handle } = await params;
+  const collectionName = handle
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  return {
+    title: `${collectionName} Collection | FabTops Digital Flagship`,
+    description: `Explore the ${collectionName} collection at FabTops. Curated silhouettes designed for the contemporary woman who lives with intention.`,
+  };
+}
+
+export default async function CollectionPage({ params }: CollectionPageProps) {
+  const { handle } = await params;
+  
+  // Build collection title
+  const collectionName = handle
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  // Fetch products (in production, filter by collection handle)
+  const products = await getProducts({ first: 50 });
+
+  // Get collection-specific metadata
+  const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };
+
+  return (
+    <ShopContent 
+      products={products} 
+      title={`${collectionName} Collection`}
+      subtitle={meta.subtitle}
+      heroImage={meta.heroImage}
+      isCollection={true}
+    />
+  );
+}
