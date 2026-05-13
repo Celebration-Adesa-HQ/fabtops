@@ -140,14 +140,14 @@ export function ShopContent({
   const totalActiveFilters = Object.values(activeFilters).flat().length;
 
   return (
-    <div className="bg-brand-secondary min-h-screen pt-32 pb-20 px-6 md:px-12">
+    <div className="bg-brand-light min-h-screen pt-32 pb-20 px-6 md:px-12">
       <div className="max-w-[1400px] mx-auto">
         {/* Hero Section if provided */}
         {heroImage && (
           <div className="relative w-full h-[40vh] mb-20 overflow-hidden">
-            <img 
-              src={heroImage} 
-              alt={title} 
+            <img
+              src={heroImage}
+              alt={title}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-brand-dark/20" />
@@ -165,7 +165,9 @@ export function ShopContent({
         )}
 
         {/* Header Section */}
-        <header className={cn("mb-12 space-y-6", heroImage && "hidden md:block")}>
+        <header
+          className={cn("mb-12 space-y-6", heroImage && "hidden md:block")}
+        >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             {!heroImage && (
               <div className="space-y-2">
@@ -177,9 +179,9 @@ export function ShopContent({
                 </p>
               </div>
             )}
-            
+
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => setIsFilterOpen(true)}
                 className="flex items-center gap-2 px-6 py-3 border border-brand-dark/10 hover:border-brand-dark transition-colors text-[11px] uppercase tracking-widest font-bold md:hidden"
               >
@@ -188,13 +190,15 @@ export function ShopContent({
               </button>
 
               <div className="relative group">
-                <select 
+                <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="appearance-none bg-transparent pl-6 pr-10 py-3 border border-brand-dark/10 hover:border-brand-dark transition-colors text-[11px] uppercase tracking-widest font-bold cursor-pointer focus:outline-none"
                 >
                   {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none" />
@@ -204,11 +208,12 @@ export function ShopContent({
 
           <div className="flex items-center justify-between border-t border-brand-dark/10 pt-8">
             <span className="text-[11px] uppercase tracking-widest text-brand-dark/40 font-bold">
-              {products.length} {products.length === 1 ? 'Piece' : 'Pieces'} Found
+              {products.length} {products.length === 1 ? "Piece" : "Pieces"}{" "}
+              Found
             </span>
-            
+
             {totalActiveFilters > 0 && (
-              <button 
+              <button
                 onClick={clearFilters}
                 className="text-[10px] uppercase tracking-widest text-brand-primary font-bold hover:underline"
               >
@@ -243,20 +248,26 @@ export function ShopContent({
                         onClick={() => toggleFilter(group.name, option)}
                         className={cn(
                           "group flex items-center gap-4 text-xs tracking-wide transition-all duration-300 w-full text-left py-1",
-                          activeFilters[group.name]?.includes(option) 
-                            ? "text-brand-dark font-black translate-x-2" 
-                            : "text-brand-dark/40 hover:text-brand-dark hover:translate-x-1"
+                          activeFilters[group.name]?.includes(option)
+                            ? "text-brand-dark font-black translate-x-2"
+                            : "text-brand-dark/40 hover:text-brand-dark hover:translate-x-1",
                         )}
                       >
-                        <div className={cn(
-                          "h-5 w-5 rounded-lg border transition-all duration-500 flex items-center justify-center shadow-sm",
-                          activeFilters[group.name]?.includes(option)
-                            ? "border-brand-primary bg-brand-primary text-white shadow-brand-primary/20"
-                            : "border-brand-dark/10 bg-white group-hover:border-brand-dark/30"
-                        )}>
-                          {activeFilters[group.name]?.includes(option) && <Check className="h-3 w-3 stroke-[3]" />}
+                        <div
+                          className={cn(
+                            "h-5 w-5 rounded-lg border transition-all duration-500 flex items-center justify-center shadow-sm",
+                            activeFilters[group.name]?.includes(option)
+                              ? "border-brand-primary bg-brand-primary text-white shadow-brand-primary/20"
+                              : "border-brand-dark/10 bg-white group-hover:border-brand-dark/30",
+                          )}
+                        >
+                          {activeFilters[group.name]?.includes(option) && (
+                            <Check className="h-3 w-3 stroke-[3]" />
+                          )}
                         </div>
-                        <span className="uppercase tracking-widest text-[10px] font-bold">{option}</span>
+                        <span className="uppercase tracking-widest text-[10px] font-bold">
+                          {option}
+                        </span>
                       </button>
                     </li>
                   ))}
@@ -266,9 +277,12 @@ export function ShopContent({
 
             <div className="pt-8">
               <div className="bg-brand-dark/5 p-8 rounded-[2rem] space-y-4 border border-brand-dark/5">
-                <h4 className="font-heading text-xl text-brand-dark uppercase">Personal Stylist</h4>
+                <h4 className="font-heading text-xl text-brand-dark uppercase">
+                  Personal Stylist
+                </h4>
                 <p className="text-[10px] text-brand-dark/60 leading-relaxed uppercase tracking-widest font-bold">
-                  Need assistance finding the perfect silhouette for your body type?
+                  Need assistance finding the perfect silhouette for your body
+                  type?
                 </p>
                 <button className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-primary hover:tracking-[0.4em] transition-all">
                   Contact Studio →
@@ -294,9 +308,16 @@ export function ShopContent({
                       handle={product.handle}
                       title={product.title}
                       price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}
-                      image={product.images.edges[0]?.node.url || 'https://via.placeholder.com/600x800'}
+                      image={
+                        product.images.edges[0]?.node.url ||
+                        "https://via.placeholder.com/600x800"
+                      }
                       secondaryImage={product.images.edges[1]?.node.url}
-                      swatches={product.options.find(opt => opt.name.toLowerCase() === 'color')?.values}
+                      swatches={
+                        product.options.find(
+                          (opt) => opt.name.toLowerCase() === "color",
+                        )?.values
+                      }
                       variantId={product.variants.edges[0]?.node.id}
                     />
                   </motion.div>
@@ -304,8 +325,10 @@ export function ShopContent({
               </div>
             ) : (
               <div className="py-40 text-center space-y-4">
-                <p className="text-brand-dark/40 uppercase tracking-widest text-xs font-bold">No pieces match your selection</p>
-                <button 
+                <p className="text-brand-dark/40 uppercase tracking-widest text-xs font-bold">
+                  No pieces match your selection
+                </p>
+                <button
                   onClick={clearFilters}
                   className="px-8 py-4 bg-brand-dark text-brand-light text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-brand-primary transition-colors"
                 >
@@ -324,32 +347,35 @@ export function ShopContent({
         title="Filter Pieces"
       >
         <div className="space-y-10 pb-20">
-          {filterOptions.map((group) => (group.options.length > 0 && (
-            <div key={group.name} className="space-y-6">
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">
-                {group.name}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {group.options.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => toggleFilter(group.name, option)}
-                    className={cn(
-                      "px-4 py-2 text-sm border transition-all",
-                      activeFilters[group.name]?.includes(option)
-                        ? "border-brand-primary bg-brand-primary text-white"
-                        : "border-brand-dark/10 text-brand-dark/60"
-                    )}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )))}
+          {filterOptions.map(
+            (group) =>
+              group.options.length > 0 && (
+                <div key={group.name} className="space-y-6">
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">
+                    {group.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {group.options.map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => toggleFilter(group.name, option)}
+                        className={cn(
+                          "px-4 py-2 text-sm border transition-all",
+                          activeFilters[group.name]?.includes(option)
+                            ? "border-brand-primary bg-brand-primary text-white"
+                            : "border-brand-dark/10 text-brand-dark/60",
+                        )}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ),
+          )}
         </div>
-        
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-brand-secondary border-t border-brand-dark/10 flex gap-4">
+
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-brand-light border-t border-brand-dark/10 flex gap-4">
           <button
             onClick={clearFilters}
             className="flex-1 py-4 border border-brand-dark/10 text-[11px] uppercase tracking-widest font-bold"

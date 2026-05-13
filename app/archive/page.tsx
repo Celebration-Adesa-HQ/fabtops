@@ -72,7 +72,7 @@ export default function ArchivePage() {
       </section>
 
       {/* Waitlist / Request CTA */}
-      <section className="py-32 px-6 md:px-12 bg-brand-dark/5 text-center">
+      <section className="py-32 px-6 md:px-12 bg-brand-light text-center">
         <ScrollReveal>
           <h2 className="text-4xl md:text-5xl font-heading text-brand-dark mb-10 leading-tight">Missed a <span className="italic opacity-80">Masterpiece?</span></h2>
           <p className="text-sm text-brand-dark/60 font-medium max-w-2xl mx-auto mb-12 uppercase tracking-widest text-[11px]">

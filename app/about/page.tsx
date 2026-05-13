@@ -22,7 +22,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-brand-primary/10 py-32 mt-20">
+      <section className="bg-brand-light py-32 mt-20">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-12">
           <h2 className="font-heading text-4xl uppercase tracking-tight">The Digital Flagship</h2>
           <p className="text-brand-dark/60 leading-loose">
