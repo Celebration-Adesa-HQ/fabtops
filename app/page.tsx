@@ -6,7 +6,7 @@ export default async function HomePage() {
   const products = await getProducts({ first: 3 });
 
   return (
-    <div className="bg-brand-light">
+    <div className="bg-brand-secondary">
       <Hero />
       
       <section className="luxury-padding max-w-7xl mx-auto">

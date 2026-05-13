@@ -43,7 +43,7 @@ export default async function CollectionsPage() {
   const collections = await getCollections();
 
   return (
-    <main className="bg-brand-light min-h-screen pt-32 pb-40">
+    <main className="bg-brand-secondary min-h-screen pt-32 pb-40">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12">
         <header className="mb-24 space-y-6">
           <div className="flex items-center gap-3">

@@ -42,20 +42,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-40 pb-20 px-6">
+    <div className="min-h-screen bg-brand-secondary pt-40 pb-20 px-6">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
         {/* Editorial Side */}
-        <div className="hidden lg:block relative aspect-[4/5] rounded-[3rem] overflow-hidden">
+        <div className="hidden lg:block relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl shadow-brand-dark/10">
           <img 
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200" 
             alt="Fabtops Heritage" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-pink-900/10" />
+          <div className="absolute inset-0 bg-brand-dark/20 backdrop-blur-[2px]" />
           <div className="absolute bottom-12 left-12 right-12 text-white">
             <span className="text-[10px] uppercase tracking-[0.5em] font-black mb-4 block">The Digital Flagship</span>
-            <h2 className="text-4xl font-serif-logo uppercase tracking-tighter leading-tight">
-              Elevate your <br /> <span className="italic">Styling Journey</span>
+            <h2 className="text-4xl font-heading uppercase tracking-tighter leading-tight">
+              Elevate your <br /> <span className="italic opacity-80">Styling Journey</span>
             </h2>
           </div>
         </div>
@@ -64,15 +64,15 @@ export default function LoginPage() {
         <div className="max-w-md mx-auto w-full">
           <ScrollReveal>
             <div className="mb-12">
-              <h1 className="text-4xl font-serif-logo uppercase tracking-widest text-black mb-4">Welcome Back</h1>
-              <p className="text-gray-400 font-light leading-relaxed">
+              <h1 className="text-4xl font-heading uppercase tracking-widest text-brand-dark mb-4">Welcome Back</h1>
+              <p className="text-brand-dark/60 font-medium uppercase tracking-widest text-[10px] leading-relaxed">
                 Enter your credentials to access your curated selection and order history.
               </p>
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 p-4 bg-pink-50 border border-pink-100 text-[10px] uppercase tracking-widest font-black text-pink-600"
+                  className="mt-6 p-4 bg-brand-primary/20 backdrop-blur-md border border-brand-primary/30 text-[10px] uppercase tracking-widest font-black text-brand-dark"
                 >
                   {error}
                 </motion.div>
@@ -83,39 +83,39 @@ export default function LoginPage() {
               <div className="space-y-6">
                 {/* Email Field */}
                 <div className="group">
-                  <label className="text-[10px] uppercase tracking-[0.3em] font-black text-gray-400 mb-3 block group-focus-within:text-pink-600 transition-colors">Email Address</label>
-                  <div className="relative border-b-2 border-gray-100 group-focus-within:border-pink-600 transition-all">
+                  <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 mb-3 block group-focus-within:text-brand-dark transition-colors">Email Address</label>
+                  <div className="relative border-b-2 border-brand-dark/10 group-focus-within:border-brand-dark transition-all">
                     <input 
                       name="email"
                       type="email" 
                       required 
                       placeholder="name@example.com"
-                      className="w-full py-4 bg-transparent outline-none text-black font-light placeholder:text-gray-200"
+                      className="w-full py-4 bg-transparent outline-none text-brand-dark font-bold placeholder:text-brand-dark/20 uppercase tracking-widest text-xs"
                     />
-                    <Mail size={18} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-200 group-focus-within:text-pink-600 transition-colors" />
+                    <Mail size={16} className="absolute right-0 top-1/2 -translate-y-1/2 text-brand-dark/20 group-focus-within:text-brand-dark transition-colors" />
                   </div>
                 </div>
 
                 {/* Password Field */}
                 <div className="group">
                   <div className="flex justify-between items-center mb-3">
-                    <label className="text-[10px] uppercase tracking-[0.3em] font-black text-gray-400 group-focus-within:text-pink-600 transition-colors">Password</label>
-                    <Link href="/forgot-password" title="Forgot Password" className="text-[9px] uppercase tracking-widest font-black text-gray-300 hover:text-pink-600 transition-colors">Forgot?</Link>
+                    <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 group-focus-within:text-brand-dark transition-colors">Password</label>
+                    <Link href="/forgot-password" title="Forgot Password" className="text-[9px] uppercase tracking-widest font-black text-brand-dark/30 hover:text-brand-dark transition-colors">Forgot?</Link>
                   </div>
-                  <div className="relative border-b-2 border-gray-100 group-focus-within:border-pink-600 transition-all">
+                  <div className="relative border-b-2 border-brand-dark/10 group-focus-within:border-brand-dark transition-all">
                     <input 
                       name="password"
                       type={showPassword ? "text" : "password"} 
                       required 
                       placeholder="••••••••"
-                      className="w-full py-4 bg-transparent outline-none text-black font-light placeholder:text-gray-200"
+                      className="w-full py-4 bg-transparent outline-none text-brand-dark font-bold placeholder:text-brand-dark/20"
                     />
                     <button 
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-200 hover:text-pink-600 transition-colors"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-brand-dark/20 hover:text-brand-dark transition-colors"
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
@@ -125,7 +125,7 @@ export default function LoginPage() {
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-black text-white py-6 text-[10px] uppercase tracking-[0.4em] font-black hover:bg-pink-600 transition-all duration-500 shadow-xl shadow-gray-100 flex items-center justify-center gap-4 group disabled:bg-gray-400"
+                  className="w-full bg-brand-dark text-white py-6 text-[10px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-500 shadow-2xl shadow-brand-dark/20 flex items-center justify-center gap-4 group disabled:bg-brand-dark/40"
                 >
                   {isLoading ? "Verifying..." : "Access My Account"}
                   {!isLoading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -133,9 +133,9 @@ export default function LoginPage() {
               </div>
 
               <div className="text-center pt-8">
-                <p className="text-[10px] uppercase tracking-widest text-gray-400 font-black">
+                <p className="text-[10px] uppercase tracking-widest text-brand-dark/40 font-black">
                   New to Fabtops? 
-                  <Link href="/register" title="Sign up" className="text-pink-600 ml-3 hover:text-black transition-colors">Create an account</Link>
+                  <Link href="/register" title="Sign up" className="text-brand-dark ml-3 hover:text-brand-primary transition-colors underline decoration-brand-dark/10 underline-offset-4">Create an account</Link>
                 </p>
               </div>
             </form>

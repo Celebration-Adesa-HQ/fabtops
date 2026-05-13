@@ -16,22 +16,22 @@ export default function ArchivePage() {
   ];
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-brand-secondary min-h-screen">
       {/* Archive Header */}
       <section className="pt-40 pb-24 px-6 md:px-12 text-center">
         <ScrollReveal>
-          <span className="text-xs uppercase tracking-[0.5em] text-pink-600 font-bold mb-8 block">The Vault</span>
-          <h1 className="text-5xl md:text-8xl font-serif-logo text-black mb-12 uppercase tracking-tighter">
-            The <br /> <span className="italic text-pink-600">Archive</span>
+          <span className="text-[11px] uppercase tracking-[0.5em] text-brand-dark font-black mb-8 block opacity-40">The Vault</span>
+          <h1 className="text-5xl md:text-8xl font-heading text-brand-dark mb-12 uppercase tracking-tighter">
+            The <br /> <span className="italic opacity-80">Archive</span>
           </h1>
-          <p className="text-xl text-gray-500 font-light max-w-2xl mx-auto leading-relaxed mb-16">
+          <p className="text-sm text-brand-dark/60 font-medium max-w-2xl mx-auto leading-relaxed mb-16 uppercase tracking-widest text-[11px]">
             A curation of sold-out masterpieces. These pieces are currently unavailable for purchase, existing as a testament to our design legacy and your impeccable taste.
           </p>
-          <div className="flex justify-center gap-12 text-[10px] uppercase tracking-[0.3em] font-black text-pink-600">
+          <div className="flex justify-center gap-12 text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark">
             <span>Sold Out</span>
-            <span className="text-gray-300">|</span>
+            <span className="opacity-20">|</span>
             <span>Historical Collection</span>
-            <span className="text-gray-300">|</span>
+            <span className="opacity-20">|</span>
             <span>Desirable Legacy</span>
           </div>
         </ScrollReveal>
@@ -43,27 +43,27 @@ export default function ArchivePage() {
           {archiveItems.map((item, i) => (
             <ScrollReveal key={item.title} delay={i * 0.1}>
               <div className="group flex flex-col grayscale hover:grayscale-0 transition-all duration-1000">
-                <div className="relative aspect-[3/4] overflow-hidden rounded-[2.5rem] bg-gray-50 border border-gray-100">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-[3rem] bg-brand-dark/5 border border-brand-dark/5 shadow-2xl shadow-brand-dark/5">
                   <Image 
                     src={item.image} 
                     alt={item.title} 
                     fill 
                     className="object-cover transition-transform duration-[2s] group-hover:scale-110" 
                   />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute inset-0 bg-brand-dark/20 group-hover:bg-transparent transition-colors" />
                   
                   {/* Sold Out Badge */}
                   <div className="absolute top-8 right-8">
-                    <div className="px-6 py-2 bg-white/90 backdrop-blur-md rounded-full border border-pink-100 flex items-center gap-3">
-                      <Lock size={12} className="text-pink-600" />
-                      <span className="text-[10px] uppercase tracking-widest font-black text-black">Sold Out</span>
+                    <div className="px-6 py-3 bg-white/90 backdrop-blur-md rounded-full border border-brand-dark/5 flex items-center gap-3">
+                      <Lock size={12} className="text-brand-dark" />
+                      <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark">Sold Out</span>
                     </div>
                   </div>
                 </div>
                 <div className="mt-8 text-center px-4">
-                  <p className="text-[10px] uppercase text-pink-400 tracking-[0.4em] mb-3 font-black">{item.collection}</p>
-                  <h3 className="text-xl font-serif-logo uppercase tracking-widest text-black mb-4">{item.title}</h3>
-                  <div className="w-8 h-[2px] bg-pink-100 mx-auto" />
+                  <p className="text-[10px] uppercase text-brand-dark/40 tracking-[0.4em] mb-3 font-black">{item.collection}</p>
+                  <h3 className="text-xl font-heading uppercase tracking-widest text-brand-dark mb-4">{item.title}</h3>
+                  <div className="w-8 h-[2px] bg-brand-dark/10 mx-auto" />
                 </div>
               </div>
             </ScrollReveal>
@@ -72,13 +72,13 @@ export default function ArchivePage() {
       </section>
 
       {/* Waitlist / Request CTA */}
-      <section className="py-32 px-6 md:px-12 bg-pink-50/50 text-center">
+      <section className="py-32 px-6 md:px-12 bg-brand-dark/5 text-center">
         <ScrollReveal>
-          <h2 className="text-4xl md:text-5xl font-serif-logo text-black mb-10 leading-tight">Missed a <span className="italic text-pink-600">Masterpiece?</span></h2>
-          <p className="text-lg text-gray-500 font-light max-w-2xl mx-auto mb-12">
+          <h2 className="text-4xl md:text-5xl font-heading text-brand-dark mb-10 leading-tight">Missed a <span className="italic opacity-80">Masterpiece?</span></h2>
+          <p className="text-sm text-brand-dark/60 font-medium max-w-2xl mx-auto mb-12 uppercase tracking-widest text-[11px]">
             While these pieces are sold out, we occasionally re-release iconic silhouettes in limited quantities. Join the notify list to be the first to know.
           </p>
-          <Link href="/circle" className="inline-flex items-center gap-4 bg-pink-600 text-white px-12 py-6 rounded-full text-xs uppercase tracking-[0.3em] font-black hover:bg-black transition-all duration-500 shadow-xl shadow-pink-200 group">
+          <Link href="/circle" className="inline-flex items-center gap-4 bg-brand-dark text-white px-12 py-6 text-[10px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-500 shadow-2xl shadow-brand-dark/20 group">
             Join the Waitlist <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
           </Link>
         </ScrollReveal>

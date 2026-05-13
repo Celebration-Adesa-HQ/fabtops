@@ -31,22 +31,22 @@ export default function CartPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 bg-brand-light">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-brand-secondary">
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="text-center max-w-lg"
         >
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-brand-primary mb-10 mx-auto shadow-sm">
+          <div className="w-24 h-24 bg-white/20 backdrop-blur-md border border-brand-dark/5 rounded-full flex items-center justify-center text-brand-dark mb-10 mx-auto">
             <ShoppingBag size={40} strokeWidth={1} />
           </div>
           <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Sign in to Shop</h1>
-          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed">
+          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
             Please log in to your account to access your bag and continue your premium discovery.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group"
+            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group shadow-2xl shadow-brand-dark/10"
           >
             Sign In Now
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -58,22 +58,22 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 bg-brand-light">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-brand-secondary">
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="text-center max-w-lg"
         >
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-brand-primary mb-10 mx-auto shadow-sm">
+          <div className="w-24 h-24 bg-white/20 backdrop-blur-md border border-brand-dark/5 rounded-full flex items-center justify-center text-brand-dark mb-10 mx-auto">
             <ShoppingBag size={40} strokeWidth={1} />
           </div>
           <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Your Bag is Empty</h1>
-          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed">
+          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
             Meticulously crafted silhouettes are waiting to be discovered.
           </p>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group"
+            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group shadow-2xl shadow-brand-dark/10"
           >
             Explore Collections
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -84,12 +84,12 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-light pt-32 pb-24 px-6 md:px-12">
+    <div className="min-h-screen bg-brand-secondary pt-32 pb-24 px-6 md:px-12">
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
           <div className="space-y-4">
-            <Link href="/shop" className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-primary hover:text-brand-dark transition-colors">
+            <Link href="/shop" className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark/40 hover:text-brand-dark transition-colors">
               <ChevronLeft size={12} />
               Continue Shopping
             </Link>
@@ -122,7 +122,7 @@ export default function CartPage() {
                     className="group relative flex flex-col md:flex-row gap-10 pb-12 border-b border-brand-dark/10"
                   >
                     {/* Image Container */}
-                    <div className="relative w-full md:w-56 aspect-editorial overflow-hidden bg-white shrink-0">
+                    <div className="relative w-full md:w-56 aspect-editorial overflow-hidden bg-white/20 backdrop-blur-md shrink-0">
                       {item.image && (
                         <Image
                           src={item.image}
@@ -155,7 +155,7 @@ export default function CartPage() {
 
                       {/* Controls */}
                       <div className="mt-auto flex items-center justify-between gap-6 pt-8">
-                        <div className="flex items-center gap-8 border border-brand-dark/10 px-6 py-3">
+                        <div className="flex items-center gap-8 border border-brand-dark/10 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full">
                           <button
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                             className="text-brand-dark/40 hover:text-brand-dark transition-colors disabled:opacity-10"
@@ -174,7 +174,7 @@ export default function CartPage() {
 
                         <button 
                           onClick={() => removeFromCart(item.id)}
-                          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/40 hover:text-red-400 transition-colors group/remove"
+                          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/40 hover:text-brand-primary transition-colors group/remove"
                         >
                           <Trash2 size={14} className="group-hover/remove:scale-110 transition-transform" />
                           Remove
@@ -194,11 +194,11 @@ export default function CartPage() {
                 { icon: RefreshCw, title: "Simple Exchange", desc: "14-day discovery window" }
               ].map((benefit, i) => (
                 <div key={i} className="space-y-4">
-                  <div className="w-10 h-10 border border-brand-dark/10 rounded-full flex items-center justify-center text-brand-primary">
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-md border border-brand-dark/5 rounded-full flex items-center justify-center text-brand-dark">
                     <benefit.icon size={16} strokeWidth={1.5} />
                   </div>
                   <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark">{benefit.title}</h4>
-                  <p className="text-[11px] text-brand-dark/40 uppercase tracking-widest leading-loose">{benefit.desc}</p>
+                  <p className="text-[11px] text-brand-dark/40 uppercase tracking-widest leading-loose font-bold">{benefit.desc}</p>
                 </div>
               ))}
             </div>
@@ -206,8 +206,8 @@ export default function CartPage() {
 
           {/* Summary Sidebar */}
           <div className="lg:col-span-4">
-            <div className="sticky top-40 bg-white border border-brand-dark/5 p-10 md:p-12 space-y-12">
-              <h2 className="text-2xl font-heading uppercase tracking-tight text-brand-dark pb-8 border-b border-brand-dark/5">
+            <div className="sticky top-40 bg-white/30 backdrop-blur-xl border border-white/40 p-10 md:p-12 space-y-12 rounded-[2.5rem] shadow-2xl shadow-brand-dark/5">
+              <h2 className="text-2xl font-heading uppercase tracking-tight text-brand-dark pb-8 border-b border-brand-dark/10">
                 Summary
               </h2>
               
@@ -218,9 +218,9 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Shipping</span>
-                  <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-primary">Complimentary</span>
+                  <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-dark italic opacity-60">Complimentary</span>
                 </div>
-                <div className="pt-8 border-t border-brand-dark/5 flex justify-between items-end">
+                <div className="pt-8 border-t border-brand-dark/10 flex justify-between items-end">
                   <span className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-dark">Total</span>
                   <div className="text-right">
                     <span className="text-4xl font-heading text-brand-dark tracking-tighter">
@@ -233,12 +233,12 @@ export default function CartPage() {
               <div className="space-y-6">
                 <a
                   href={checkoutUrl || '#'}
-                  className="w-full bg-brand-dark text-white py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 flex items-center justify-center gap-4 group"
+                  className="w-full bg-brand-dark text-white py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20"
                 >
                   Process Checkout
                   <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </a>
-                <p className="text-[9px] text-brand-dark/30 uppercase tracking-[0.2em] text-center leading-relaxed font-bold">
+                <p className="text-[9px] text-brand-dark/30 uppercase tracking-[0.2em] text-center leading-relaxed font-black">
                   Shipping and taxes calculated at handoff.
                 </p>
               </div>

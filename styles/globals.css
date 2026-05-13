@@ -25,7 +25,7 @@
   }
 
   body {
-    background-color: var(--color-brand-light);
+    background-color: var(--color-brand-secondary);
     color: var(--color-brand-dark);
     @apply antialiased font-body;
   }
@@ -45,11 +45,11 @@
   /* CLS Prevention: Aspect Ratio Placeholders */
   .aspect-editorial {
     aspect-ratio: 4 / 5;
-    @apply bg-neutral-100;
+    @apply bg-brand-dark/5;
   }
 
   .aspect-hero {
     aspect-ratio: 16 / 9;
-    @apply bg-neutral-100;
+    @apply bg-brand-dark/5;
   }
 }

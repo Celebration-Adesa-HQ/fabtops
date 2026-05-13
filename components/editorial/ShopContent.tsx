@@ -140,7 +140,7 @@ export function ShopContent({
   const totalActiveFilters = Object.values(activeFilters).flat().length;
 
   return (
-    <div className="bg-brand-light min-h-screen pt-32 pb-20 px-6 md:px-12">
+    <div className="bg-brand-secondary min-h-screen pt-32 pb-20 px-6 md:px-12">
       <div className="max-w-[1400px] mx-auto">
         {/* Hero Section if provided */}
         {heroImage && (
@@ -349,7 +349,7 @@ export function ShopContent({
           )))}
         </div>
         
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-brand-light border-t border-brand-dark/10 flex gap-4">
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-brand-secondary border-t border-brand-dark/10 flex gap-4">
           <button
             onClick={clearFilters}
             className="flex-1 py-4 border border-brand-dark/10 text-[11px] uppercase tracking-widest font-bold"
