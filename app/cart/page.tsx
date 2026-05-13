@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from '@/components/cart/CartProvider';
+import { useAuth } from '@/lib/use-auth';
 import { useCurrency } from '@/lib/currency-context';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, checkoutUrl, subtotal } = useCart();
   const { formatPrice } = useCurrency();
+  const { isAuthenticated } = useAuth();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -26,6 +28,33 @@ export default function CartPage() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 bg-brand-light">
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center max-w-lg"
+        >
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-brand-primary mb-10 mx-auto shadow-sm">
+            <ShoppingBag size={40} strokeWidth={1} />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Sign in to Shop</h1>
+          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed">
+            Please log in to your account to access your bag and continue your premium discovery.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group"
+          >
+            Sign In Now
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 import { useCart } from './CartProvider';
+import { useAuth } from '@/lib/use-auth';
 import { Drawer } from '@/components/ui/Drawer';
 import { useCurrency } from '@/lib/currency-context';
 
 export function CartDrawer() {
   const { isCartOpen, setIsCartOpen, items, removeFromCart, updateQuantity, subtotal, checkoutUrl } = useCart();
   const { formatPrice } = useCurrency();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Drawer
@@ -20,7 +22,24 @@ export function CartDrawer() {
       title="My Bag"
     >
       <div className="flex flex-col h-[calc(100vh-180px)]">
-        {items.length === 0 ? (
+        {!isAuthenticated ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
+              <ShoppingBag size={40} />
+            </div>
+            <div className="space-y-2">
+              <p className="text-[11px] uppercase tracking-widest font-bold text-brand-dark">Sign in to Shop</p>
+              <p className="text-sm text-brand-dark/40 font-light">Please log in to your account to manage your shopping bag and access exclusive features.</p>
+            </div>
+            <Link
+              href="/login"
+              onClick={() => setIsCartOpen(false)}
+              className="w-full bg-brand-dark text-white text-[10px] uppercase tracking-[0.3em] font-bold py-5 hover:bg-brand-primary transition-all duration-500"
+            >
+              Sign In
+            </Link>
+          </div>
+        ) : items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
             <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
               <ShoppingBag size={40} />
