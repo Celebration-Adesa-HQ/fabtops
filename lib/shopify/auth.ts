@@ -45,7 +45,7 @@ export const GET_CUSTOMER_QUERY = `
         city
         country
       }
-      orders(first: 10) {
+      orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
         edges {
           node {
             id
@@ -57,6 +57,25 @@ export const GET_CUSTOMER_QUERY = `
             }
             financialStatus
             fulfillmentStatus
+            successfulFulfillments(first: 5) {
+              trackingInfo(first: 5) {
+                number
+                url
+              }
+            }
+            lineItems(first: 20) {
+              edges {
+                node {
+                  title
+                  quantity
+                  variant {
+                    image {
+                      url
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

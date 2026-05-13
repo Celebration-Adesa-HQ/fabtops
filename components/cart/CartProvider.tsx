@@ -20,10 +20,14 @@ interface CartContextType {
   addToCart: (variantId: string, quantity?: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
+  applyDiscountCode: (code: string) => Promise<void>;
+  removeDiscountCode: (code: string) => Promise<void>;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   totalItems: number;
   subtotal: number;
+  totalAmount: number;
+  discountCodes: { code: string; applicable: boolean }[];
   checkoutUrl: string | null;
 }
 
@@ -34,6 +38,10 @@ const GET_CART_QUERY = `
     cart(id: $cartId) {
       id
       checkoutUrl
+      discountCodes {
+        code
+        applicable
+      }
       lines(first: 100) {
         edges {
           node {
@@ -69,6 +77,24 @@ const GET_CART_QUERY = `
           amount
           currencyCode
         }
+        totalAmount {
+          amount
+          currencyCode
+        }
+      }
+    }
+  }
+`;
+
+const UPDATE_CART_DISCOUNT_CODES_MUTATION = `
+  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        id
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
@@ -121,6 +147,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [subtotal, setSubtotal] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [discountCodes, setDiscountCodes] = useState<{ code: string; applicable: boolean }[]>([]);
   
   const { customer, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -142,6 +170,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (data?.cart) {
         setCheckoutUrl(data.cart.checkoutUrl);
         setSubtotal(parseFloat(data.cart.cost.subtotalAmount.amount));
+        setTotalAmount(parseFloat(data.cart.cost.totalAmount.amount));
+        setDiscountCodes(data.cart.discountCodes);
         
         const mappedItems = data.cart.lines.edges.map((edge: any) => ({
           id: edge.node.id,
@@ -193,6 +223,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCartId(null);
       setCheckoutUrl(null);
       setSubtotal(0);
+      setTotalAmount(0);
+      setDiscountCodes([]);
       return;
     }
 
@@ -271,6 +303,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const applyDiscountCode = async (code: string) => {
+    if (!cartId) return;
+    try {
+      await shopifyFetch({
+        query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
+        variables: {
+          cartId,
+          discountCodes: [code]
+        }
+      });
+      await refreshCart(cartId);
+    } catch (error) {
+      console.error('Error applying discount:', error);
+    }
+  };
+
+  const removeDiscountCode = async (code: string) => {
+    if (!cartId) return;
+    try {
+      const remainingCodes = discountCodes
+        .filter(dc => dc.code !== code)
+        .map(dc => dc.code);
+      
+      await shopifyFetch({
+        query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
+        variables: {
+          cartId,
+          discountCodes: remainingCodes
+        }
+      });
+      await refreshCart(cartId);
+    } catch (error) {
+      console.error('Error removing discount:', error);
+    }
+  };
+
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -280,10 +348,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        applyDiscountCode,
+        removeDiscountCode,
         isCartOpen,
         setIsCartOpen,
         totalItems,
         subtotal,
+        totalAmount,
+        discountCodes,
         checkoutUrl
       }}
     >

@@ -11,9 +11,32 @@ import { Drawer } from '@/components/ui/Drawer';
 import { useCurrency } from '@/lib/currency-context';
 
 export function CartDrawer() {
-  const { isCartOpen, setIsCartOpen, items, removeFromCart, updateQuantity, subtotal, checkoutUrl } = useCart();
+  const { 
+    isCartOpen, 
+    setIsCartOpen, 
+    items, 
+    removeFromCart, 
+    updateQuantity, 
+    subtotal, 
+    totalAmount,
+    discountCodes,
+    applyDiscountCode,
+    removeDiscountCode,
+    checkoutUrl 
+  } = useCart();
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
+  const [promoCode, setPromoCode] = React.useState('');
+  const [isApplying, setIsApplying] = React.useState(false);
+
+  const handleApplyDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoCode) return;
+    setIsApplying(true);
+    await applyDiscountCode(promoCode);
+    setPromoCode('');
+    setIsApplying(false);
+  };
 
   return (
     <Drawer
@@ -58,7 +81,7 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 space-y-8 overflow-y-auto pr-2">
+            <div className="flex-1 space-y-8 overflow-y-auto pr-2 custom-scrollbar">
               <AnimatePresence mode="popLayout">
                 {items.map((item) => (
                   <motion.div
@@ -123,13 +146,60 @@ export function CartDrawer() {
                   </motion.div>
                 ))}
               </AnimatePresence>
+
+              {/* Discount Section */}
+              <div className="pt-8 border-t border-brand-dark/5 space-y-4">
+                <form onSubmit={handleApplyDiscount} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="PROMO CODE"
+                    className="flex-1 bg-brand-light/50 border border-brand-dark/10 px-4 py-3 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={isApplying || !promoCode}
+                    className="px-6 py-3 bg-brand-dark text-white text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary disabled:opacity-50 transition-all"
+                  >
+                    {isApplying ? '...' : 'Apply'}
+                  </button>
+                </form>
+
+                {discountCodes.map((dc) => (
+                  <div key={dc.code} className="flex items-center justify-between bg-brand-primary/10 px-4 py-2 rounded-full border border-brand-primary/20">
+                    <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
+                      {dc.code} {!dc.applicable && <span className="opacity-60">(Not Applicable)</span>}
+                    </span>
+                    <button 
+                      onClick={() => removeDiscountCode(dc.code)}
+                      className="text-brand-primary hover:text-brand-dark transition-colors"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="pt-8 space-y-6 border-t border-brand-dark/10 mt-auto">
-              <div className="flex justify-between items-end">
-                <span className="text-[11px] uppercase tracking-widest font-bold text-brand-dark/40">Subtotal</span>
-                <span className="text-xl font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Subtotal</span>
+                  <span className="text-sm font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
+                </div>
+                {subtotal !== totalAmount && (
+                   <div className="flex justify-between items-end">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-brand-primary">Savings</span>
+                    <span className="text-sm font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, 'NGN')}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-end pt-2 border-t border-brand-dark/5">
+                  <span className="text-[11px] uppercase tracking-widest font-black text-brand-dark">Estimated Total</span>
+                  <span className="text-xl font-black text-brand-dark">{formatPrice(totalAmount, 'NGN')}</span>
+                </div>
               </div>
+
               <p className="text-[10px] text-brand-dark/40 italic">Shipping and taxes calculated at checkout.</p>
               
               <div className="space-y-3">

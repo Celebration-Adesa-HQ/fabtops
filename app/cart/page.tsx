@@ -8,11 +8,33 @@ import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck,
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, checkoutUrl, subtotal } = useCart();
+  const { 
+    items, 
+    removeFromCart, 
+    updateQuantity, 
+    checkoutUrl, 
+    subtotal, 
+    totalAmount,
+    discountCodes,
+    applyDiscountCode,
+    removeDiscountCode
+  } = useCart();
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
+  const [promoCode, setPromoCode] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
+
+  const handleApplyDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoCode) return;
+    setIsApplying(true);
+    await applyDiscountCode(promoCode);
+    setPromoCode('');
+    setIsApplying(false);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -206,7 +228,7 @@ export default function CartPage() {
 
           {/* Summary Sidebar */}
           <div className="lg:col-span-4">
-            <div className="sticky top-40 bg-white/30 backdrop-blur-xl border border-white/40 p-10 md:p-12 space-y-12 rounded-[2.5rem] shadow-2xl shadow-brand-dark/5">
+            <div className="sticky top-40 bg-brand-light backdrop-blur-xl border border-white/40 p-10 md:p-12 space-y-12 rounded-[2.5rem] shadow-2xl shadow-brand-dark/5">
               <h2 className="text-2xl font-heading uppercase tracking-tight text-brand-dark pb-8 border-b border-brand-dark/10">
                 Summary
               </h2>
@@ -216,15 +238,60 @@ export default function CartPage() {
                   <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Subtotal</span>
                   <span className="text-lg font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
                 </div>
+                
+                {/* Discount Application */}
+                <div className="py-6 border-t border-brand-dark/5 space-y-4">
+                  <form onSubmit={handleApplyDiscount} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      placeholder="ENTER PROMO CODE"
+                      className="flex-1 bg-white/20 border border-brand-dark/10 px-6 py-4 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-brand-primary transition-colors rounded-xl"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={isApplying || !promoCode}
+                      className="px-8 py-4 bg-brand-dark text-white text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary disabled:opacity-50 transition-all rounded-xl"
+                    >
+                      {isApplying ? '...' : 'Apply'}
+                    </button>
+                  </form>
+
+                  <div className="flex flex-wrap gap-2">
+                    {discountCodes.map((dc) => (
+                      <div key={dc.code} className="flex items-center gap-3 bg-brand-primary/10 px-4 py-2 rounded-full border border-brand-primary/20">
+                        <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
+                          {dc.code} {!dc.applicable && <span className="opacity-60">(Invalid)</span>}
+                        </span>
+                        <button 
+                          onClick={() => removeDiscountCode(dc.code)}
+                          className="text-brand-primary hover:text-brand-dark transition-colors"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex justify-between items-center">
                   <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Shipping</span>
                   <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-dark italic opacity-60">Complimentary</span>
                 </div>
+
+                {subtotal !== totalAmount && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-primary">Total Savings</span>
+                    <span className="text-lg font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, 'NGN')}</span>
+                  </div>
+                )}
+
                 <div className="pt-8 border-t border-brand-dark/10 flex justify-between items-end">
-                  <span className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-dark">Total</span>
+                  <span className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-dark">Order Total</span>
                   <div className="text-right">
                     <span className="text-4xl font-heading text-brand-dark tracking-tighter">
-                      {formatPrice(subtotal, 'NGN')}
+                      {formatPrice(totalAmount, 'NGN')}
                     </span>
                   </div>
                 </div>
