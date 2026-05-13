@@ -218,41 +218,63 @@ export function ShopContent({
           </div>
         </header>
 
-        <div className="flex gap-12">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           {/* Desktop Sidebar Filters */}
-          <aside className="hidden md:block w-64 shrink-0 space-y-10 sticky top-40 h-fit">
+          <aside className="hidden lg:block w-72 shrink-0 space-y-12 sticky top-40 h-fit">
+            <div className="space-y-4">
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary">
+                Refine Your Selection
+              </span>
+              <div className="h-px w-full bg-brand-dark/5" />
+            </div>
+
             {filterOptions.map((group) => (
-              <div key={group.name} className="space-y-6">
-                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">
+              <div key={group.name} className="space-y-8">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark flex items-center justify-between">
                   {group.name}
+                  {activeFilters[group.name]?.length > 0 && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                  )}
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-4">
                   {group.options.map((option) => (
                     <li key={option}>
                       <button
                         onClick={() => toggleFilter(group.name, option)}
                         className={cn(
-                          "group flex items-center gap-3 text-sm transition-colors w-full text-left",
+                          "group flex items-center gap-4 text-xs tracking-wide transition-all duration-300 w-full text-left py-1",
                           activeFilters[group.name]?.includes(option) 
-                            ? "text-brand-dark font-medium" 
-                            : "text-brand-dark/60 hover:text-brand-dark"
+                            ? "text-brand-dark font-black translate-x-2" 
+                            : "text-brand-dark/40 hover:text-brand-dark hover:translate-x-1"
                         )}
                       >
                         <div className={cn(
-                          "h-4 w-4 border transition-all flex items-center justify-center",
+                          "h-5 w-5 rounded-lg border transition-all duration-500 flex items-center justify-center shadow-sm",
                           activeFilters[group.name]?.includes(option)
-                            ? "border-brand-primary bg-brand-primary text-white"
-                            : "border-brand-dark/20 group-hover:border-brand-dark/40"
+                            ? "border-brand-primary bg-brand-primary text-white shadow-brand-primary/20"
+                            : "border-brand-dark/10 bg-white group-hover:border-brand-dark/30"
                         )}>
-                          {activeFilters[group.name]?.includes(option) && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                          {activeFilters[group.name]?.includes(option) && <Check className="h-3 w-3 stroke-[3]" />}
                         </div>
-                        {option}
+                        <span className="uppercase tracking-widest text-[10px] font-bold">{option}</span>
                       </button>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
+
+            <div className="pt-8">
+              <div className="bg-brand-dark/5 p-8 rounded-[2rem] space-y-4 border border-brand-dark/5">
+                <h4 className="font-heading text-xl text-brand-dark uppercase">Personal Stylist</h4>
+                <p className="text-[10px] text-brand-dark/60 leading-relaxed uppercase tracking-widest font-bold">
+                  Need assistance finding the perfect silhouette for your body type?
+                </p>
+                <button className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-primary hover:tracking-[0.4em] transition-all">
+                  Contact Studio →
+                </button>
+              </div>
+            </div>
           </aside>
 
           {/* Product Grid */}
@@ -268,6 +290,7 @@ export function ShopContent({
                     transition={{ delay: (index % 3) * 0.1 }}
                   >
                     <ProductCard
+                      id={product.id}
                       handle={product.handle}
                       title={product.title}
                       price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}

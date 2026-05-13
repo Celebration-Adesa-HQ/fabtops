@@ -65,12 +65,14 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };
 
   return (
-    <ShopContent 
-      products={products} 
-      title={`${collectionName} Collection`}
-      subtitle={meta.subtitle}
-      heroImage={meta.heroImage}
-      isCollection={true}
-    />
+    <main className="bg-brand-light min-h-screen">
+      <ShopContent 
+        products={products} 
+        title={collectionName}
+        subtitle={meta.subtitle}
+        heroImage={meta.heroImage}
+        isCollection={true}
+      />
+    </main>
   );
 }
