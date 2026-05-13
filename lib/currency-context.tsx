@@ -15,6 +15,11 @@ export const currencies: Currency[] = [
   { code: 'USD', symbol: '$', label: 'United States', flag: '🇺🇸', rate: 0.00063 },
   { code: 'GBP', symbol: '£', label: 'United Kingdom', flag: '🇬🇧', rate: 0.00050 },
   { code: 'EUR', symbol: '€', label: 'Europe', flag: '🇪🇺', rate: 0.00059 },
+  { code: 'CAD', symbol: 'C$', label: 'Canada', flag: '🇨🇦', rate: 0.00085 },
+  { code: 'AUD', symbol: 'A$', label: 'Australia', flag: '🇦🇺', rate: 0.00095 },
+  { code: 'AED', symbol: 'د.إ', label: 'UAE', flag: '🇦🇪', rate: 0.0023 },
+  { code: 'ZAR', symbol: 'R', label: 'South Africa', flag: '🇿🇦', rate: 0.012 },
+  { code: 'GHS', symbol: 'GH₵', label: 'Ghana', flag: '🇬🇭', rate: 0.0088 },
 ];
 
 interface CurrencyContextType {

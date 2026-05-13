@@ -79,7 +79,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-brand-secondary border-b border-brand-dark/10 z-[70] pt-32 pb-20 px-6 md:px-12 shadow-2xl custom-scrollbar"
+            className="fixed inset-0 overflow-y-auto bg-brand-secondary z-[70] pt-32 pb-20 px-6 md:px-12 shadow-2xl custom-scrollbar"
           >
             <div className="max-w-[1400px] mx-auto">
               {/* Close Button */}

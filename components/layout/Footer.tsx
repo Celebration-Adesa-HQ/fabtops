@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CurrencySelector } from './CurrencySelector';
 
 const SOCIAL_LINKS = [
   {
@@ -146,7 +147,7 @@ export function Footer() {
           </div>
           
           <div className="flex items-center gap-6">
-            <span className="font-bold">NGN ₦</span>
+            <CurrencySelector variant="footer" />
             <div className="h-px w-8 bg-brand-light/10" />
             <span className="hover:text-brand-light cursor-pointer transition-colors">English</span>
           </div>

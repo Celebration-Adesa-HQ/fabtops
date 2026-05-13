@@ -64,7 +64,8 @@ export default async function HomePage() {
               id={product.id}
               handle={product.handle}
               title={product.title}
-              price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}
+              amount={product.priceRange.minVariantPrice.amount}
+              currencyCode={product.priceRange.minVariantPrice.currencyCode}
               image={product.images.edges[0]?.node.url}
               secondaryImage={product.images.edges[1]?.node.url}
               variantId={product.variants.edges[0]?.node.id}

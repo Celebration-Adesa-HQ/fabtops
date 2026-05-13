@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function SustainabilityPreview() {
   return (
@@ -45,7 +46,17 @@ export function SustainabilityPreview() {
                 </p>
               </div>
             </div>
+
+            <div className="pt-8">
+              <Link 
+                href="/sustainability"
+                className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-primary transition-all group"
+              >
+                Our Full Commitment <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-primary group-hover:w-16 transition-all" />
+              </Link>
+            </div>
           </div>
+
 
           <div className="order-1 lg:order-2 relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl">
             <Image

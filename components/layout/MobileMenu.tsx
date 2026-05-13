@@ -47,7 +47,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 bottom-0 w-full max-w-[450px] bg-brand-secondary z-[70] overflow-y-auto overflow-x-hidden shadow-2xl flex flex-col"
+            className="fixed inset-y-0 left-0 w-full max-w-[450px] bg-brand-secondary z-[70] overflow-y-auto shadow-2xl flex flex-col"
           >
             {/* Header */}
             <div className="p-8 flex items-center justify-between border-b border-brand-dark/5 bg-brand-secondary/80 backdrop-blur-xl sticky top-0 z-20">

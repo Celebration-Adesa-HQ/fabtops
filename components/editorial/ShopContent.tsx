@@ -343,7 +343,8 @@ export function ShopContent({
                       id={product.id}
                       handle={product.handle}
                       title={product.title}
-                      price={`₦${parseFloat(product.priceRange.minVariantPrice.amount).toLocaleString()}`}
+                      amount={product.priceRange.minVariantPrice.amount}
+                      currencyCode={product.priceRange.minVariantPrice.currencyCode}
                       image={
                         product.images.edges[0]?.node.url ||
                         "https://via.placeholder.com/600x800"

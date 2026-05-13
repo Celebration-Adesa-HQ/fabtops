@@ -9,11 +9,14 @@ import { useCart } from '@/components/cart/CartProvider';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
 
+import { useCurrency } from '@/lib/currency-context';
+
 interface ProductCardProps {
-  id?: string; // Add id to props
+  id?: string;
   handle: string;
   title: string;
-  price: string;
+  amount: string | number;
+  currencyCode?: string;
   image: string;
   secondaryImage?: string;
   swatches?: string[];
@@ -21,8 +24,9 @@ interface ProductCardProps {
   variantId?: string;
 }
 
-export function ProductCard({ id, handle, title, price, image, secondaryImage, swatches, className, variantId }: ProductCardProps) {
+export function ProductCard({ id, handle, title, amount, currencyCode = 'NGN', image, secondaryImage, swatches, className, variantId }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [isAdding, setIsAdding] = React.useState(false);
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
@@ -39,12 +43,12 @@ export function ProductCard({ id, handle, title, price, image, secondaryImage, s
 
   // Prepare product object for FavoriteButton
   const productData = {
-    id: id || handle, // Fallback to handle if id is missing
+    id: id || handle,
     variantId: variantId || '',
     title,
     handle,
-    price: price.replace(/[^0-9.]/g, ''), // Extract numeric price
-    currencyCode: 'NGN',
+    price: String(amount),
+    currencyCode: currencyCode,
     imageUrl: image,
     imageAlt: title
   };
@@ -120,7 +124,7 @@ export function ProductCard({ id, handle, title, price, image, secondaryImage, s
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
             <p className="text-[11px] uppercase tracking-widest font-bold text-brand-dark/40">
-              {price}
+              {formatPrice(amount, currencyCode)}
             </p>
             {swatches && swatches.length > 0 && (
               <div className="flex items-center gap-1.5 justify-center md:justify-start">
@@ -146,3 +150,4 @@ export function ProductCard({ id, handle, title, price, image, secondaryImage, s
     </div>
   );
 }
+
