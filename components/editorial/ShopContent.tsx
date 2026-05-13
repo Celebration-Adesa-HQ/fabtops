@@ -52,6 +52,15 @@ const SORT_OPTIONS = [
   { label: 'Price: High to Low', value: 'price-desc' },
 ];
 
+const PRICE_RANGES = [
+  { label: 'Under ₦10,000', min: 0, max: 10000 },
+  { label: '₦10,000 - ₦25,000', min: 10000, max: 25000 },
+  { label: '₦25,000 - ₦50,000', min: 25000, max: 50000 },
+  { label: '₦50,000+', min: 50000, max: Infinity },
+];
+
+const PREDEFINED_CATEGORIES = ['Tops', 'Sets', 'Dresses', 'Luxe Accessories', 'Archive'];
+
 interface ShopContentProps {
   products: Product[];
   title?: string;
@@ -72,23 +81,20 @@ export function ShopContent({
   const [activeFilters, setActiveFilters] = React.useState<{ [key: string]: string[] }>({});
   const [sortBy, setSortBy] = React.useState('newest');
 
-  // Extract all unique categories, sizes, and colors for filters
+  // Extract all unique sizes for filters
   const filterOptions = React.useMemo(() => {
-    const categories = Array.from(new Set(initialProducts.map((p) => p.productType).filter(Boolean)));
     const sizes = new Set<string>();
-    const colors = new Set<string>();
 
     initialProducts.forEach((product) => {
       product.options.forEach((option) => {
         if (option.name.toLowerCase() === 'size') option.values.forEach((v) => sizes.add(v));
-        if (option.name.toLowerCase() === 'color') option.values.forEach((v) => colors.add(v));
       });
     });
 
     return [
-      { name: 'Category', options: categories },
-      { name: 'Size', options: Array.from(sizes) },
-      { name: 'Color', options: Array.from(colors) },
+      { name: 'Category', options: PREDEFINED_CATEGORIES },
+      { name: 'Size', options: Array.from(sizes).sort() },
+      { name: 'Price', options: PRICE_RANGES.map(r => r.label) },
     ];
   }, [initialProducts]);
 
@@ -114,14 +120,24 @@ export function ShopContent({
       if (values.length === 0) return;
 
       if (category === 'Category') {
-        filtered = filtered.filter((p) => values.includes(p.productType));
-      } else {
+        filtered = filtered.filter((p) => 
+          values.some(v => v.toLowerCase() === (p.productType || '').toLowerCase())
+        );
+      } else if (category === 'Size') {
         filtered = filtered.filter((p) => 
           p.options.some((opt) => 
-            opt.name.toLowerCase() === category.toLowerCase() && 
+            opt.name.toLowerCase() === 'size' && 
             opt.values.some((v) => values.includes(v))
           )
         );
+      } else if (category === 'Price') {
+        filtered = filtered.filter((p) => {
+          const productPrice = parseFloat(p.priceRange.minVariantPrice.amount);
+          return values.some(label => {
+            const range = PRICE_RANGES.find(r => r.label === label);
+            return range ? productPrice >= range.min && productPrice < range.max : true;
+          });
+        });
       }
     });
 
@@ -132,7 +148,7 @@ export function ShopContent({
 
       if (sortBy === 'price-asc') return priceA - priceB;
       if (sortBy === 'price-desc') return priceB - priceA;
-      return 0; // Default (newest - Shopify usually returns newest first by default in this query)
+      return 0;
     });
 
     setProducts(filtered);
@@ -222,6 +238,24 @@ export function ShopContent({
                 Clear All Filters
               </button>
             )}
+          </div>
+
+          {/* Quick Category Navigation */}
+          <div className="flex items-center gap-4 overflow-x-auto pb-4 pt-4 no-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
+            {PREDEFINED_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => toggleFilter('Category', cat)}
+                className={cn(
+                  "whitespace-nowrap px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-500 border",
+                  activeFilters['Category']?.includes(cat)
+                    ? "bg-brand-dark text-white border-brand-dark shadow-xl shadow-brand-dark/20"
+                    : "bg-white/40 text-brand-dark/40 border-brand-dark/5 hover:border-brand-dark/20 hover:text-brand-dark"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </header>
 
