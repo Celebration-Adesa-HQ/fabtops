@@ -1,4 +1,4 @@
-import { shopifyFetch } from '../shopify';
+import { shopifyFetch } from "../shopify";
 
 export const CUSTOMER_CREATE_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {

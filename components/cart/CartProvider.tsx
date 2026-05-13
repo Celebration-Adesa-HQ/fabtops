@@ -364,6 +364,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Helper to enhance the Shopify checkout URL with a custom return path.
+ * This is useful for redirecting users back to a specific part of your headless site
+ * after they interact with the payment gateway (like Paystack).
+ */
+export function getEnhancedCheckoutUrl(url: string | null, returnPath: string = '/shop') {
+  if (!url) return null;
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const returnUrl = `${baseUrl}${returnPath}`;
+  
+  try {
+    const checkoutObj = new URL(url);
+    checkoutObj.searchParams.set('return_to', returnUrl);
+    return checkoutObj.toString();
+  } catch (e) {
+    return url;
+  }
+}
+
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {

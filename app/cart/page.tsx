@@ -1,6 +1,6 @@
 'use client';
 
-import { useCart } from '@/components/cart/CartProvider';
+import { useCart, getEnhancedCheckoutUrl } from '@/components/cart/CartProvider';
 import { useAuth } from '@/lib/use-auth';
 import { useCurrency } from '@/lib/currency-context';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,6 +26,8 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const [promoCode, setPromoCode] = useState('');
   const [isApplying, setIsApplying] = useState(false);
+  
+  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
 
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,7 +301,7 @@ export default function CartPage() {
 
               <div className="space-y-6">
                 <a
-                  href={checkoutUrl || '#'}
+                  href={enhancedCheckoutUrl || '#'}
                   className="w-full bg-brand-dark text-white py-6 text-[11px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-4">

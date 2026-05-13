@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
-import { useCart } from './CartProvider';
+import { useCart, getEnhancedCheckoutUrl } from './CartProvider';
 import { useAuth } from '@/lib/use-auth';
 import { Drawer } from '@/components/ui/Drawer';
 import { useCurrency } from '@/lib/currency-context';
@@ -28,6 +28,8 @@ export function CartDrawer() {
   const { isAuthenticated } = useAuth();
   const [promoCode, setPromoCode] = React.useState('');
   const [isApplying, setIsApplying] = React.useState(false);
+  
+  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
 
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,7 +206,7 @@ export function CartDrawer() {
               
               <div className="space-y-3">
                 <a
-                  href={checkoutUrl || '#'}
+                  href={enhancedCheckoutUrl || '#'}
                   className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3">
