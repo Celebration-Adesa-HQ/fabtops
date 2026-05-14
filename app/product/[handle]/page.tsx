@@ -1,6 +1,7 @@
 import { getProductByHandle, getProducts } from '@/lib/shopify';
 import { ProductView } from '@/components/editorial/ProductView';
 import { notFound } from 'next/navigation';
+import { ProductStructuredData } from '@/components/seo/StructuredData';
 
 interface ProductPageProps {
   params: Promise<{
@@ -46,9 +47,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .slice(0, 4);
 
   return (
-    <ProductView 
-      product={product} 
-      relatedProducts={relatedProducts} 
-    />
+    <>
+      <ProductStructuredData product={product} />
+      <ProductView 
+        product={product} 
+        relatedProducts={relatedProducts} 
+      />
+    </>
   );
 }

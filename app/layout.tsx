@@ -15,9 +15,49 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'FabTops | Digital Flagship Store',
-  description: 'Contemporary, premium fashion for the modern woman. Sophisticated, feminine, and powerful.',
-  viewport: 'width=device-width, initial-scale=1',
+  metadataBase: new URL('https://fabtops.com.ng'),
+  title: {
+    default: 'FabTops | Contemporary Women’s Fashion Digital Flagship',
+    template: '%s | FabTops'
+  },
+  description: 'Shop contemporary, premium fashion rooted in confidence and self-expression. Discover meticulously crafted silhouettes for the modern woman.',
+  keywords: ['women fashion', 'premium clothing', 'contemporary style', 'FabTops', 'digital flagship', 'luxury apparel', 'tops', 'sets', 'dresses'],
+  authors: [{ name: 'FabTops' }],
+  creator: 'FabTops',
+  publisher: 'FabTops',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://fabtops.com.ng',
+    siteName: 'FabTops',
+    title: 'FabTops | Digital Flagship Store',
+    description: 'Sophisticated, feminine, and powerful. Discover the digital flagship of contemporary fashion.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'FabTops Premium Fashion',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FabTops | Digital Flagship Store',
+    description: 'Contemporary, premium fashion for the modern woman.',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 import { Header } from '@/components/layout/Header';
@@ -27,6 +67,7 @@ import { CartProvider } from '@/components/cart/CartProvider';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { CurrencyProvider } from '@/lib/currency-context';
 import { FavoritesProvider } from '@/lib/favorites-context';
+import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/seo/StructuredData';
 
 export default function RootLayout({
   children,
@@ -35,6 +76,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${raleway.variable} ${playfair.variable}`}>
+      <head>
+        <OrganizationStructuredData />
+        <WebsiteStructuredData />
+      </head>
       <body className="min-h-screen flex flex-col">
         <CurrencyProvider>
           <FavoritesProvider>
