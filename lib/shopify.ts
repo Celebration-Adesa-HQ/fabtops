@@ -1,17 +1,14 @@
-// lib/shopify.ts
-const DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_API_TOKEN;
+import 'server-only';
 
-// 🔍 DEBUG: Log env vars on server startup (only visible in terminal)
-if (typeof window === "undefined") {
-  console.log("🔐 Shopify Env Check:", {
-    hasDomain: !!DOMAIN,
-    domain: DOMAIN,
-    hasToken: !!TOKEN,
-    tokenPrefix: TOKEN?.slice(0, 7),
-    tokenLength: TOKEN?.length,
-  });
-}
+// lib/shopify.ts
+const DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
+const TOKEN = process.env.SHOPIFY_STOREFRONT_API_TOKEN;
+
+// 🔍 DEBUG: Log env vars on server startup
+console.log("🔐 Shopify Env Check (Server Only):", {
+  hasDomain: !!DOMAIN,
+  hasToken: !!TOKEN,
+});
 export async function shopifyFetch<T>({
   query,
   variables = {},

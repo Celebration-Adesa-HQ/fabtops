@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { shopifyFetch } from '@/lib/shopify';
 import { useAuth } from '@/lib/use-auth';
 import { useRouter } from 'next/navigation';
 
@@ -33,114 +32,6 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const GET_CART_QUERY = `
-  query getCart($cartId: ID!) {
-    cart(id: $cartId) {
-      id
-      checkoutUrl
-      discountCodes {
-        code
-        applicable
-      }
-      lines(first: 100) {
-        edges {
-          node {
-            id
-            quantity
-            merchandise {
-              ... on ProductVariant {
-                id
-                title
-                price {
-                  amount
-                  currencyCode
-                }
-                product {
-                  title
-                  handle
-                  images(first: 1) {
-                    edges {
-                      node {
-                        url
-                        altText
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      cost {
-        subtotalAmount {
-          amount
-          currencyCode
-        }
-        totalAmount {
-          amount
-          currencyCode
-        }
-      }
-    }
-  }
-`;
-
-const UPDATE_CART_DISCOUNT_CODES_MUTATION = `
-  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) {
-    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
-      cart {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-const ADD_TO_CART_MUTATION = `
-  mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) {
-      cart {
-        id
-      }
-    }
-  }
-`;
-
-const REMOVE_FROM_CART_MUTATION = `
-  mutation removeFromCart($cartId: ID!, $lineIds: [ID!]!) {
-    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
-      cart {
-        id
-      }
-    }
-  }
-`;
-
-const UPDATE_CART_QUANTITY_MUTATION = `
-  mutation updateCartQuantity($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) {
-      cart {
-        id
-      }
-    }
-  }
-`;
-
-const CREATE_CART_MUTATION = `
-  mutation createCart($input: CartInput) {
-    cartCreate(input: $input) {
-      cart {
-        id
-        checkoutUrl
-      }
-    }
-  }
-`;
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
@@ -153,6 +44,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const { customer, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
 
+  const fetchCartApi = async (body: any) => {
+    const res = await fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    if (!result.success) throw new Error(result.error);
+    return result.data;
+  };
+
   // Determine storage key based on user
   const storageKey = React.useMemo(() => {
     if (!customer?.id) return null;
@@ -162,18 +64,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const refreshCart = async (id: string) => {
     try {
-      const data: any = await shopifyFetch({
-        query: GET_CART_QUERY,
-        variables: { cartId: id }
-      });
+      const cart = await fetchCartApi({ action: 'get', cartId: id });
 
-      if (data?.cart) {
-        setCheckoutUrl(data.cart.checkoutUrl);
-        setSubtotal(parseFloat(data.cart.cost.subtotalAmount.amount));
-        setTotalAmount(parseFloat(data.cart.cost.totalAmount.amount));
-        setDiscountCodes(data.cart.discountCodes);
+      if (cart) {
+        setCheckoutUrl(cart.checkoutUrl);
+        setSubtotal(parseFloat(cart.cost.subtotalAmount.amount));
+        setTotalAmount(parseFloat(cart.cost.totalAmount.amount));
+        setDiscountCodes(cart.discountCodes || []);
         
-        const mappedItems = data.cart.lines.edges.map((edge: any) => ({
+        const mappedItems = cart.lines.edges.map((edge: any) => ({
           id: edge.node.id,
           variantId: edge.node.merchandise.id,
           title: edge.node.merchandise.product.title,
@@ -185,7 +84,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         setItems(mappedItems);
       } else if (storageKey) {
-        // Cart might be expired
         localStorage.removeItem(storageKey);
         setCartId(null);
         setItems([]);
@@ -197,16 +95,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const createCart = async () => {
     try {
-      const data: any = await shopifyFetch({
-        query: CREATE_CART_MUTATION,
-        variables: { input: {} }
-      });
-      const newCartId = data.cartCreate.cart.id;
+      const cart = await fetchCartApi({ action: 'create', lines: [] });
+      const newCartId = cart.id;
       if (storageKey) {
         localStorage.setItem(storageKey, newCartId);
       }
       setCartId(newCartId);
-      setCheckoutUrl(data.cartCreate.cart.checkoutUrl);
+      setCheckoutUrl(cart.checkoutUrl);
       return newCartId;
     } catch (error) {
       console.error('Error creating cart:', error);
@@ -250,12 +145,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     if (currentCartId) {
       try {
-        await shopifyFetch({
-          query: ADD_TO_CART_MUTATION,
-          variables: {
-            cartId: currentCartId,
-            lines: [{ merchandiseId: variantId, quantity }]
-          }
+        await fetchCartApi({
+          action: 'add',
+          cartId: currentCartId,
+          lines: [{ merchandiseId: variantId, quantity }]
         });
         await refreshCart(currentCartId);
         setIsCartOpen(true);
@@ -270,12 +163,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     if (cartId) {
       try {
-        await shopifyFetch({
-          query: REMOVE_FROM_CART_MUTATION,
-          variables: {
-            cartId,
-            lineIds: [itemId]
-          }
+        await fetchCartApi({
+          action: 'remove',
+          cartId,
+          lineIds: [itemId]
         });
         await refreshCart(cartId);
       } catch (error) {
@@ -289,12 +180,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     if (cartId) {
       try {
-        await shopifyFetch({
-          query: UPDATE_CART_QUANTITY_MUTATION,
-          variables: {
-            cartId,
-            lines: [{ id: itemId, quantity }]
-          }
+        await fetchCartApi({
+          action: 'update',
+          cartId,
+          lineId: itemId,
+          quantity
         });
         await refreshCart(cartId);
       } catch (error) {
@@ -306,12 +196,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const applyDiscountCode = async (code: string) => {
     if (!cartId) return;
     try {
-      await shopifyFetch({
-        query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
-        variables: {
-          cartId,
-          discountCodes: [code]
-        }
+      await fetchCartApi({
+        action: 'updateDiscount',
+        cartId,
+        discountCodes: [code]
       });
       await refreshCart(cartId);
     } catch (error) {
@@ -326,12 +214,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         .filter(dc => dc.code !== code)
         .map(dc => dc.code);
       
-      await shopifyFetch({
-        query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
-        variables: {
-          cartId,
-          discountCodes: remainingCodes
-        }
+      await fetchCartApi({
+        action: 'updateDiscount',
+        cartId,
+        discountCodes: remainingCodes
       });
       await refreshCart(cartId);
     } catch (error) {
@@ -377,6 +263,8 @@ export function getEnhancedCheckoutUrl(url: string | null, returnPath: string = 
   try {
     const checkoutObj = new URL(url);
     checkoutObj.searchParams.set('return_to', returnUrl);
+    // Automatically bypass Shopify Storefront Password
+    checkoutObj.searchParams.set('password', 'stunti');
     return checkoutObj.toString();
   } catch (e) {
     return url;
