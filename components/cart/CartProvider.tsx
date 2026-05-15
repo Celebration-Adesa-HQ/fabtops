@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (!customer?.id) return null;
     const safeId = customer.id.replace(/[^a-zA-Z0-9]/g, '_');
     return `fabtops_cart_id_${safeId}`;
-  }, [customer?.id]);
+  }, [customer]);
 
   const refreshCart = async (id: string) => {
     try {
