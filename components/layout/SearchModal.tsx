@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight, TrendingUp, Sparkles, Clock, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { searchProductsAction } from '@/lib/shopify/server-actions';
 import { useCurrency } from '@/lib/currency-context';
 
 interface SearchModalProps {
@@ -32,8 +31,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       if (query.length >= 2) {
         setIsSearching(true);
         try {
-          const products = await searchProductsAction(query);
-          setResults(products);
+          const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.success) {
+              setResults(result.data || []);
+            } else {
+              setResults([]);
+            }
+          } else {
+            setResults([]);
+          }
         } catch (error) {
           console.error('Search failed:', error);
           setResults([]);

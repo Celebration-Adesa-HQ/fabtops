@@ -1,42 +1,80 @@
 import { NextResponse } from 'next/server';
+import { validateCsrf, getAuthenticatedCustomer } from '@/lib/security';
+import { wishlistActionSchema } from '@/lib/schemas';
 
-// This API route handles wishlist operations. 
-// For now, it acts as a placeholder/sync point for the client-side state.
-// In a production environment, this would interact with a database (like Neon/PostgreSQL).
+// This API route handles wishlist operations securely.
+// In a production environment, this would interact with a database (like Neon/PostgreSQL)
+// using the authenticated customer.id.
 
 export async function POST(req: Request) {
+  // 1. CSRF Protection
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Forbidden' 
+    }, { status: 403 });
+  }
+
+  // 2. Authentication Check
+  const { authenticated, customer } = await getAuthenticatedCustomer();
+  if (!authenticated || !customer) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Not authenticated' 
+    }, { status: 401 });
+  }
+
   try {
+    // 3. Payload Validation
     const body = await req.json();
-    const { action, customerId, product } = body;
+    const validation = wishlistActionSchema.safeParse(body);
 
-    // Simulate server-side processing/logging
-    console.log(`Wishlist Action: ${action} for Customer: ${customerId}`, product?.title);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: validation.error.issues[0].message 
+      }, { status: 400 });
+    }
 
-    // In the future, we would save to a database here
+    const { action, product } = validation.data;
+
+    // Simulate server-side processing/logging securely using authenticated customer.id
+    console.log(`[Wishlist API] Action: ${action} for Customer: ${customer.id}`, product.title);
+
+    // In the future, we would save to a database here (e.g. Prisma connection using customer.id)
     
     return NextResponse.json({ 
       success: true, 
-      message: `Wishlist ${action} successful`,
-      timestamp: new Date().toISOString()
+      data: { product, action },
+      message: `Wishlist ${action} successful`
     });
   } catch (error: any) {
     console.error('Wishlist API Error:', error.message || error);
-    return NextResponse.json({ error: 'Wishlist operation failed' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Wishlist operation failed' 
+    }, { status: 500 });
   }
 }
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const customerId = searchParams.get('customerId');
-
-  if (!customerId) {
-    return NextResponse.json({ error: 'Customer ID required' }, { status: 400 });
+  // Authentication Check
+  const { authenticated, customer } = await getAuthenticatedCustomer();
+  if (!authenticated || !customer) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Not authenticated' 
+    }, { status: 401 });
   }
 
-  // Simulate fetching from a database
+  // Simulate fetching from a database securely using authenticated customer.id
   return NextResponse.json({ 
-    customerId,
-    favorites: [], // Return empty for now as it's primarily client-side
+    success: true,
+    data: {
+      customerId: customer.id,
+      favorites: [] // Return empty for now as it's primarily client-side/localStorage
+    },
     message: 'Wishlist fetched successfully'
   });
 }
+

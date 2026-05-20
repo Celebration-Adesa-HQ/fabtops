@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server';
 import { createCustomerAccessToken } from '@/lib/shopify/auth';
 import { cookies } from 'next/headers';
 import { loginSchema } from '@/lib/schemas';
+import { validateCsrf } from '@/lib/security';
 
 export async function POST(request: Request) {
+  // CSRF Protection Check
+  if (!validateCsrf(request)) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Forbidden' 
+    }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const validation = loginSchema.safeParse(body);

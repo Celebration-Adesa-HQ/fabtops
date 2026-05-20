@@ -26,13 +26,18 @@ export default function AccountPage() {
       try {
         const res = await fetch('/api/auth/customer');
         if (res.ok) {
-          const data = await res.json();
-          setCustomer(data);
-          setFormData({
-            firstName: data.firstName || '',
-            lastName: data.lastName || '',
-            phone: data.phone || ''
-          });
+          const result = await res.json();
+          if (result.success && result.data) {
+            const customerData = result.data;
+            setCustomer(customerData);
+            setFormData({
+              firstName: customerData.firstName || '',
+              lastName: customerData.lastName || '',
+              phone: customerData.phone || ''
+            });
+          } else {
+            window.location.href = '/login';
+          }
         } else {
           window.location.href = '/login';
         }
@@ -60,9 +65,13 @@ export default function AccountPage() {
       });
 
       if (res.ok) {
-        const updatedCustomer = await res.json();
-        setCustomer({ ...customer, ...updatedCustomer });
-        setUpdateStatus({ type: 'success', message: 'Profile updated successfully.' });
+        const result = await res.json();
+        if (result.success && result.data) {
+          setCustomer({ ...customer, ...result.data });
+          setUpdateStatus({ type: 'success', message: result.message || 'Profile updated successfully.' });
+        } else {
+          setUpdateStatus({ type: 'error', message: result.error || 'Update failed.' });
+        }
       } else {
         const error = await res.json();
         setUpdateStatus({ type: 'error', message: error.error || 'Update failed.' });

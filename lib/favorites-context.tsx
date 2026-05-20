@@ -96,11 +96,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       // Sync with API for architectural consistency
       await wishlistApiCall({
         action: isAdding ? 'add' : 'remove',
-        customerId: customer?.id,
         product
       });
     },
-    [favorites, customer?.id],
+    [favorites],
   );
 
   return (

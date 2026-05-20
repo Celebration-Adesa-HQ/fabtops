@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cartActionSchema } from '@/lib/schemas';
+import { validateCsrf } from '@/lib/security';
 import { 
   shopifyFetch, 
   CREATE_CART_MUTATION, 
@@ -24,6 +25,14 @@ const UPDATE_CART_DISCOUNT_CODES_MUTATION = `
 `;
 
 export async function POST(req: Request) {
+  // CSRF Protection Check
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Forbidden' 
+    }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const validation = cartActionSchema.safeParse(body);

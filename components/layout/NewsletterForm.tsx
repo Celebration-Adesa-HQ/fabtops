@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { subscribeToNewsletter } from '@/lib/shopify/server-actions';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,15 +14,25 @@ export function NewsletterForm() {
     if (!email) return;
 
     setStatus('loading');
-    const result = await subscribeToNewsletter(email);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const result = await res.json();
 
-    if (result.success) {
-      setStatus('success');
-      setMessage(result.message || "Welcome to the circle!");
-      setEmail('');
-    } else {
+      if (result.success) {
+        setStatus('success');
+        setMessage(result.message || "Welcome to the circle!");
+        setEmail('');
+      } else {
+        setStatus('error');
+        setMessage(result.error || "Something went wrong.");
+      }
+    } catch (err) {
       setStatus('error');
-      setMessage(result.error || "Something went wrong.");
+      setMessage("An error occurred. Please try again.");
     }
   };
 

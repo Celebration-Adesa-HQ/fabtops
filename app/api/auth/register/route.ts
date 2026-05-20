@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createCustomer } from '@/lib/shopify/auth';
 import { registerSchema } from '@/lib/schemas';
+import { validateCsrf } from '@/lib/security';
 
 export async function POST(request: Request) {
+  // CSRF Protection Check
+  if (!validateCsrf(request)) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Forbidden' 
+    }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const validation = registerSchema.safeParse(body);

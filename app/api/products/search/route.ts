@@ -1,18 +1,36 @@
 import { NextResponse } from 'next/server';
 import { searchProducts } from '@/lib/shopify';
+import { z } from 'zod';
+
+const searchQuerySchema = z.string().min(1).max(100);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q');
+  const rawQuery = searchParams.get('q') || '';
 
-  if (!query) {
-    return NextResponse.json({ error: 'Missing query parameter' }, { status: 400 });
+  const validation = searchQuerySchema.safeParse(rawQuery);
+  if (!validation.success) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid or missing search query parameter' 
+    }, { status: 400 });
   }
+
+  const query = validation.data;
 
   try {
     const products = await searchProducts(query);
-    return NextResponse.json(products);
+    return NextResponse.json({
+      success: true,
+      data: products,
+      message: 'Products searched successfully'
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Products search API error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to search products' 
+    }, { status: 500 });
   }
 }
+

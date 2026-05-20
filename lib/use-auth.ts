@@ -20,9 +20,14 @@ export function useAuth() {
     try {
       const res = await fetch('/api/auth/customer');
       if (res.ok) {
-        const data = await res.json();
-        cachedCustomer = data;
-        setCustomer(data);
+        const result = await res.json();
+        if (result.success && result.data) {
+          cachedCustomer = result.data;
+          setCustomer(result.data);
+        } else {
+          cachedCustomer = null;
+          setCustomer(null);
+        }
       } else {
         cachedCustomer = null;
         setCustomer(null);
