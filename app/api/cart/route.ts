@@ -54,6 +54,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: CREATE_CART_MUTATION,
           variables: { input: { lines } },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: GET_CART_QUERY,
           variables: { cartId },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 
@@ -76,6 +78,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: ADD_CART_LINES_MUTATION,
           variables: { cartId, lines },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 
@@ -87,6 +90,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: UPDATE_CART_LINES_MUTATION,
           variables: { cartId, lines: [{ id: lineId, quantity }] },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 
@@ -98,6 +102,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: REMOVE_CART_LINES_MUTATION,
           variables: { cartId, lineIds },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 
@@ -109,6 +114,7 @@ export async function POST(req: Request) {
         result = await shopifyFetch({
           query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
           variables: { cartId, discountCodes },
+          cache: 'no-store',
         });
         return NextResponse.json({ 
           success: true, 

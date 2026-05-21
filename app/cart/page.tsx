@@ -1,43 +1,25 @@
 'use client';
 
-import { useCart, getEnhancedCheckoutUrl } from '@/components/cart/CartProvider';
+import { useCart } from '@/components/cart/CartProvider';
 import { useAuth } from '@/lib/use-auth';
-import { useCurrency } from '@/lib/currency-context';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ChevronLeft, ShieldCheck, Truck, RefreshCw, X } from 'lucide-react';
-import Image from 'next/image';
+import { ChevronLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
+
+import { UnauthenticatedCart } from '@/components/cart/UnauthenticatedCart';
+import { EmptyCart } from '@/components/cart/EmptyCart';
+import { CartItemRow } from '@/components/cart/CartItemRow';
+import { CartSummaryCard } from '@/components/cart/CartSummaryCard';
 
 export default function CartPage() {
   const { 
     items, 
     removeFromCart, 
-    updateQuantity, 
-    checkoutUrl, 
-    subtotal, 
-    totalAmount,
-    discountCodes,
-    applyDiscountCode,
-    removeDiscountCode
+    updateQuantity,
+    isLoading
   } = useCart();
-  const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
-  const [promoCode, setPromoCode] = useState('');
-  const [isApplying, setIsApplying] = useState(false);
   
-  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
-
-  const handleApplyDiscount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!promoCode) return;
-    setIsApplying(true);
-    await applyDiscountCode(promoCode);
-    setPromoCode('');
-    setIsApplying(false);
-  };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -48,63 +30,12 @@ export default function CartPage() {
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-brand-secondary">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center max-w-lg"
-        >
-          <div className="w-24 h-24 bg-white/20 backdrop-blur-md border border-brand-dark/5 rounded-full flex items-center justify-center text-brand-dark mb-10 mx-auto">
-            <ShoppingBag size={40} strokeWidth={1} />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Sign in to Shop</h1>
-          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
-            Please log in to your account to access your bag and continue your premium discovery.
-          </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group shadow-2xl shadow-brand-dark/10"
-          >
-            Sign In Now
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
-      </div>
-    );
+    return <UnauthenticatedCart />;
   }
 
   if (items.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-brand-secondary">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center max-w-lg"
-        >
-          <div className="w-24 h-24 bg-white/20 backdrop-blur-md border border-brand-dark/5 rounded-full flex items-center justify-center text-brand-dark mb-10 mx-auto">
-            <ShoppingBag size={40} strokeWidth={1} />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Your Bag is Empty</h1>
-          <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
-            Meticulously crafted silhouettes are waiting to be discovered.
-          </p>
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group shadow-2xl shadow-brand-dark/10"
-          >
-            Explore Collections
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
-      </div>
-    );
+    return <EmptyCart />;
   }
 
   return (
@@ -138,74 +69,13 @@ export default function CartPage() {
             >
               <AnimatePresence mode='popLayout'>
                 {items.map((item) => (
-                  <motion.div
+                  <CartItemRow
                     key={item.id}
-                    variants={itemVariants}
-                    exit={{ opacity: 0, x: -20 }}
-                    layout
-                    className="group relative flex flex-col md:flex-row gap-10 pb-12 border-b border-brand-dark/10"
-                  >
-                    {/* Image Container */}
-                    <div className="relative w-full md:w-56 aspect-editorial overflow-hidden bg-white/20 backdrop-blur-md shrink-0">
-                      {item.image && (
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-[cubic-bezier(0.2,0,0,1)]"
-                          sizes="(max-width: 768px) 100vw, 224px"
-                        />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-grow flex flex-col">
-                      <div className="flex justify-between items-start mb-8">
-                        <div className="space-y-2">
-                          <Link 
-                            href={`/product/${item.handle}`}
-                            className="text-2xl md:text-3xl font-heading uppercase tracking-tight text-brand-dark hover:text-brand-primary transition-colors block leading-tight"
-                          >
-                            {item.title}
-                          </Link>
-                          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/30">
-                            Signature Collection
-                          </p>
-                        </div>
-                        <p className="text-xl font-bold text-brand-dark tracking-tight">
-                          {formatPrice(item.price, 'NGN')}
-                        </p>
-                      </div>
-
-                      {/* Controls */}
-                      <div className="mt-auto flex items-center justify-between gap-6 pt-8">
-                        <div className="flex items-center gap-8 border border-brand-dark/10 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full">
-                          <button
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="text-brand-dark/40 hover:text-brand-dark transition-colors disabled:opacity-10"
-                            disabled={item.quantity <= 1}
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="text-[11px] font-bold w-4 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="text-brand-dark/40 hover:text-brand-dark transition-colors"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-
-                        <button 
-                          onClick={() => removeFromCart(item.id)}
-                          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/40 hover:text-brand-primary transition-colors group/remove"
-                        >
-                          <Trash2 size={14} className="group-hover/remove:scale-110 transition-transform" />
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                    item={item}
+                    updateQuantity={updateQuantity}
+                    removeFromCart={removeFromCart}
+                    isLoading={isLoading}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>
@@ -230,91 +100,7 @@ export default function CartPage() {
 
           {/* Summary Sidebar */}
           <div className="lg:col-span-4">
-            <div className="sticky top-40 bg-brand-light backdrop-blur-xl border border-white/40 p-10 md:p-12 space-y-12 rounded-[2.5rem] shadow-2xl shadow-brand-dark/5">
-              <h2 className="text-2xl font-heading uppercase tracking-tight text-brand-dark pb-8 border-b border-brand-dark/10">
-                Summary
-              </h2>
-              
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Subtotal</span>
-                  <span className="text-lg font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
-                </div>
-                
-                {/* Discount Application */}
-                <div className="py-6 border-t border-brand-dark/5 space-y-4">
-                  <form onSubmit={handleApplyDiscount} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                      placeholder="ENTER PROMO CODE"
-                      className="flex-1 bg-white/20 border border-brand-dark/10 px-6 py-4 text-[10px] uppercase tracking-widest font-bold focus:outline-none focus:border-brand-primary transition-colors rounded-xl"
-                    />
-                    <button 
-                      type="submit"
-                      disabled={isApplying || !promoCode}
-                      className="px-8 py-4 bg-brand-dark text-white text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary disabled:opacity-50 transition-all rounded-xl"
-                    >
-                      {isApplying ? '...' : 'Apply'}
-                    </button>
-                  </form>
-
-                  <div className="flex flex-wrap gap-2">
-                    {discountCodes.map((dc) => (
-                      <div key={dc.code} className="flex items-center gap-3 bg-brand-primary/10 px-4 py-2 rounded-full border border-brand-primary/20">
-                        <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
-                          {dc.code} {!dc.applicable && <span className="opacity-60">(Invalid)</span>}
-                        </span>
-                        <button 
-                          onClick={() => removeDiscountCode(dc.code)}
-                          className="text-brand-primary hover:text-brand-dark transition-colors"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Shipping</span>
-                  <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-dark italic opacity-60">Complimentary</span>
-                </div>
-
-                {subtotal !== totalAmount && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-primary">Total Savings</span>
-                    <span className="text-lg font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, 'NGN')}</span>
-                  </div>
-                )}
-
-                <div className="pt-8 border-t border-brand-dark/10 flex justify-between items-end">
-                  <span className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-dark">Order Total</span>
-                  <div className="text-right">
-                    <span className="text-4xl font-heading text-brand-dark tracking-tighter">
-                      {formatPrice(totalAmount, 'NGN')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <a
-                  href={enhancedCheckoutUrl || '#'}
-                  className="w-full bg-brand-dark text-white py-6 text-[11px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center gap-4">
-                    Secure Checkout via Paystack
-                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                </a>
-                <p className="text-[9px] text-brand-dark/30 uppercase tracking-[0.2em] text-center leading-relaxed font-black">
-                  Shipping and taxes calculated at handoff.
-                </p>
-              </div>
-            </div>
+            <CartSummaryCard />
           </div>
         </div>
       </div>

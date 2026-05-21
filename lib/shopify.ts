@@ -13,10 +13,12 @@ export async function shopifyFetch<T>({
   query,
   variables = {},
   isClient = false,
+  cache,
 }: {
   query: string;
   variables?: any;
   isClient?: boolean;
+  cache?: RequestCache;
 }): Promise<T> {
   if (!DOMAIN || !TOKEN) {
     throw new Error(
@@ -27,15 +29,26 @@ export async function shopifyFetch<T>({
   const endpoint = `https://${DOMAIN}/api/2026-04/graphql.json`;
 
   try {
-    const res = await fetch(endpoint, {
+    const fetchOptions: RequestInit = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Shopify-Storefront-Access-Token": TOKEN,
       },
       body: JSON.stringify({ query, variables }),
-      ...(isClient ? {} : { next: { revalidate: 60 } }),
-    });
+    };
+
+    if (cache) {
+      fetchOptions.cache = cache;
+    }
+
+    if (cache === 'no-store') {
+      fetchOptions.next = { revalidate: 0 };
+    } else if (!isClient) {
+      fetchOptions.next = { revalidate: 60 };
+    }
+
+    const res = await fetch(endpoint, fetchOptions);
 
     const json = await res.json();
 

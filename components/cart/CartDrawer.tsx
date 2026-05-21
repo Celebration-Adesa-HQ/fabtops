@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
+import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Loader2 } from 'lucide-react';
 import { useCart, getEnhancedCheckoutUrl } from './CartProvider';
 import { useAuth } from '@/lib/use-auth';
 import { Drawer } from '@/components/ui/Drawer';
@@ -22,7 +22,8 @@ export function CartDrawer() {
     discountCodes,
     applyDiscountCode,
     removeDiscountCode,
-    checkoutUrl 
+    checkoutUrl,
+    isLoading
   } = useCart();
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
@@ -83,7 +84,14 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 space-y-8 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="relative flex-1 space-y-8 overflow-y-auto pr-2 custom-scrollbar">
+              {/* Sync overlay — appears while any cart operation is in flight */}
+              {isLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-xl">
+                  <Loader2 size={28} className="animate-spin text-brand-primary" />
+                </div>
+              )}
+
               <AnimatePresence mode="popLayout">
                 {items.map((item) => (
                   <motion.div
@@ -114,7 +122,9 @@ export function CartDrawer() {
                           </Link>
                           <button 
                             onClick={() => removeFromCart(item.id)}
-                            className="text-brand-dark/20 hover:text-red-500 transition-colors"
+                            disabled={isLoading}
+                            className="text-brand-dark/20 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            aria-label="Remove item"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -128,14 +138,18 @@ export function CartDrawer() {
                         <div className="flex items-center border border-brand-dark/10 px-2 py-1">
                           <button 
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="p-1 hover:text-brand-primary transition-colors"
+                            disabled={isLoading}
+                            className="p-1 hover:text-brand-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            aria-label="Decrease quantity"
                           >
                             <Minus size={12} />
                           </button>
                           <span className="w-8 text-center text-[10px] font-bold">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="p-1 hover:text-brand-primary transition-colors"
+                            disabled={isLoading}
+                            className="p-1 hover:text-brand-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            aria-label="Increase quantity"
                           >
                             <Plus size={12} />
                           </button>

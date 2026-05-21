@@ -28,6 +28,7 @@ interface CartContextType {
   totalAmount: number;
   discountCodes: { code: string; applicable: boolean }[];
   checkoutUrl: string | null;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,6 +41,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [subtotal, setSubtotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [discountCodes, setDiscountCodes] = useState<{ code: string; applicable: boolean }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const { customer, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -137,7 +139,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       router.push(`/login?redirect=${window.location.pathname}`);
       return;
     }
+    if (isLoading) return;
 
+    setIsLoading(true);
     let currentCartId = cartId;
     if (!currentCartId) {
       currentCartId = await createCart();
@@ -154,13 +158,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsCartOpen(true);
       } catch (error) {
         console.error('Error adding to cart:', error);
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
   };
 
   const removeFromCart = async (itemId: string) => {
     if (!isAuthenticated) return;
-    
+    if (isLoading) return;
+
+    const prevItems = [...items];
+    const prevSubtotal = subtotal;
+    const prevTotalAmount = totalAmount;
+
+    const updatedItems = items.filter(item => item.id !== itemId);
+    setItems(updatedItems);
+
+    const newSubtotal = updatedItems.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+    setSubtotal(newSubtotal);
+    setTotalAmount(newSubtotal);
+
+    setIsLoading(true);
     if (cartId) {
       try {
         await fetchCartApi({
@@ -171,13 +192,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         await refreshCart(cartId);
       } catch (error) {
         console.error('Error removing from cart:', error);
+        setItems(prevItems);
+        setSubtotal(prevSubtotal);
+        setTotalAmount(prevTotalAmount);
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
   };
 
   const updateQuantity = async (itemId: string, quantity: number) => {
     if (!isAuthenticated) return;
+    if (isLoading) return;
 
+    const prevItems = [...items];
+    const prevSubtotal = subtotal;
+    const prevTotalAmount = totalAmount;
+
+    const updatedItems = items.map(item => {
+      if (item.id === itemId) {
+        return { ...item, quantity };
+      }
+      return item;
+    });
+    setItems(updatedItems);
+
+    const newSubtotal = updatedItems.reduce((acc, item) => acc + (parseFloat(item.price) * item.quantity), 0);
+    setSubtotal(newSubtotal);
+    setTotalAmount(newSubtotal);
+
+    setIsLoading(true);
     if (cartId) {
       try {
         await fetchCartApi({
@@ -189,7 +235,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         await refreshCart(cartId);
       } catch (error) {
         console.error('Error updating quantity:', error);
+        setItems(prevItems);
+        setSubtotal(prevSubtotal);
+        setTotalAmount(prevTotalAmount);
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
   };
 
@@ -225,7 +278,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = items.length;
 
   return (
     <CartContext.Provider
@@ -242,7 +295,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         subtotal,
         totalAmount,
         discountCodes,
-        checkoutUrl
+        checkoutUrl,
+        isLoading
       }}
     >
       {children}
