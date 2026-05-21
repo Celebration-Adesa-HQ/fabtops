@@ -13,7 +13,7 @@ const categories = [
   {
     name: 'Sets',
     href: '/shop/sets',
-    image: 'https://images.unsplash.com/photo-1539109132314-3475d24c2194?q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=800',
   },
   {
     name: 'Dresses',

@@ -2,15 +2,13 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // Allow ALL HTTPS images (development only ⚠️)
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "images.unsplash.com",
       },
-      // Also allow HTTP if needed (not recommended)
       {
-        protocol: 'http',
-        hostname: '**',
+        protocol: "https",
+        hostname: "cdn.shopify.com",
       },
     ],
     // Optional: Disable image optimization entirely (not recommended)

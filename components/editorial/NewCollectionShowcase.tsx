@@ -20,7 +20,7 @@ export function NewCollectionShowcase() {
               className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl z-10"
             >
               <Image
-                src="https://images.unsplash.com/photo-1539109132314-3475d24c2194?q=80&w=1200"
+                src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=1200"
                 alt="New Collection"
                 fill
                 className="object-cover"
