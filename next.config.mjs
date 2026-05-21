@@ -4,11 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.shopify.com",
+        hostname: "**",
       },
     ],
     // Optional: Disable image optimization entirely (not recommended)
