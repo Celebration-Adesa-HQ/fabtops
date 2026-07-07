@@ -23,7 +23,7 @@ interface Product {
     edges: {
       node: {
         url: string;
-        alt: string;
+        altText: string;
       };
     }[];
   };
@@ -76,7 +76,6 @@ export function ShopContent({
   heroImage,
   isCollection = false
 }: ShopContentProps) {
-  const [products, setProducts] = React.useState(initialProducts);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [activeFilters, setActiveFilters] = React.useState<{ [key: string]: string[] }>({});
   const [sortBy, setSortBy] = React.useState('newest');
@@ -111,8 +110,7 @@ export function ShopContent({
 
   const clearFilters = () => setActiveFilters({});
 
-  // Filtering and Sorting Logic
-  React.useEffect(() => {
+  const products = React.useMemo(() => {
     let filtered = [...initialProducts];
 
     // Apply filters
@@ -151,7 +149,7 @@ export function ShopContent({
       return 0;
     });
 
-    setProducts(filtered);
+    return filtered;
   }, [activeFilters, sortBy, initialProducts]);
 
   const totalActiveFilters = Object.values(activeFilters).flat().length;

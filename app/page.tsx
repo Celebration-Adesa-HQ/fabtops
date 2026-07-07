@@ -4,12 +4,14 @@ import { CategoryNavigation } from '@/components/editorial/CategoryNavigation';
 import { NewCollectionShowcase } from '@/components/editorial/NewCollectionShowcase';
 import { CommunitySocialProof } from '@/components/editorial/CommunitySocialProof';
 import { SustainabilityPreview } from '@/components/editorial/SustainabilityPreview';
-import { getProducts } from '@/lib/shopify';
+import { getProducts } from '@/lib/woocommerce/products';
 import Image from 'next/image';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const products = await getProducts({ first: 6 });
+  const products = await getProducts(6);
 
   return (
     <div className="bg-brand-light">

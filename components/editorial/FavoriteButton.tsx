@@ -4,7 +4,6 @@ import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { useFavorites, FavoriteProduct } from '@/lib/favorites-context';
-import { useAuth } from '@/lib/use-auth';
 import { cn } from '@/lib/utils';
 
 interface FavoriteButtonProps {
@@ -15,7 +14,6 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ product, className, size = 'md' }: FavoriteButtonProps) {
   const { isFavorited, toggleFavorite } = useFavorites();
-  const { isAuthenticated } = useAuth();
   
   const favorited = isFavorited(product.id);
 
@@ -38,7 +36,7 @@ export function FavoriteButton({ product, className, size = 'md' }: FavoriteButt
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        toggleFavorite(product, isAuthenticated);
+        toggleFavorite(product);
       }}
       className={cn(
         'relative rounded-full transition-colors duration-300',

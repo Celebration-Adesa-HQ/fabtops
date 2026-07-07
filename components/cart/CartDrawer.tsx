@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Loader2 } from 'lucide-react';
-import { useCart, getEnhancedCheckoutUrl } from './CartProvider';
-import { useAuth } from '@/lib/use-auth';
+import { useCart } from './CartProvider';
 import { Drawer } from '@/components/ui/Drawer';
 import { useCurrency } from '@/lib/currency-context';
 
@@ -26,12 +25,9 @@ export function CartDrawer() {
     isLoading
   } = useCart();
   const { formatPrice } = useCurrency();
-  const { isAuthenticated } = useAuth();
   const [promoCode, setPromoCode] = React.useState('');
   const [isApplying, setIsApplying] = React.useState(false);
   
-  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
-
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCode) return;
@@ -48,24 +44,7 @@ export function CartDrawer() {
       title="My Bag"
     >
       <div className="flex flex-col h-[calc(100vh-180px)]">
-        {!isAuthenticated ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
-              <ShoppingBag size={40} />
-            </div>
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-widest font-bold text-brand-dark">Sign in to Shop</p>
-              <p className="text-sm text-brand-dark/40 font-light">Please log in to your account to manage your shopping bag and access exclusive features.</p>
-            </div>
-            <Link
-              href="/login"
-              onClick={() => setIsCartOpen(false)}
-              className="w-full bg-brand-dark text-white text-[10px] uppercase tracking-[0.3em] font-bold py-5 hover:bg-brand-primary transition-all duration-500"
-            >
-              Sign In
-            </Link>
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
             <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
               <ShoppingBag size={40} />
@@ -220,7 +199,7 @@ export function CartDrawer() {
               
               <div className="space-y-3">
                 <a
-                  href={enhancedCheckoutUrl || '#'}
+                  href={checkoutUrl || '#'}
                   className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3">

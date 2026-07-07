@@ -3,14 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:woocommerce": "node --env-file=.env test-woocommerce.mjs"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
     "@types/canvas-confetti": "^1.9.0",
     "@vercel/analytics": "^2.0.1",
+    "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
@@ -18,7 +23,9 @@
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "tailwind-merge": "^3.6.0"
+    "react-hook-form": "^7.80.0",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -26,6 +33,7 @@
     "@types/react": "19.2.14",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "vitest": "^4.1.9"
   }
 }

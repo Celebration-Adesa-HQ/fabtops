@@ -1,4 +1,4 @@
-import { getProducts, getCollections } from '@/lib/shopify';
+import { getProductsByCategorySlug } from '@/lib/woocommerce/products';
 import { ShopContent } from '@/components/editorial/ShopContent';
 import { notFound } from 'next/navigation';
 
@@ -58,8 +58,8 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  // Fetch products (in production, filter by collection handle)
-  const products = await getProducts({ first: 50 });
+  const products = await getProductsByCategorySlug(handle, 50);
+  if (!products) notFound();
 
   // Get collection-specific metadata
   const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };

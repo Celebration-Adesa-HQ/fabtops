@@ -1,4 +1,4 @@
-import { getProductByHandle, getProducts } from '@/lib/shopify';
+import { getProductBySlug, getProducts } from '@/lib/woocommerce/products';
 import { ProductView } from '@/components/editorial/ProductView';
 import { notFound } from 'next/navigation';
 import { ProductStructuredData } from '@/components/seo/StructuredData';
@@ -11,7 +11,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
+  const product = await getProductBySlug(handle);
 
   if (!product) {
     return {
@@ -33,8 +33,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   
   // Fetch product data and related products in parallel
   const [product, allProducts] = await Promise.all([
-    getProductByHandle(handle),
-    getProducts({ first: 10 })
+    getProductBySlug(handle),
+    getProducts(10)
   ]);
 
   if (!product) {

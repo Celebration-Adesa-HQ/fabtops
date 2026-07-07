@@ -1,15 +1,19 @@
 import { MetadataRoute } from 'next';
-import { getProducts, getCollections } from '@/lib/shopify';
+import { getCategories, getProductSlugs } from '@/lib/woocommerce/products';
+
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://fabtops.com.ng';
 
   // Fetch dynamic data
-  const products = await getProducts({ first: 250 });
-  const collections = await getCollections({ first: 100 });
+  const [productSlugs, collections] = await Promise.all([
+    getProductSlugs(),
+    getCategories(),
+  ]);
 
-  const productEntries: MetadataRoute.Sitemap = products.map((product: any) => ({
-    url: `${baseUrl}/product/${product.handle}`,
+  const productEntries: MetadataRoute.Sitemap = productSlugs.map((slug) => ({
+    url: `${baseUrl}/product/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.7,

@@ -1,13 +1,10 @@
 'use client';
 
-import { useAuth } from '@/lib/use-auth';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ShieldCheck, Gem, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export function CircleCta() {
-  const { customer, isAuthenticated } = useAuth();
-
   return (
     <section className="relative z-10 py-32 md:py-48 px-6 md:px-12 lg:px-24">
       <div className="max-w-4xl mx-auto">
@@ -28,36 +25,16 @@ export function CircleCta() {
               </h2>
               
               <p className="text-sm md:text-base text-brand-dark/60 font-medium mb-16 max-w-xl mx-auto leading-relaxed uppercase tracking-widest text-[11px]">
-                {isAuthenticated 
-                  ? `Welcome back to your sanctuary, ${customer?.firstName}. Your elite heritage benefits are active across the flagship.`
-                  : "Enter your digital identifier to apply for membership. By joining the Circle, you unlock the full Fabtops heritage experience."}
+                Customer membership accounts are being connected securely through WordPress. You can continue exploring every current collection as a guest.
               </p>
               
               <div className="max-w-md mx-auto space-y-6">
-                {isAuthenticated ? (
-                  <Link 
-                    href="/account"
-                    className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
-                  >
-                    Enter My Styling Vault <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                ) : (
-                  <>
-                    <div className="relative">
-                      <input 
-                        type="email" 
-                        placeholder="Enter your email address" 
-                        className="w-full px-12 py-8 rounded-full bg-brand-secondary/40 backdrop-blur-md border-2 border-brand-dark/5 focus:border-brand-dark outline-none transition-all text-center text-sm font-black uppercase tracking-widest placeholder:text-brand-dark/20 shadow-sm"
-                      />
-                    </div>
-                    <Link 
-                      href="/register"
-                      className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95 animate-pulse hover:animate-none"
-                    >
-                      Join the Movement <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                    </Link>
-                  </>
-                )}
+                <Link 
+                  href="/shop"
+                  className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
+                >
+                  Explore the Collection <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                </Link>
               </div>
               
               <div className="mt-16 pt-10 border-t border-brand-dark/5 flex items-center justify-center gap-8">

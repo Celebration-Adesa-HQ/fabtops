@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCart, getEnhancedCheckoutUrl } from '@/components/cart/CartProvider';
+import { useCart } from '@/components/cart/CartProvider';
 import { useCurrency } from '@/lib/currency-context';
 import { ArrowRight, X, Loader2 } from 'lucide-react';
 
@@ -19,8 +19,6 @@ export function CartSummaryCard() {
   const [promoCode, setPromoCode] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   
-  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
-
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCode) return;
@@ -102,7 +100,7 @@ export function CartSummaryCard() {
 
       <div className="space-y-6">
         <a
-          href={isLoading ? undefined : (enhancedCheckoutUrl || '#')}
+          href={isLoading ? undefined : (checkoutUrl || '#')}
           aria-disabled={isLoading}
           className={`w-full bg-brand-dark text-white py-6 text-[11px] uppercase tracking-[0.4em] font-black transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden rounded-xl ${
             isLoading

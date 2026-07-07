@@ -53,7 +53,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
             <div className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="w-8 h-px bg-brand-primary" />
               <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary">
-                {customer?.firstName}'s Private Collection
+                {customer?.firstName ? `${customer.firstName}'s Private Collection` : 'Your Private Collection'}
               </span>
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-heading text-brand-dark uppercase tracking-tighter leading-[0.85]">

@@ -1,5 +1,7 @@
-import { getProducts } from '@/lib/shopify';
+import { getProducts } from '@/lib/woocommerce/products';
 import { ShopContent } from '@/components/editorial/ShopContent';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Shop All | FabTops Digital Flagship',
@@ -7,7 +9,7 @@ export const metadata = {
 };
 
 export default async function ShopPage() {
-  const products = await getProducts({ first: 50 });
+  const products = await getProducts(50);
 
   return <ShopContent products={products} />;
 }

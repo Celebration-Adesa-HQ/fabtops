@@ -54,7 +54,7 @@ export function Header() {
           color: headerColor,
         }}
         className="
-    fixed top-0 left-0 right-0 z-40
+    sticky top-0 left-0 right-0 z-40
     border-b backdrop-blur-md
     transition-all duration-300
     px-3 sm:px-6 md:px-10 lg:px-12
@@ -158,6 +158,7 @@ export function Header() {
               href="/wishlist"
               className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 relative group shrink-0"
               style={{ color: "inherit" }}
+              aria-label="Wishlist currently unavailable"
             >
               <Heart className="h-5 w-5" />
 
@@ -187,6 +188,7 @@ export function Header() {
               href="/account"
               className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
+              aria-label="Customer account currently unavailable"
             >
               <User className="h-5 w-5" />
             </Link>

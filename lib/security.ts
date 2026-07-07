@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-import { getCustomer } from './shopify/auth';
 
 /**
  * Validates request origin to protect against Cross-Site Request Forgery (CSRF).
@@ -39,28 +37,4 @@ export function validateCsrf(request: Request): boolean {
   }
 
   return true;
-}
-
-/**
- * Verifies that the customer is authenticated via their HTTP-only cookie
- * and returns their token and customer details.
- */
-export async function getAuthenticatedCustomer() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('customerAccessToken')?.value;
-
-  if (!token) {
-    return { authenticated: false, token: null, customer: null };
-  }
-
-  try {
-    const customer = await getCustomer(token);
-    if (!customer || !customer.id) {
-      return { authenticated: false, token: null, customer: null };
-    }
-    return { authenticated: true, token, customer };
-  } catch (error) {
-    console.error('Error fetching authenticated customer:', error);
-    return { authenticated: false, token: null, customer: null };
-  }
 }

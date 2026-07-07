@@ -1,136 +1,86 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { cartActionSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
-import { 
-  shopifyFetch, 
-  CREATE_CART_MUTATION, 
-  GET_CART_QUERY, 
-  ADD_CART_LINES_MUTATION, 
-  UPDATE_CART_LINES_MUTATION, 
-  REMOVE_CART_LINES_MUTATION,
-} from '@/lib/shopify';
+import {
+  addCartItem,
+  applyCartCoupon,
+  getCart,
+  removeCartCoupon,
+  removeCartItem,
+  selectShippingRate,
+  updateCartCustomer,
+  updateCartItem,
+} from '@/lib/woocommerce/cart';
 
-const UPDATE_CART_DISCOUNT_CODES_MUTATION = `
-  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) {
-    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
-      cart {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
+const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
+
+export async function POST(request: NextRequest) {
+  if (!validateCsrf(request)) {
+    return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
-`;
 
-export async function POST(req: Request) {
-  // CSRF Protection Check
-  if (!validateCsrf(req)) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Forbidden' 
-    }, { status: 403 });
+  const parsed = cartActionSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Invalid cart request' }, { status: 400 });
   }
 
   try {
-    const body = await req.json();
-    const validation = cartActionSchema.safeParse(body);
+    const cookieStore = await cookies();
+    const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
+    const bearerToken = null;
+    const action = parsed.data;
+    let result;
 
-    if (!validation.success) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Invalid request payload', 
-        details: validation.error.format() 
-      }, { status: 400 });
-    }
-
-    const { action, cartId, lines, lineIds, lineId, quantity, discountCodes } = validation.data;
-
-    let result: any;
-
-    switch (action) {
+    switch (action.action) {
       case 'create':
-        result = await shopifyFetch({
-          query: CREATE_CART_MUTATION,
-          variables: { input: { lines } },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartCreate.cart,
-          message: 'Cart created'
-        });
-
       case 'get':
-        result = await shopifyFetch({
-          query: GET_CART_QUERY,
-          variables: { cartId },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cart,
-          message: 'Cart fetched'
-        });
-
+        result = await getCart(currentToken, bearerToken);
+        break;
       case 'add':
-        result = await shopifyFetch({
-          query: ADD_CART_LINES_MUTATION,
-          variables: { cartId, lines },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesAdd.cart,
-          message: 'Items added'
-        });
-
+        result = await addCartItem(currentToken, action.productId, action.quantity, bearerToken);
+        break;
       case 'update':
-        result = await shopifyFetch({
-          query: UPDATE_CART_LINES_MUTATION,
-          variables: { cartId, lines: [{ id: lineId, quantity }] },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesUpdate.cart,
-          message: 'Cart updated'
-        });
-
+        result = await updateCartItem(currentToken, action.lineKey, action.quantity, bearerToken);
+        break;
       case 'remove':
-        result = await shopifyFetch({
-          query: REMOVE_CART_LINES_MUTATION,
-          variables: { cartId, lineIds },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesRemove.cart,
-          message: 'Items removed'
-        });
-
-      case 'updateDiscount':
-        result = await shopifyFetch({
-          query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
-          variables: { cartId, discountCodes },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartDiscountCodesUpdate.cart,
-          errors: result.cartDiscountCodesUpdate.userErrors,
-          message: 'Discount updated'
-        });
-
-      default:
-        return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+        result = await removeCartItem(currentToken, action.lineKey, bearerToken);
+        break;
+      case 'applyCoupon':
+        result = await applyCartCoupon(currentToken, action.code, bearerToken);
+        break;
+      case 'removeCoupon':
+        result = await removeCartCoupon(currentToken, action.code, bearerToken);
+        break;
+      case 'updateCustomer':
+        result = await updateCartCustomer(currentToken, action.billing_address, action.shipping_address, bearerToken);
+        break;
+      case 'selectShipping':
+        result = await selectShippingRate(currentToken, action.packageId, action.rateId, bearerToken);
+        break;
     }
-  } catch (error: any) {
-    console.error('Cart API Error:', error.message || error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'Cart operation failed' 
-    }, { status: 500 });
+
+    if (result.cartToken && result.cartToken !== currentToken) {
+      cookieStore.set(CART_TOKEN_COOKIE, result.cartToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: result.cart,
+      message: 'Cart updated successfully',
+    });
+  } catch (error) {
+    console.error('WooCommerce cart error:', error);
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Cart operation failed',
+    }, { status: 502 });
   }
 }
