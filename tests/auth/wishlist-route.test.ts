@@ -2,14 +2,16 @@ import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const getServerAuthSession = vi.fn();
-const wordpressAuthRequest = vi.fn();
+const getCustomer = vi.fn();
+const updateCustomer = vi.fn();
 
 vi.mock('@/lib/auth/session', () => ({
   getServerAuthSession,
 }));
 
-vi.mock('@/lib/auth/wordpress-client', () => ({
-  wordpressAuthRequest,
+vi.mock('@/lib/woocommerce/customers', () => ({
+  getCustomer,
+  updateCustomer,
 }));
 
 describe('wishlist route', () => {
@@ -17,9 +19,8 @@ describe('wishlist route', () => {
     vi.clearAllMocks();
   });
 
-  it('adds a product to the signed-in customer wishlist', async () => {
+  it('adds a product to the signed-in customer wishlist via customer meta_data', async () => {
     getServerAuthSession.mockResolvedValue({
-      accessToken: 'opaque-access-token',
       user: {
         id: '12',
         name: 'Ada Lovelace',
@@ -51,9 +52,30 @@ describe('wishlist route', () => {
       imageAlt: 'Rose Top',
     };
 
-    wordpressAuthRequest
-      .mockResolvedValueOnce({ success: true, data: existing })
-      .mockResolvedValueOnce({ success: true, data: [...existing, added] });
+    getCustomer.mockResolvedValue({
+      id: 12,
+      email: 'ada@example.com',
+      first_name: 'Ada',
+      last_name: 'Lovelace',
+      billing: {},
+      shipping: {},
+      meta_data: [
+        {
+          id: 1,
+          key: 'fabtops_wishlist',
+          value: JSON.stringify(existing),
+        },
+      ],
+    });
+    updateCustomer.mockResolvedValue({
+      id: 12,
+      meta_data: [
+        {
+          key: 'fabtops_wishlist',
+          value: JSON.stringify([...existing, added]),
+        },
+      ],
+    });
 
     const { POST } = await import('../../app/api/wishlist/route');
     const request = new NextRequest('https://fabtops.test/api/wishlist', {
@@ -67,15 +89,14 @@ describe('wishlist route', () => {
 
     expect(response.status).toBe(200);
     expect(body.data).toHaveLength(2);
-    expect(wordpressAuthRequest).toHaveBeenNthCalledWith(1, '/me/wishlist', {
-      bearerToken: 'opaque-access-token',
-    });
-    expect(wordpressAuthRequest).toHaveBeenNthCalledWith(2, '/me/wishlist', {
-      method: 'PUT',
-      bearerToken: 'opaque-access-token',
-      body: {
-        wishlist: [...existing, added],
-      },
+    expect(getCustomer).toHaveBeenCalledWith('12');
+    expect(updateCustomer).toHaveBeenCalledWith('12', {
+      meta_data: [
+        {
+          key: 'fabtops_wishlist',
+          value: JSON.stringify([...existing, added]),
+        },
+      ],
     });
   });
 

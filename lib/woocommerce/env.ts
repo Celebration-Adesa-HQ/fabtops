@@ -10,6 +10,7 @@ const wooEnvSchema = z.object({
 
 export interface WooEnvironment {
   storeUrl: string;
+  apiVersion: string;
   restBaseUrl: string;
   storeApiBaseUrl: string;
   consumerKey: string;
@@ -31,6 +32,7 @@ export function parseWooEnv(rawEnv: Record<string, string | undefined>): WooEnvi
 
   return {
     storeUrl,
+    apiVersion: version,
     restBaseUrl: `${storeUrl}/wp-json/${version}`,
     storeApiBaseUrl: (env.WOOCOMMERCE_STORE_API_BASE || `${storeUrl}/wp-json/wc/store/v1`).replace(/\/$/, ''),
     consumerKey: env.WOOCOMMERCE_CONSUMER_KEY,

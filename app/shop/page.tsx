@@ -1,4 +1,5 @@
 import { getProducts } from '@/lib/woocommerce/products';
+import { getStorefrontFilters } from '@/lib/woocommerce/storefront';
 import { ShopContent } from '@/components/editorial/ShopContent';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +10,10 @@ export const metadata = {
 };
 
 export default async function ShopPage() {
-  const products = await getProducts(50);
+  const [products, filters] = await Promise.all([
+    getProducts(50),
+    getStorefrontFilters(),
+  ]);
 
-  return <ShopContent products={products} />;
+  return <ShopContent products={products} filters={filters} />;
 }

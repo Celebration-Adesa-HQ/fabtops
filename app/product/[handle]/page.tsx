@@ -1,4 +1,5 @@
 import { getProductBySlug, getProducts } from '@/lib/woocommerce/products';
+import { getStoreProductReviews } from '@/lib/woocommerce/storefront';
 import { ProductView } from '@/components/editorial/ProductView';
 import { notFound } from 'next/navigation';
 import { ProductStructuredData } from '@/components/seo/StructuredData';
@@ -46,11 +47,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .filter((p: any) => p.handle !== handle)
     .slice(0, 4);
 
+  const reviews = await getStoreProductReviews({
+    product_id: product.id,
+    orderby: 'date',
+    order: 'desc',
+    per_page: 6,
+  });
+
   return (
     <>
       <ProductStructuredData product={product} />
       <ProductView 
         product={product} 
+        reviews={reviews}
         relatedProducts={relatedProducts} 
       />
     </>

@@ -5,7 +5,7 @@
  *
  * Import flow per data type:
  * ─────────────────────────────────────────────────────────
- * Products / Categories  → WooCommerce REST API exclusively (GET, server-only,
+ * Products / Categories  → WooCommerce REST API exclusively (server-only,
  *                          authenticated with Consumer Key + Secret).
  *                          Adapter normalises REST shape to StorefrontProduct.
  *
@@ -36,6 +36,31 @@ export { buildWooRestUrl, wooRequest } from './rest-client';
 // Public Store API client (no credentials)
 export { buildStoreApiUrl, fromMinorUnits, storeApiRequest } from './store-api';
 export type { StoreApiResult } from './store-api';
+export {
+  buildStorefrontFilters,
+  getStoreCheckoutOrder,
+  getStoreOrder,
+  getStoreProductAttributeTerms,
+  getStoreProductAttributes,
+  getStoreProductBrands,
+  getStoreProductCategories,
+  getStoreProductCollectionData,
+  getStoreProductReviews,
+  getStoreProductTags,
+  getStoreProducts,
+  getStorefrontFilters,
+} from './storefront';
+export type {
+  StoreApiCollectionData,
+  StoreApiOrder,
+  StoreApiProductAttribute,
+  StoreApiProductAttributeTerm,
+  StoreApiProductBrand,
+  StoreApiProductCategory,
+  StoreApiProductReview,
+  StoreApiProductTag,
+  StorefrontFilters,
+} from './storefront';
 
 // Product helpers
 export {
@@ -48,6 +73,12 @@ export {
   getProductVariations,
   searchProducts,
 } from './products';
+
+export { createCustomer, getCustomer, updateCustomer } from './customers';
+export type { WooCustomer, WooCustomerAddress } from './customers';
+
+export { getCustomerOrder, getCustomerOrders } from './orders';
+export type { WooOrder, WooOrderLineItem } from './orders';
 
 // Cart helpers (Store API session-scoped)
 export {

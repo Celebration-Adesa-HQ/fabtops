@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { searchProducts } from '../../lib/woocommerce/products';
 import type { RestProduct } from '../../lib/woocommerce/types';
 
-const wooRequest = vi.fn();
+const { wooRequest } = vi.hoisted(() => ({
+  wooRequest: vi.fn(),
+}));
 
 vi.mock('../../lib/woocommerce/rest-client', () => ({
   wooRequest,

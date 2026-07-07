@@ -1,13 +1,4 @@
-/**
- * WooCommerce REST API Client — SERVER ONLY
- *
- * Security contract:
- *  - Consumer key/secret NEVER leave this module.
- *  - Only GET and HEAD are permitted (read-only).
- *  - Credentials are transmitted over HTTPS only (validated via env.ts).
- *  - All responses are cached at the Next.js Data Cache layer with explicit
- *    revalidation tags; callers control cache lifetime via `next` options.
- */
+import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
 import { getWooEnv } from './env';
 
 /** Throw at module evaluation time if accidentally imported on the client. */
@@ -33,58 +24,71 @@ export function buildWooRestUrl(
   return url.toString();
 }
 
-/** Basic-auth header — never returned to callers, used only inside fetch. */
-function buildWooAuthHeader(key: string, secret: string) {
-  return `Basic ${Buffer.from(`${key}:${secret}`).toString('base64')}`;
-}
+type WooMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS' | 'HEAD';
 
-type ReadOnlyMethod = 'GET' | 'HEAD';
-
-export function assertReadOnlyMethod(method: string): ReadOnlyMethod {
-  const normalized = method.toUpperCase();
-  if (normalized !== 'GET' && normalized !== 'HEAD') {
-    throw new Error('WooCommerce REST API client is read-only — write methods are forbidden.');
-  }
-  return normalized;
-}
-
-interface WooRequestOptions extends Omit<RequestInit, 'method'> {
-  method?: ReadOnlyMethod;
+interface WooRequestOptions {
+  method?: WooMethod;
   query?: Record<string, QueryValue>;
-  /** Next.js cache options — callers should always provide `tags` for ISR. */
+  data?: unknown;
+  cache?: RequestCache;
   next?: NextFetchRequestConfig;
+}
+
+function normalizeMethod(method?: string): Lowercase<WooMethod> {
+  const normalized = (method || 'GET').toUpperCase();
+  switch (normalized) {
+    case 'GET':
+    case 'POST':
+    case 'PUT':
+    case 'DELETE':
+    case 'OPTIONS':
+    case 'HEAD':
+      return normalized.toLowerCase() as Lowercase<WooMethod>;
+    default:
+      throw new Error(`Unsupported WooCommerce REST method: ${method}`);
+  }
+}
+
+function createWooRestClient() {
+  const env = getWooEnv();
+  return new WooCommerceRestApi({
+    url: env.storeUrl,
+    consumerKey: env.consumerKey,
+    consumerSecret: env.consumerSecret,
+    version: env.apiVersion as 'wc/v3',
+    queryStringAuth: false,
+  });
 }
 
 export async function wooRequest<T>(
   path: string,
   options: WooRequestOptions = {},
 ): Promise<T> {
-  const env = getWooEnv();
-  const method = assertReadOnlyMethod(options.method || 'GET');
-  const url = buildWooRestUrl(env.restBaseUrl, path, options.query);
-  const { query: _q, next, ...rest } = options;
+  const client = createWooRestClient();
+  const endpoint = path.replace(/^\/+/, '');
+  const method = normalizeMethod(options.method);
+  const query = Object.fromEntries(
+    Object.entries(options.query || {}).filter(([, value]) => value !== undefined).map(([key, value]) => [key, String(value)]),
+  );
 
-  const response = await fetch(url, {
-    ...rest,
-    method,
-    next,
-    headers: {
-      Authorization: buildWooAuthHeader(env.consumerKey, env.consumerSecret),
-      Accept: 'application/json',
-      ...rest.headers,
-    },
-  });
+  try {
+    const response = method === 'post' || method === 'put'
+      ? await client[method](endpoint, options.data ?? {}, query)
+      : await client[method](endpoint, query);
+    return response.data as T;
+  } catch (error) {
+    const detail =
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as { response?: { data?: { message?: string }; status?: number; statusText?: string } }).response?.status === 'number'
+        ? (error as { response: { data?: { message?: string }; status: number; statusText?: string } }).response
+        : null;
 
-  if (!response.ok) {
-    let detail = response.statusText;
-    try {
-      const body = (await response.json()) as { message?: string };
-      detail = body.message || detail;
-    } catch {
-      // WooCommerce sometimes returns non-JSON on error — use statusText.
+    if (detail) {
+      throw new Error(`WooCommerce REST ${detail.status}: ${detail.data?.message || detail.statusText || 'Request failed'} [${method.toUpperCase()} ${path}]`);
     }
-    throw new Error(`WooCommerce REST ${response.status}: ${detail} [${method} ${path}]`);
-  }
 
-  return response.json() as Promise<T>;
+    throw error;
+  }
 }

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X, ChevronDown, Check, SlidersHorizontal } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { cn } from '@/lib/utils';
+import type { StorefrontFilters } from '@/lib/woocommerce/storefront';
 
 interface Product {
   id: string;
@@ -63,6 +64,7 @@ const PREDEFINED_CATEGORIES = ['Tops', 'Sets', 'Dresses', 'Luxe Accessories', 'A
 
 interface ShopContentProps {
   products: Product[];
+  filters?: StorefrontFilters;
   title?: string;
   subtitle?: string;
   heroImage?: string;
@@ -71,6 +73,7 @@ interface ShopContentProps {
 
 export function ShopContent({ 
   products: initialProducts, 
+  filters,
   title = "All Silhouettes", 
   subtitle = "Meticulously crafted silhouettes for the modern, evolving woman.",
   heroImage,
@@ -79,6 +82,16 @@ export function ShopContent({
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [activeFilters, setActiveFilters] = React.useState<{ [key: string]: string[] }>({});
   const [sortBy, setSortBy] = React.useState('newest');
+
+  const dynamicPriceRanges = React.useMemo(() => {
+    if (!filters?.priceRange) return PRICE_RANGES;
+
+    const overlappingRanges = PRICE_RANGES.filter(
+      (range) => range.max > filters.priceRange!.min && range.min < filters.priceRange!.max,
+    );
+
+    return overlappingRanges.length ? overlappingRanges : PRICE_RANGES;
+  }, [filters?.priceRange]);
 
   // Extract all unique sizes for filters
   const filterOptions = React.useMemo(() => {
@@ -91,11 +104,20 @@ export function ShopContent({
     });
 
     return [
-      { name: 'Category', options: PREDEFINED_CATEGORIES },
-      { name: 'Size', options: Array.from(sizes).sort() },
-      { name: 'Price', options: PRICE_RANGES.map(r => r.label) },
+      {
+        name: 'Category',
+        options: filters?.categories.length ? filters.categories : PREDEFINED_CATEGORIES,
+      },
+      {
+        name: 'Size',
+        options: filters?.sizes.length ? filters.sizes : Array.from(sizes).sort(),
+      },
+      {
+        name: 'Price',
+        options: dynamicPriceRanges.map((range) => range.label),
+      },
     ];
-  }, [initialProducts]);
+  }, [dynamicPriceRanges, filters?.categories, filters?.sizes, initialProducts]);
 
   const toggleFilter = (category: string, value: string) => {
     setActiveFilters((prev) => {
@@ -132,7 +154,7 @@ export function ShopContent({
         filtered = filtered.filter((p) => {
           const productPrice = parseFloat(p.priceRange.minVariantPrice.amount);
           return values.some(label => {
-            const range = PRICE_RANGES.find(r => r.label === label);
+            const range = dynamicPriceRanges.find(r => r.label === label);
             return range ? productPrice >= range.min && productPrice < range.max : true;
           });
         });
@@ -150,7 +172,7 @@ export function ShopContent({
     });
 
     return filtered;
-  }, [activeFilters, sortBy, initialProducts]);
+  }, [activeFilters, dynamicPriceRanges, sortBy, initialProducts]);
 
   const totalActiveFilters = Object.values(activeFilters).flat().length;
 

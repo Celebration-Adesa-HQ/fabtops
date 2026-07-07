@@ -1,12 +1,12 @@
-import { AccountUnavailable } from '@/components/account/AccountUnavailable';
+import WishlistPageClient from './WishlistPageClient';
 
 export const metadata = {
   title: 'Your Wishlist',
-  description: 'Wishlist access is temporarily unavailable while FabTops standardizes on WooCommerce APIs.',
+  description: 'Your saved FabTops pieces, synced to your customer session.',
 };
 
 export const dynamic = 'force-dynamic';
 
 export default async function WishlistPage() {
-  return <AccountUnavailable />;
+  return <WishlistPageClient />;
 }

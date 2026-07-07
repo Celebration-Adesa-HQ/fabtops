@@ -5,6 +5,7 @@ import { checkoutSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
 import { getCart } from '@/lib/woocommerce/cart';
 import { assertPaymentMethodAvailable, submitCheckout } from '@/lib/woocommerce/checkout';
+import { getAccessToken } from '@/lib/auth/session';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const bearerToken = null;
+    const bearerToken = await getAccessToken();
     const { cart } = await getCart(cartToken, bearerToken);
     assertPaymentMethodAvailable(cart.paymentMethods, parsed.data.payment_method);
     const result = await submitCheckout(cartToken, parsed.data, bearerToken);

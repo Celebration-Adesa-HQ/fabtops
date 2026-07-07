@@ -2,16 +2,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildWooRestUrl } from '../../lib/woocommerce/rest-client';
 import { fromMinorUnits, buildStoreApiUrl } from '../../lib/woocommerce/store-api';
 
-const apiGet = vi.fn();
-const apiPost = vi.fn();
+const { apiGet, apiPost, WooCommerceRestApiMock } = vi.hoisted(() => {
+  const apiGet = vi.fn();
+  const apiPost = vi.fn();
+  const WooCommerceRestApiMock = vi.fn(function MockWooClient() {
+    return {
+      get: apiGet,
+      post: apiPost,
+      put: vi.fn(),
+      delete: vi.fn(),
+      options: vi.fn(),
+    };
+  });
 
-const WooCommerceRestApiMock = vi.fn().mockImplementation(() => ({
-  get: apiGet,
-  post: apiPost,
-  put: vi.fn(),
-  delete: vi.fn(),
-  options: vi.fn(),
-}));
+  return { apiGet, apiPost, WooCommerceRestApiMock };
+});
 
 vi.mock('@woocommerce/woocommerce-rest-api', () => ({
   default: WooCommerceRestApiMock,
@@ -49,7 +54,7 @@ describe('WooCommerce clients', () => {
       version: 'wc/v3',
       queryStringAuth: false,
     });
-    expect(apiGet).toHaveBeenCalledWith('products', { per_page: 1 });
+    expect(apiGet).toHaveBeenCalledWith('products', { per_page: '1' });
 
     vi.unstubAllEnvs();
   });

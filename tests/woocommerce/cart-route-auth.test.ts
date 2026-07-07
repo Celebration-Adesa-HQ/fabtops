@@ -37,7 +37,7 @@ describe('cart route customer auth bridge', () => {
     });
   });
 
-  it('passes the customer bearer token through to Store API cart reads', async () => {
+  it('keeps cart reads guest/session-scoped when storefront auth is local only', async () => {
     getCart.mockResolvedValue({
       cart: {
         items: [],
@@ -60,7 +60,7 @@ describe('cart route customer auth bridge', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(getCart).toHaveBeenCalledWith('cart-token-1', 'customer-access-token');
+    expect(getCart).toHaveBeenCalledWith('cart-token-1', null);
     expect(cookieStore.set).toHaveBeenCalledWith(
       'woocommerce_cart_token',
       'cart-token-2',

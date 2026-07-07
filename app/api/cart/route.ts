@@ -13,6 +13,7 @@ import {
   updateCartCustomer,
   updateCartItem,
 } from '@/lib/woocommerce/cart';
+import { getAccessToken } from '@/lib/auth/session';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
-    const bearerToken = null;
+    const bearerToken = await getAccessToken();
     const action = parsed.data;
     let result;
 

@@ -1,4 +1,5 @@
 import { getProductsByCategorySlug } from '@/lib/woocommerce/products';
+import { getStorefrontFilters } from '@/lib/woocommerce/storefront';
 import { ShopContent } from '@/components/editorial/ShopContent';
 import { notFound } from 'next/navigation';
 
@@ -58,7 +59,10 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  const products = await getProductsByCategorySlug(handle, 50);
+  const [products, filters] = await Promise.all([
+    getProductsByCategorySlug(handle, 50),
+    getStorefrontFilters(handle),
+  ]);
   if (!products) notFound();
 
   // Get collection-specific metadata
@@ -68,6 +72,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     <main className="bg-brand-secondary min-h-screen">
       <ShopContent 
         products={products} 
+        filters={filters}
         title={collectionName}
         subtitle={meta.subtitle}
         heroImage={meta.heroImage}

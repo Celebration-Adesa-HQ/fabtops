@@ -6,12 +6,12 @@ This repository intentionally contains no admin dashboard, product editor, inven
 
 ## API Responsibilities
 
-- WooCommerce Store API (`/wp-json/wc/store/v1`) powers public product listings, guest cart, coupons, customer addresses, shipping rates, taxes, checkout, and payment handoff.
-- WooCommerce REST API (`/wp-json/wc/v3`) is server-only and read-only. It powers detailed product/category/variation reads, sitemap data, and diagnostics.
+- `@woocommerce/woocommerce-rest-api` is the only `wc/v3` integration path in this repo. It powers server-side product, category, variation, customer, order, sitemap, and diagnostics access.
+- WooCommerce Store API (`/wp-json/wc/store/v1`) is the shopper-facing layer for cart, checkout, catalog filter metadata, taxonomies, pay-for-order reads, and product reviews.
 - WooCommerce Consumer Key and Consumer Secret are never sent to the browser.
 - Guest cart and guest checkout remain first-class WooCommerce flows powered by WooCommerce Store API.
-- Server-side catalog and commerce reads use WooCommerce REST API credentials only.
-- Customer account and wishlist features are currently unavailable in this storefront.
+- Server-side catalog and Woo resource access use WooCommerce REST API credentials only.
+- Customer login, register, reset-password, session lookup, and wishlist are backed by a separate storefront auth bridge.
 - Newsletter signup is unavailable until a dedicated mailing provider is configured.
 
 ## WooCommerce Setup
@@ -21,11 +21,12 @@ This repository intentionally contains no admin dashboard, product editor, inven
 3. Select `Add key`.
 4. Choose the WordPress user that owns the integration.
 5. Select `Read` permission for this storefront.
-6. Use `Read/Write` only for a future server integration that must administratively update WooCommerce. This storefront does not require it.
+6. Use `Read/Write` if this storefront will create or update WooCommerce customers through `wc/v3`.
 7. Generate the key and copy the Consumer Key and Consumer Secret immediately. The secret is shown only once.
 8. Ensure WordPress pretty permalinks are enabled.
 9. Ensure guest checkout is enabled.
 10. Ensure the installed Paystack extension supports WooCommerce Blocks and Store API checkout.
+11. If you are using the bundled FabTops auth plugin, define the matching shared secret in WordPress and this storefront.
 
 ## Environment
 
@@ -36,7 +37,11 @@ WOOCOMMERCE_STORE_URL=https://your-wordpress-domain.com
 WOOCOMMERCE_CONSUMER_KEY=ck_replace_me
 WOOCOMMERCE_CONSUMER_SECRET=cs_replace_me
 WOOCOMMERCE_API_VERSION=wc/v3
-WOOCOMMERCE_STORE_API_BASE=https://your-wordpress-domain.com/wp-json/wc/store/v1
+FABTOPS_AUTH_CLIENT_SECRET=replace_with_shared_256_bit_secret
+# Optional override. Defaults to https://your-wordpress-domain.com/wp-json/wc/store/v1
+# WOOCOMMERCE_STORE_API_BASE=https://your-wordpress-domain.com/wp-json/wc/store/v1
+# Optional override. Defaults to https://your-wordpress-domain.com/wp-json/fabtops/v1
+# FABTOPS_AUTH_BASE_URL=https://your-wordpress-domain.com/wp-json/fabtops/v1
 ```
 
 Never prefix WooCommerce credentials with `NEXT_PUBLIC_`, `VITE_`, or `REACT_APP_`. Restart the development server after changing environment values.
@@ -57,10 +62,10 @@ npm run build
 npm run test:woocommerce
 ```
 
-The connection test requests `/wp-json/wc/v3/products?per_page=1&status=publish`. A successful result contains either one product or an empty array.
+The connection test uses the package-backed `wc/v3` client to request `products?per_page=1&status=publish`. A successful result contains either one product or an empty array.
 
 - `401`: verify key permissions and the associated WordPress user.
 - `Consumer Key is missing`: verify that the web server forwards the `Authorization` header.
 - `404`: verify `WOOCOMMERCE_STORE_URL`, pretty permalinks, and that WooCommerce REST API is active.
 
-All product, order, inventory, coupon, shipping, tax, payment, customer, and store-setting changes must be made in the WooCommerce dashboard in WordPress.
+All product, order, inventory, coupon, shipping, tax, payment, customer, and store-setting changes remain grounded in WooCommerce in WordPress. This storefront may read them through `wc/v3`, and it may create or update customer records only through the explicitly configured server-side integration.

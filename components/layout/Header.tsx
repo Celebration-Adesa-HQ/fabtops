@@ -158,7 +158,7 @@ export function Header() {
               href="/wishlist"
               className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 relative group shrink-0"
               style={{ color: "inherit" }}
-              aria-label="Wishlist currently unavailable"
+              aria-label="Wishlist"
             >
               <Heart className="h-5 w-5" />
 
@@ -188,7 +188,7 @@ export function Header() {
               href="/account"
               className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
-              aria-label="Customer account currently unavailable"
+              aria-label="Customer account"
             >
               <User className="h-5 w-5" />
             </Link>

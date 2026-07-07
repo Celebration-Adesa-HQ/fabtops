@@ -1,5 +1,6 @@
-import { customerAccountsUnavailable } from '@/lib/account-unavailable';
+import { NextResponse } from 'next/server';
+import { clearAuthCookies } from '@/lib/auth/session';
 
 export async function POST() {
-  return customerAccountsUnavailable();
+  return clearAuthCookies(NextResponse.json({ success: true, data: null, message: 'Signed out' }));
 }

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, Plus, Minus, Heart, Share2, Ruler, ShieldCheck, Truck, RefreshCw, Play } from 'lucide-react';
+import { ChevronRight, Plus, Minus, Heart, Share2, Ruler, ShieldCheck, Truck, RefreshCw, Play, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { ProductCard } from './ProductCard';
@@ -11,13 +11,15 @@ import { useCart } from '@/components/cart/CartProvider';
 import { useCurrency } from '@/lib/currency-context';
 import { FavoriteButton } from './FavoriteButton';
 import { SizeGuide } from './SizeGuide';
+import type { StoreApiProductReview } from '@/lib/woocommerce/storefront';
 
 interface ProductViewProps {
   product: any;
+  reviews?: StoreApiProductReview[];
   relatedProducts: any[];
 }
 
-export function ProductView({ product, relatedProducts }: ProductViewProps) {
+export function ProductView({ product, reviews = [], relatedProducts }: ProductViewProps) {
   const [selectedImage, setSelectedImage] = React.useState(0);
   const [selectedSize, setSelectedSize] = React.useState('');
   const [selectedColor, setSelectedColor] = React.useState('');
@@ -31,6 +33,9 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
   const images = product.images.edges.map((edge: any) => edge.node);
   const price = product.priceRange.minVariantPrice.amount;
   const currencyCode = product.priceRange.minVariantPrice.currencyCode;
+  const averageRating = reviews.length
+    ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length
+    : 0;
 
   // Extract sizes and colors
   const sizes = product.options.find((opt: any) => opt.name.toLowerCase() === 'size')?.values || [];
@@ -370,6 +375,61 @@ export function ProductView({ product, relatedProducts }: ProductViewProps) {
                 ))}
               </div>
             </div>
+
+            {reviews.length > 0 && (
+              <div className="border-t border-brand-dark/10 pt-10">
+                <div className="space-y-8">
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-primary">Client Notes</p>
+                      <h2 className="mt-3 text-3xl font-heading uppercase tracking-tight text-brand-dark">Product Reviews</h2>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center justify-end gap-2 text-brand-dark">
+                        <Star size={16} className="fill-brand-primary text-brand-primary" />
+                        <span className="text-lg font-semibold">{averageRating.toFixed(1)}</span>
+                        <span className="text-sm text-brand-dark/50">/ 5</span>
+                      </div>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40">
+                        {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-5">
+                    {reviews.map((review) => (
+                      <article key={review.id} className="rounded-[1.5rem] border border-brand-dark/8 bg-white/70 p-5">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-brand-dark">{review.reviewer}</p>
+                            <p className="mt-1 text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/35">
+                              {review.formatted_date_created}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 text-brand-primary">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                              <Star
+                                key={`${review.id}-${index}`}
+                                size={14}
+                                className={cn(
+                                  index < Number(review.rating || 0)
+                                    ? 'fill-brand-primary text-brand-primary'
+                                    : 'text-brand-dark/15',
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div
+                          className="mt-4 text-sm leading-relaxed text-brand-dark/65"
+                          dangerouslySetInnerHTML={{ __html: review.review }}
+                        />
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { validateCsrf } from '@/lib/security';
 import { addCartItem } from '@/lib/woocommerce/cart';
+import { getAccessToken } from '@/lib/auth/session';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 
-  const bearerToken = null;
+  const bearerToken = await getAccessToken();
 
   const parsed = buyNowSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
