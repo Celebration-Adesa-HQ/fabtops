@@ -1,5 +1,5 @@
 import { AuthConfigError } from './env';
-import { AuthRequestError } from './wordpress-client';
+import { AuthRequestError } from './errors';
 
 export function getAuthRouteError(error: unknown, fallbackMessage: string) {
   if (error instanceof AuthConfigError) {

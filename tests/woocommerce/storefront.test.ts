@@ -47,7 +47,7 @@ describe('WooCommerce Storefront helpers', () => {
         'calculate_attribute_counts[0][taxonomy]': 'pa_size',
         'calculate_attribute_counts[0][query_type]': 'or',
       },
-      cache: 'no-store',
+      next: { revalidate: 60, tags: ['woo-store-collection-data'] },
     });
   });
 

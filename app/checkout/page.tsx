@@ -116,6 +116,18 @@ export default function CheckoutPage() {
           <aside className="h-fit border border-brand-dark/10 bg-white/60 p-8 lg:sticky lg:top-32">
             <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/50">WooCommerce Checkout</p>
             <p className="mt-5 text-sm leading-7 text-brand-dark/60">Prices, stock, coupons, shipping, taxes, and payment availability are calculated directly by WooCommerce.</p>
+            <div className="mt-8 rounded-[1.5rem] border border-brand-dark/8 bg-brand-light/70 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Payment Interrupted?</p>
+              <p className="mt-3 text-sm leading-7 text-brand-dark/60">
+                If your gateway redirects you out before payment completes, use the order recovery flow to reload the unpaid Woo order and continue.
+              </p>
+              <Link
+                href="/checkout/recover"
+                className="mt-5 inline-flex text-[10px] font-black uppercase tracking-[0.32em] text-brand-primary"
+              >
+                Open Recovery
+              </Link>
+            </div>
           </aside>
         </div>
       </div>

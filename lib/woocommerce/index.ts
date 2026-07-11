@@ -34,12 +34,24 @@ export type { WooEnvironment } from './env';
 export { buildWooRestUrl, wooRequest } from './rest-client';
 
 // Public Store API client (no credentials)
-export { buildStoreApiUrl, fromMinorUnits, storeApiRequest } from './store-api';
-export type { StoreApiResult } from './store-api';
+export { buildStoreApiUrl, formatMoney, fromMinorUnits, storeApiRequest } from './store-api';
+export type { StoreApiPaginationHeaders, StoreApiResult } from './store-api';
 export {
+  createProductReview,
+  deleteProductReview,
+  getCustomerProductReview,
+  listProductReviews,
+  updateProductReview,
+} from './reviews';
+export type { WooRestProductReview } from './reviews';
+
+export {
+  buildAggregateQuery,
+  buildStoreApiProductQueryFromShopQuery,
   buildStorefrontFilters,
   getStoreCheckoutOrder,
   getStoreOrder,
+  getPaginatedStoreProducts,
   getStoreProductAttributeTerms,
   getStoreProductAttributes,
   getStoreProductBrands,
@@ -49,6 +61,7 @@ export {
   getStoreProductTags,
   getStoreProducts,
   getStorefrontFilters,
+  normalizePaginatedCollectionResult,
 } from './storefront';
 export type {
   StoreApiCollectionData,
@@ -71,6 +84,8 @@ export {
   getProductsByCategorySlug,
   getProductSlugs,
   getProductVariations,
+  getProductsByIds,
+  getRelatedProductsForProduct,
   searchProducts,
 } from './products';
 
@@ -109,11 +124,15 @@ export { adaptRestProduct, adaptStoreProduct } from './adapters';
 export type {
   RestProduct,
   RestProductVariation,
-  StoreApiImage,
-  StoreApiPrices,
   StoreApiProduct,
   StorefrontCategory,
+  StorefrontImage,
   StorefrontMoney,
   StorefrontProduct,
+  StorefrontVariation,
   StorefrontVariant,
+  WooRestProduct,
+  WooRestVariation,
+  WooStorePrices,
+  WooStoreProduct,
 } from './types';

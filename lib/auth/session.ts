@@ -1,81 +1,22 @@
-import { createHmac } from 'crypto';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-import { getWooEnv } from '@/lib/woocommerce/env';
+import { headers as nextHeaders } from 'next/headers';
+import { AuthRequestError } from './errors';
+import { auth } from './server';
+import { prisma } from '@/lib/db/prisma';
 
-export const ACCESS_TOKEN_COOKIE = 'fabtops_access_token';
-export const REFRESH_TOKEN_COOKIE = 'fabtops_refresh_token';
+export { AuthRequestError } from './errors';
 
-interface SessionUser {
+export interface SessionUser {
   id: string;
   email: string;
   name?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
+  wooCustomerId?: string | null;
 }
 
-interface SessionTokens {
-  accessToken?: string;
-  refreshToken?: string;
-  accessExpiresAt?: number;
-  refreshExpiresAt?: number;
-  user?: SessionUser;
-}
-
-export interface ServerAuthSession extends SessionTokens {
+export interface ServerAuthSession {
   user: SessionUser;
-}
-
-function cookieConfig(maxAge: number) {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge,
-  };
-}
-
-function signSessionPayload(payload: string) {
-  const env = getWooEnv();
-  return createHmac('sha256', env.consumerSecret).update(payload).digest('base64url');
-}
-
-function encodeSession(user: SessionUser) {
-  const payload = Buffer.from(JSON.stringify(user)).toString('base64url');
-  const signature = signSessionPayload(payload);
-  return `${payload}.${signature}`;
-}
-
-function decodeSession(token: string): SessionUser | null {
-  const [payload, signature] = token.split('.', 2);
-  if (!payload || !signature) return null;
-  if (signSessionPayload(payload) !== signature) return null;
-
-  try {
-    return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as SessionUser;
-  } catch {
-    return null;
-  }
-}
-
-export function applyAuthCookies(response: NextResponse, session: SessionTokens) {
-  const user = session.user;
-  if (!user) {
-    throw new Error('Cannot create customer session without a user payload.');
-  }
-
-  const signedSession = encodeSession(user);
-  response.cookies.set(ACCESS_TOKEN_COOKIE, signedSession, cookieConfig(60 * 60 * 24 * 7));
-  response.cookies.set(REFRESH_TOKEN_COOKIE, 'local-session', cookieConfig(60 * 60 * 24 * 7));
-  return response;
-}
-
-export function clearAuthCookies(response: NextResponse) {
-  response.cookies.set(ACCESS_TOKEN_COOKIE, '', { ...cookieConfig(0), maxAge: 0 });
-  response.cookies.set(REFRESH_TOKEN_COOKIE, '', { ...cookieConfig(0), maxAge: 0 });
-  return response;
 }
 
 export async function getAccessToken() {
@@ -83,27 +24,104 @@ export async function getAccessToken() {
 }
 
 export async function getRefreshToken() {
-  const cookieStore = await cookies();
-  return cookieStore.get(REFRESH_TOKEN_COOKIE)?.value || null;
+  return null;
 }
 
 export async function getServerAuthSession(): Promise<ServerAuthSession | null> {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value || null;
-  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value || null;
+  const headerStore = await nextHeaders();
+  const result = await auth.getSession({
+    headers: new Headers(headerStore),
+  });
 
-  if (!accessToken) {
+  if (result.error) {
+    throw new AuthRequestError(result.error.message, result.error.status || 500, result.error.code);
+  }
+
+  const session = result.data as { user?: { id: string | number; email: string; name?: string | null } } | null;
+  if (!session?.user) {
     return null;
   }
 
-  const user = decodeSession(accessToken);
-  if (!user) {
-    return null;
-  }
+  const profile = await findProfileSafely(String(session.user.id));
 
   return {
-    accessToken,
-    refreshToken: refreshToken || '',
-    user,
+    user: toSessionUser({
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name || '',
+      firstName: profile?.firstName,
+      lastName: profile?.lastName,
+      phone: profile?.phone || '',
+      wooCustomerId: profile?.wooCustomerId || null,
+    }),
+  };
+}
+
+async function findProfileSafely(userId: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { id: userId },
+    }) as {
+      id: string;
+      email: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string | null;
+      wooCustomerId?: string | null;
+    } | null;
+  } catch (error) {
+    if (isTransientPrismaError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+function isTransientPrismaError(error: unknown) {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const candidate = error as { code?: string; message?: string };
+  if (candidate.code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'P1001'].includes(candidate.code)) {
+    return true;
+  }
+
+  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server/i.test(candidate.message || '');
+}
+
+export function toSessionUser(profile: {
+  id: string | number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  phone?: string;
+  wooCustomerId?: string | null;
+}) {
+  const derived = splitName(profile.name || '');
+
+  return {
+    id: String(profile.id),
+    email: profile.email,
+    name: `${profile.firstName || derived.firstName || ''} ${profile.lastName || derived.lastName || ''}`.trim(),
+    firstName: profile.firstName || derived.firstName || '',
+    lastName: profile.lastName || derived.lastName || '',
+    phone: profile.phone || '',
+    wooCustomerId: profile.wooCustomerId || null,
+  };
+}
+
+function splitName(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const [firstName, ...rest] = trimmed.split(/\s+/);
+  return {
+    firstName,
+    lastName: rest.join(' '),
   };
 }

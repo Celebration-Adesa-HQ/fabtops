@@ -2,11 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { buildStorefrontFilters } from '../../lib/woocommerce/storefront';
 
 describe('buildStorefrontFilters', () => {
-  it('maps Store API collection data into shopper-facing category, size, and price filters', () => {
+  it('maps Store API collection data into shopper-facing category, size, brand, tag, and rating filters', () => {
     const filters = buildStorefrontFilters({
       categories: [
         { id: 8, name: 'Dresses', slug: 'dresses' },
         { id: 12, name: 'Tops', slug: 'tops' },
+      ],
+      brands: [
+        { id: 51, name: 'FabTops Atelier', slug: 'fabtops-atelier' },
+        { id: 52, name: 'Signature Line', slug: 'signature-line' },
+      ],
+      tags: [
+        { id: 61, name: 'Evening', slug: 'evening' },
+        { id: 62, name: 'Resort', slug: 'resort' },
       ],
       sizeTerms: [
         { id: 21, name: 'S', slug: 's', count: 7 },
@@ -33,8 +41,27 @@ describe('buildStorefrontFilters', () => {
     });
 
     expect(filters).toEqual({
-      categories: ['Dresses', 'Tops'],
-      sizes: ['M', 'S'],
+      categories: [
+        { label: 'Dresses', value: 'dresses', count: 2 },
+        { label: 'Tops', value: 'tops', count: 5 },
+      ],
+      brands: [
+        { label: 'FabTops Atelier', value: 'fabtops-atelier' },
+        { label: 'Signature Line', value: 'signature-line' },
+      ],
+      sizes: [
+        { label: 'M', value: 'm', count: 4 },
+        { label: 'S', value: 's', count: 7 },
+      ],
+      tags: [
+        { label: 'Evening', value: 'evening' },
+        { label: 'Resort', value: 'resort' },
+      ],
+      stockStatuses: [
+        { label: 'In Stock', value: 'instock' },
+        { label: 'On Backorder', value: 'onbackorder' },
+        { label: 'Out of Stock', value: 'outofstock' },
+      ],
       priceRange: {
         min: 1000,
         max: 4500,
@@ -49,12 +76,21 @@ describe('buildStorefrontFilters', () => {
     expect(
       buildStorefrontFilters({
         categories: [],
+        brands: [],
+        tags: [],
         sizeTerms: [],
         collectionData: null,
       }),
     ).toEqual({
       categories: [],
+      brands: [],
       sizes: [],
+      tags: [],
+      stockStatuses: [
+        { label: 'In Stock', value: 'instock' },
+        { label: 'On Backorder', value: 'onbackorder' },
+        { label: 'Out of Stock', value: 'outofstock' },
+      ],
       priceRange: null,
       ratingCounts: [],
     });

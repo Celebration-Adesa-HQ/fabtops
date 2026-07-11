@@ -2,24 +2,26 @@ import { describe, expect, it } from 'vitest';
 import { parseAuthEnv } from '../../lib/auth/env';
 
 const validEnv = {
-  WOOCOMMERCE_STORE_URL: 'https://shop.example.com/',
-  FABTOPS_AUTH_CLIENT_SECRET: '12345678901234567890123456789012',
+  NEON_AUTH_BASE_URL: 'https://example.neonauth.eu-west-2.aws.neon.tech/neondb/auth',
+  NEON_AUTH_COOKIE_SECRET: 'super-secret-cookie-key-that-is-long-enough',
+  DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/fabtops',
 };
 
 describe('parseAuthEnv', () => {
-  it('derives the plugin API base from the WooCommerce store URL', () => {
+  it('parses the Neon Auth and PostgreSQL requirements', () => {
     expect(parseAuthEnv(validEnv)).toEqual({
-      authBaseUrl: 'https://shop.example.com/wp-json/fabtops/v1',
-      clientSecret: '12345678901234567890123456789012',
+      neonAuthBaseUrl: 'https://example.neonauth.eu-west-2.aws.neon.tech/neondb/auth',
+      neonAuthCookieSecret: 'super-secret-cookie-key-that-is-long-enough',
+      databaseUrl: 'postgresql://postgres:postgres@localhost:5432/fabtops',
     });
   });
 
-  it('rejects public auth secrets', () => {
+  it('rejects missing Neon Auth cookie secrets', () => {
     expect(() =>
       parseAuthEnv({
         ...validEnv,
-        NEXT_PUBLIC_FABTOPS_AUTH_CLIENT_SECRET: 'nope',
+        NEON_AUTH_COOKIE_SECRET: undefined,
       }),
-    ).toThrow(/public/i);
+    ).toThrow();
   });
 });

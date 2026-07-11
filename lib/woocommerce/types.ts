@@ -1,4 +1,4 @@
-export interface StoreApiImage {
+export interface WooStoreImage {
   id: number;
   src: string;
   thumbnail: string;
@@ -8,7 +8,7 @@ export interface StoreApiImage {
   alt: string;
 }
 
-export interface StoreApiPrices {
+export interface WooStorePrices {
   price: string;
   regular_price: string;
   sale_price: string;
@@ -22,7 +22,7 @@ export interface StoreApiPrices {
   currency_suffix: string;
 }
 
-export interface StoreApiProduct {
+export interface WooStoreProduct {
   id: number;
   name: string;
   slug: string;
@@ -33,15 +33,21 @@ export interface StoreApiProduct {
   parent: number;
   permalink: string;
   sku: string;
-  prices: StoreApiPrices;
+  prices: WooStorePrices;
   price_html: string;
   average_rating: string;
   review_count: number;
-  images: StoreApiImage[];
+  images: WooStoreImage[];
   categories: Array<{ id: number; name: string; slug: string; link: string }>;
   tags: Array<{ id: number; name: string; slug: string; link?: string }>;
-  brands: unknown[];
-  attributes: Array<{ id: number; name: string; taxonomy?: string; has_variations?: boolean; terms?: Array<{ id: number; name: string; slug: string }> }>;
+  brands: Array<{ id: number; name: string; slug: string }>;
+  attributes: Array<{
+    id: number;
+    name: string;
+    taxonomy?: string;
+    has_variations?: boolean;
+    terms?: Array<{ id: number; name: string; slug: string }>;
+  }>;
   variations: Array<{ id: number; attributes?: Array<{ name: string; value: string }> }>;
   grouped_products: number[];
   has_options: boolean;
@@ -50,11 +56,12 @@ export interface StoreApiProduct {
   is_on_backorder: boolean;
   low_stock_remaining: number | null;
   sold_individually: boolean;
+  on_sale?: boolean;
   add_to_cart: { text: string; description: string; url: string; minimum: number; maximum: number; multiple_of: number };
   extensions: Record<string, unknown>;
 }
 
-export interface RestProductVariation {
+export interface WooRestVariation {
   id: number;
   price: string;
   regular_price: string;
@@ -62,11 +69,13 @@ export interface RestProductVariation {
   on_sale: boolean;
   purchasable: boolean;
   stock_status: string;
+  backorders_allowed?: boolean;
+  backordered?: boolean;
   attributes: Array<{ id: number; name: string; option: string }>;
   image: { id: number; src: string; name: string; alt: string } | null;
 }
 
-export interface RestProduct {
+export interface WooRestProduct {
   id: number;
   name: string;
   slug: string;
@@ -93,23 +102,58 @@ export interface RestProduct {
   sold_individually: boolean;
   categories: Array<{ id: number; name: string; slug: string }>;
   tags: Array<{ id: number; name: string; slug: string }>;
+  brands?: Array<{ id: number; name: string; slug: string }>;
   images: Array<{ id: number; src: string; name: string; alt: string }>;
   attributes: Array<{ id: number; name: string; position: number; visible: boolean; variation: boolean; options: string[] }>;
   default_attributes: Array<{ id: number; name: string; option: string }>;
   variations: number[];
+  average_rating?: string;
+  related_ids?: number[];
+  upsell_ids?: number[];
+  cross_sell_ids?: number[];
 }
 
 export interface StorefrontMoney {
-  amount: string;
+  amountMinor: string;
   currencyCode: string;
+  minorUnit: number;
+  symbol?: string;
+  prefix?: string;
+  suffix?: string;
 }
 
-export interface StorefrontVariant {
+export interface StorefrontPriceRange {
+  min: StorefrontMoney;
+  max: StorefrontMoney;
+}
+
+export interface StorefrontAvailability {
+  inStock: boolean;
+  purchasable: boolean;
+  onBackorder: boolean;
+  stockStatus: 'instock' | 'outofstock' | 'onbackorder';
+}
+
+export interface StorefrontImage {
+  url: string;
+  altText: string;
+}
+
+export interface StorefrontOption {
+  id: string;
+  name: string;
+  values: string[];
+}
+
+export interface StorefrontVariation {
   id: string;
   title: string;
-  availableForSale: boolean;
+  availability: StorefrontAvailability;
   selectedOptions: Array<{ name: string; value: string }>;
   price: StorefrontMoney;
+  regularPrice: StorefrontMoney | null;
+  salePrice: StorefrontMoney | null;
+  image: StorefrontImage | null;
 }
 
 export interface StorefrontProduct {
@@ -118,15 +162,29 @@ export interface StorefrontProduct {
   title: string;
   description: string;
   descriptionHtml: string;
-  availableForSale: boolean;
+  shortDescription: string;
+  shortDescriptionHtml: string;
+  sku: string;
   productType: string;
   tags: string[];
-  featuredImage: { url: string; altText: string } | null;
-  images: { edges: Array<{ node: { url: string; altText: string } }> };
-  priceRange: { minVariantPrice: StorefrontMoney; maxVariantPrice: StorefrontMoney };
-  options: Array<{ id: string; name: string; values: string[] }>;
-  variants: { edges: Array<{ node: StorefrontVariant }> };
+  brands: string[];
+  averageRating: number;
+  reviewCount: number;
+  featuredImage: StorefrontImage | null;
+  gallery: StorefrontImage[];
+  price: StorefrontMoney;
+  regularPrice: StorefrontMoney | null;
+  salePrice: StorefrontMoney | null;
+  priceRange: StorefrontPriceRange;
+  hasOptions: boolean;
+  availability: StorefrontAvailability;
+  options: StorefrontOption[];
   categories: Array<{ id: string; handle: string; title: string }>;
+  variationIds: string[];
+  variations?: StorefrontVariation[];
+  relatedProductIds: string[];
+  upsellProductIds: string[];
+  crossSellProductIds: string[];
 }
 
 export interface StorefrontCategory {
@@ -136,3 +194,18 @@ export interface StorefrontCategory {
   description: string;
   image: { url: string; altText: string } | null;
 }
+
+export interface PaginatedStoreResult<T> {
+  items: T[];
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  perPage: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export type StoreApiProduct = WooStoreProduct;
+export type RestProduct = WooRestProduct;
+export type RestProductVariation = WooRestVariation;
+export type StorefrontVariant = StorefrontVariation;

@@ -54,12 +54,18 @@ describe('WooCommerce product adapters', () => {
       id: '42',
       handle: 'rose-top',
       title: 'Rose Top',
-      availableForSale: true,
+      availability: {
+        inStock: true,
+        purchasable: true,
+        stockStatus: 'instock',
+      },
       productType: 'Tops',
-      priceRange: { minVariantPrice: { amount: '1250.00', currencyCode: 'NGN' } },
+      brands: [],
+      averageRating: 0,
+      priceRange: { min: { amountMinor: '125000', currencyCode: 'NGN' } },
     });
-    expect(product.images.edges[0].node.url).toContain('rose.jpg');
-    expect(product.variants.edges[0].node.id).toBe('42');
+    expect(product.gallery[0].url).toContain('rose.jpg');
+    expect(product.variationIds).toEqual([]);
   });
 
   it('maps REST variations and marks out-of-stock options unavailable', () => {
@@ -107,10 +113,16 @@ describe('WooCommerce product adapters', () => {
     }]);
 
     expect(product.options).toEqual([{ id: '1', name: 'Size', values: ['S', 'M'] }]);
-    expect(product.variants.edges[0].node).toMatchObject({
+    expect(product.variations?.[0]).toMatchObject({
       id: '101',
-      availableForSale: false,
+      availability: {
+        stockStatus: 'outofstock',
+      },
       selectedOptions: [{ name: 'Size', value: 'S' }],
+    });
+    expect(product).toMatchObject({
+      brands: [],
+      averageRating: 0,
     });
   });
 });

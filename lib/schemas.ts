@@ -30,8 +30,7 @@ export const forgotPasswordSchema = z.object({
 });
 
 export const resetPasswordSchema = z.object({
-  login: z.string().min(1).max(100),
-  key: z.string().min(10).max(255),
+  token: z.string().min(10).max(255),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
@@ -97,6 +96,22 @@ export const checkoutSchema = z.object({
 
 export type CheckoutSchema = z.infer<typeof checkoutSchema>;
 
+export const productReviewMutationSchema = z.object({
+  productId: z.string().trim().min(1),
+  productHandle: z.string().trim().min(1).optional(),
+  rating: z.number().int().min(0).max(5),
+  review: z.string().trim().min(1).max(5000),
+});
+
+export type ProductReviewMutationSchema = z.infer<typeof productReviewMutationSchema>;
+
+export const productReviewDeleteSchema = z.object({
+  productId: z.string().trim().min(1),
+  productHandle: z.string().trim().min(1).optional(),
+});
+
+export type ProductReviewDeleteSchema = z.infer<typeof productReviewDeleteSchema>;
+
 export const wishlistActionSchema = z.object({
   action: z.enum(['add', 'remove']),
   product: z.object({
@@ -112,6 +127,30 @@ export const wishlistActionSchema = z.object({
 });
 
 export type WishlistActionSchema = z.infer<typeof wishlistActionSchema>;
+
+export const mergeGuestCartItemSchema = z.object({
+  id: z.string().min(1),
+  variantId: z.string().min(1),
+  title: z.string().min(1),
+  handle: z.string().min(1),
+  price: z.string().min(1),
+  quantity: z.number().int().min(1).max(99),
+  image: z.string().min(1),
+  selectedOptions: z.array(z.object({
+    name: z.string().min(1),
+    value: z.string().min(1),
+  })).default([]),
+});
+
+export const mergeGuestStateSchema = z.object({
+  mergeKey: z.string().min(1).max(5000),
+  guestCart: z.object({
+    items: z.array(mergeGuestCartItemSchema).default([]),
+  }),
+  guestWishlist: z.array(wishlistActionSchema.shape.product).default([]),
+});
+
+export type MergeGuestStateSchema = z.infer<typeof mergeGuestStateSchema>;
 
 export const newsletterSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

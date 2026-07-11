@@ -6,6 +6,7 @@ import { Search, X, ArrowRight, TrendingUp, Sparkles, Clock, Loader2 } from 'luc
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCurrency } from '@/lib/currency-context';
+import { fromMinorUnits } from '@/lib/woocommerce/store-api';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -146,7 +147,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       >
                         <div className="relative aspect-editorial overflow-hidden bg-brand-dark/5 rounded-lg">
                           <Image
-                            src={product.images.edges[0]?.node.url || ''}
+                            src={product.gallery[0]?.url || '/logo/Fab and Luxe Combined.png'}
                             alt={product.title}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -155,7 +156,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <div className="space-y-1">
                           <h4 className="text-[10px] uppercase font-bold tracking-widest text-brand-dark line-clamp-1">{product.title}</h4>
                           <p className="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">
-                            {formatPrice(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode)}
+                            {formatPrice(fromMinorUnits(product.price.amountMinor, product.price.minorUnit), product.price.currencyCode)}
                           </p>
                         </div>
                       </Link>
@@ -252,4 +253,3 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     </AnimatePresence>
   );
 }
-

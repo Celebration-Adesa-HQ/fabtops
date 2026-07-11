@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 export class AuthConfigError extends Error {
   status = 503;
 
@@ -9,43 +7,36 @@ export class AuthConfigError extends Error {
   }
 }
 
-const authEnvSchema = z.object({
-  WOOCOMMERCE_STORE_URL: z.string().url(),
-  FABTOPS_AUTH_CLIENT_SECRET: z.string().min(32, 'FABTOPS_AUTH_CLIENT_SECRET must be at least 32 characters'),
-  FABTOPS_AUTH_BASE_URL: z.string().url().optional(),
-});
-
 export interface AuthEnvironment {
-  authBaseUrl: string;
-  clientSecret: string;
+  neonAuthBaseUrl: string;
+  neonAuthCookieSecret: string;
+  databaseUrl: string;
 }
 
 export function parseAuthEnv(rawEnv: Record<string, string | undefined>): AuthEnvironment {
-  const exposedSecret = Object.keys(rawEnv).find((key) =>
-    /^(NEXT_PUBLIC_|VITE_|REACT_APP_).*FABTOPS_AUTH_CLIENT_SECRET/i.test(key),
-  );
+  const neonAuthBaseUrl = rawEnv.NEON_AUTH_BASE_URL;
+  const neonAuthCookieSecret = rawEnv.NEON_AUTH_COOKIE_SECRET;
+  const databaseUrl = rawEnv.DATABASE_URL;
 
-  if (exposedSecret) {
-    throw new AuthConfigError(`Auth bridge secrets must not use a public environment variable: ${exposedSecret}`);
+  if (!neonAuthBaseUrl) {
+    throw new AuthConfigError('Missing NEON_AUTH_BASE_URL for customer authentication.');
   }
 
-  const parsed = authEnvSchema.safeParse(rawEnv);
-  if (!parsed.success) {
-    const message = parsed.error.issues
-      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-      .join('; ');
-    throw new AuthConfigError(`Missing or invalid auth configuration. ${message}`);
+  if (!neonAuthCookieSecret) {
+    throw new AuthConfigError('Missing NEON_AUTH_COOKIE_SECRET for customer authentication.');
   }
 
-  const env = parsed.data;
-  const storeUrl = env.WOOCOMMERCE_STORE_URL.replace(/\/$/, '');
+  if (!databaseUrl) {
+    throw new AuthConfigError('Missing DATABASE_URL for Prisma customer authentication.');
+  }
 
   return {
-    authBaseUrl: (env.FABTOPS_AUTH_BASE_URL || `${storeUrl}/wp-json/fabtops/v1`).replace(/\/$/, ''),
-    clientSecret: env.FABTOPS_AUTH_CLIENT_SECRET,
+    neonAuthBaseUrl,
+    neonAuthCookieSecret,
+    databaseUrl,
   };
 }
 
-export function getAuthEnv() {
+export function getAuthEnv(): AuthEnvironment {
   return parseAuthEnv(process.env);
 }

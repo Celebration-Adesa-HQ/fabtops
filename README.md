@@ -11,7 +11,7 @@ This repository intentionally contains no admin dashboard, product editor, inven
 - WooCommerce Consumer Key and Consumer Secret are never sent to the browser.
 - Guest cart and guest checkout remain first-class WooCommerce flows powered by WooCommerce Store API.
 - Server-side catalog and Woo resource access use WooCommerce REST API credentials only.
-- Customer login, register, reset-password, session lookup, and wishlist are backed by a separate storefront auth bridge.
+- Customer login, register, reset-password, session lookup, and wishlist are backed by Better Auth with Prisma/PostgreSQL, then linked to WooCommerce customers for commerce data.
 - Newsletter signup is unavailable until a dedicated mailing provider is configured.
 
 ## WooCommerce Setup
@@ -26,7 +26,7 @@ This repository intentionally contains no admin dashboard, product editor, inven
 8. Ensure WordPress pretty permalinks are enabled.
 9. Ensure guest checkout is enabled.
 10. Ensure the installed Paystack extension supports WooCommerce Blocks and Store API checkout.
-11. If you are using the bundled FabTops auth plugin, define the matching shared secret in WordPress and this storefront.
+11. Customer auth now runs in the Next.js app via Better Auth; the bundled WordPress auth plugin is optional legacy code unless you still depend on it elsewhere.
 
 ## Environment
 
@@ -37,11 +37,11 @@ WOOCOMMERCE_STORE_URL=https://your-wordpress-domain.com
 WOOCOMMERCE_CONSUMER_KEY=ck_replace_me
 WOOCOMMERCE_CONSUMER_SECRET=cs_replace_me
 WOOCOMMERCE_API_VERSION=wc/v3
-FABTOPS_AUTH_CLIENT_SECRET=replace_with_shared_256_bit_secret
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fabtops
+BETTER_AUTH_SECRET=replace_with_a_secure_random_secret
+BETTER_AUTH_URL=http://localhost:3000
 # Optional override. Defaults to https://your-wordpress-domain.com/wp-json/wc/store/v1
 # WOOCOMMERCE_STORE_API_BASE=https://your-wordpress-domain.com/wp-json/wc/store/v1
-# Optional override. Defaults to https://your-wordpress-domain.com/wp-json/fabtops/v1
-# FABTOPS_AUTH_BASE_URL=https://your-wordpress-domain.com/wp-json/fabtops/v1
 ```
 
 Never prefix WooCommerce credentials with `NEXT_PUBLIC_`, `VITE_`, or `REACT_APP_`. Restart the development server after changing environment values.

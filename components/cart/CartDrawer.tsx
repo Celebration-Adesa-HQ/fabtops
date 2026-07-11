@@ -21,6 +21,7 @@ export function CartDrawer() {
     discountCodes,
     applyDiscountCode,
     removeDiscountCode,
+    couponError,
     checkoutUrl,
     isLoading
   } = useCart();
@@ -32,8 +33,9 @@ export function CartDrawer() {
     e.preventDefault();
     if (!promoCode) return;
     setIsApplying(true);
-    await applyDiscountCode(promoCode);
-    setPromoCode('');
+    const err = await applyDiscountCode(promoCode);
+    // Only clear the input on success so the user can correct a typo
+    if (!err) setPromoCode('');
     setIsApplying(false);
   };
 

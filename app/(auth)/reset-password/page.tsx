@@ -19,8 +19,7 @@ export default function ResetPasswordPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          login: searchParams.get('login') || '',
-          key: searchParams.get('key') || '',
+          token: searchParams.get('token') || '',
           password,
         }),
       });

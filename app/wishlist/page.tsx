@@ -2,7 +2,7 @@ import WishlistPageClient from './WishlistPageClient';
 
 export const metadata = {
   title: 'Your Wishlist',
-  description: 'Your saved FabTops pieces, synced to your customer session.',
+  description: 'Your saved FabTops pieces, secured inside your private account.',
 };
 
 export const dynamic = 'force-dynamic';

@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthSessionStore } from '@/stores/use-auth-session-store';
 
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const refreshSession = useAuthSessionStore((state) => state.refreshSession);
   const redirectTo = searchParams.get('redirect') || '/account';
   const [form, setForm] = useState({
     firstName: '',
@@ -37,6 +39,10 @@ export default function RegisterPage() {
         throw new Error(result.error || 'Unable to create account');
       }
 
+      const user = await refreshSession();
+      if (!user) {
+        throw new Error('Unable to confirm your session');
+      }
       router.push(redirectTo);
       router.refresh();
     } catch (error) {

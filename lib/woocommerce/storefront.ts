@@ -1,5 +1,12 @@
-import { fromMinorUnits, storeApiRequest } from './store-api';
-import type { StoreApiProduct } from './types';
+import { normalizeCheckoutResult, type SafeCheckoutResult } from './checkout';
+import { adaptStoreProduct } from './adapters';
+import { storeApiRequest, type StoreApiPaginationHeaders } from './store-api';
+import type {
+  PaginatedStoreResult,
+  StorefrontProduct,
+  WooStoreProduct,
+} from './types';
+import type { NormalizedShopQuery, StockStatus } from '../shop/shop-query';
 
 type StorefrontQueryValue = string | number | boolean | undefined;
 
@@ -95,13 +102,70 @@ export interface StoreApiOrder {
   id: number;
   status: string;
   key?: string;
-  totals?: Record<string, unknown>;
-  items?: unknown[];
+  payment_method?: string;
+  totals?: {
+    total_price?: string;
+    currency_code?: string;
+    currency_minor_unit?: number;
+    [key: string]: unknown;
+  };
+  billing_address?: {
+    first_name: string;
+    last_name: string;
+    company?: string;
+    address_1: string;
+    address_2?: string;
+    city: string;
+    state?: string;
+    postcode?: string;
+    country: string;
+    email?: string;
+    phone?: string;
+  };
+  shipping_address?: {
+    first_name: string;
+    last_name: string;
+    company?: string;
+    address_1: string;
+    address_2?: string;
+    city: string;
+    state?: string;
+    postcode?: string;
+    country: string;
+    phone?: string;
+  };
+  items?: Array<{
+    id: number;
+    quantity: number;
+    name: string;
+    images?: Array<{
+      id?: number;
+      src: string;
+      thumbnail?: string;
+      alt?: string;
+    }>;
+    totals?: {
+      line_total?: string;
+      currency_code?: string;
+      currency_minor_unit?: number;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  }>;
+}
+
+export interface StorefrontFilterOption {
+  label: string;
+  value: string;
+  count?: number;
 }
 
 export interface StorefrontFilters {
-  categories: string[];
-  sizes: string[];
+  categories: StorefrontFilterOption[];
+  brands: StorefrontFilterOption[];
+  sizes: StorefrontFilterOption[];
+  tags: StorefrontFilterOption[];
+  stockStatuses: StorefrontFilterOption[];
   priceRange: {
     min: number;
     max: number;
@@ -113,17 +177,25 @@ export interface StorefrontFilters {
 
 interface BuildStorefrontFiltersInput {
   categories: StoreApiProductCategory[];
+  brands: StoreApiProductBrand[];
+  tags: StoreApiProductTag[];
   sizeTerms: StoreApiProductAttributeTerm[];
   collectionData: StoreApiCollectionData | null;
 }
 
 interface StorefrontCollectionQuery extends Record<string, StorefrontQueryValue> {
   category?: string;
+  search?: string;
+  min_price?: string;
+  max_price?: string;
+  stock_status?: StockStatus;
   calculate_price_range?: boolean;
   calculate_rating_counts?: boolean;
   calculate_taxonomy_counts?: string;
   'calculate_attribute_counts[0][taxonomy]'?: string;
   'calculate_attribute_counts[0][query_type]'?: 'and' | 'or';
+  'attributes[0][attribute]'?: string;
+  'attributes[0][term_id]'?: string;
 }
 
 interface StoreApiReviewQuery extends Record<string, StorefrontQueryValue> {
@@ -139,25 +211,47 @@ export interface StoreApiProductQuery extends Record<string, StorefrontQueryValu
   page?: number;
   per_page?: number;
   search?: string;
-  featured?: boolean;
   category?: string;
-  brand?: string;
-  tag?: string;
   min_price?: string;
   max_price?: string;
+  stock_status?: StockStatus;
   order?: 'asc' | 'desc';
   orderby?: 'date' | 'modified' | 'id' | 'include' | 'title' | 'slug' | 'price' | 'popularity' | 'rating' | 'menu_order' | 'comment_count';
+  'attributes[0][attribute]'?: string;
+  'attributes[0][term_id]'?: string;
+}
+
+export interface ProductQueryContext {
+  categoryId?: number;
+  sizeAttribute?: Pick<StoreApiProductAttribute, 'id' | 'taxonomy'> | null;
+  sizeTermId?: number | null;
+}
+
+const STOCK_STATUS_OPTIONS: StorefrontFilterOption[] = [
+  { label: 'In Stock', value: 'instock' },
+  { label: 'On Backorder', value: 'onbackorder' },
+  { label: 'Out of Stock', value: 'outofstock' },
+];
+
+function fromMinor(value: string, minorUnit: number) {
+  if (minorUnit === 0) return Number(value || 0);
+  return Number(value || 0) / (10 ** minorUnit);
 }
 
 export function buildStorefrontFilters({
   categories,
+  brands,
+  tags,
   sizeTerms,
   collectionData,
 }: BuildStorefrontFiltersInput): StorefrontFilters {
   if (!collectionData) {
     return {
       categories: [],
+      brands: [],
       sizes: [],
+      tags: [],
+      stockStatuses: STOCK_STATUS_OPTIONS,
       priceRange: null,
       ratingCounts: [],
     };
@@ -165,39 +259,153 @@ export function buildStorefrontFilters({
 
   const taxonomyCounts = collectionData.taxonomy_counts || [];
   const attributeCounts = collectionData.attribute_counts || [];
-  const priceRange = collectionData.price_range
-    ? {
-        min: Number(fromMinorUnits(collectionData.price_range.min_price, collectionData.price_range.currency_minor_unit)),
-        max: Number(fromMinorUnits(collectionData.price_range.max_price, collectionData.price_range.currency_minor_unit)),
-        currencyCode: collectionData.price_range.currency_code,
-        minorUnit: collectionData.price_range.currency_minor_unit,
-      }
-    : null;
-
-  const categoryLookup = new Map(categories.map((category) => [category.id, category.name]));
-  const termLookup = new Map(sizeTerms.map((term) => [term.id, term.name]));
+  const categoryLookup = new Map(categories.map((category) => [category.id, category]));
+  const termLookup = new Map(sizeTerms.map((term) => [term.id, term]));
 
   return {
     categories: taxonomyCounts
       .filter((entry) => entry.count > 0 && categoryLookup.has(entry.term))
-      .map((entry) => categoryLookup.get(entry.term) as string)
-      .sort((left, right) => left.localeCompare(right)),
+      .map((entry) => {
+        const category = categoryLookup.get(entry.term)!;
+        return {
+          label: category.name,
+          value: category.slug,
+          count: entry.count,
+        };
+      })
+      .sort((left, right) => left.label.localeCompare(right.label)),
+    brands: brands
+      .map((brand) => ({ label: brand.name, value: brand.slug }))
+      .sort((left, right) => left.label.localeCompare(right.label)),
     sizes: attributeCounts
       .filter((entry) => entry.count > 0 && termLookup.has(entry.term))
-      .map((entry) => termLookup.get(entry.term) as string)
-      .sort((left, right) => left.localeCompare(right)),
-    priceRange,
+      .map((entry) => {
+        const term = termLookup.get(entry.term)!;
+        return {
+          label: term.name,
+          value: term.slug,
+          count: entry.count,
+        };
+      })
+      .sort((left, right) => left.label.localeCompare(right.label)),
+    tags: tags
+      .map((tag) => ({ label: tag.name, value: tag.slug }))
+      .sort((left, right) => left.label.localeCompare(right.label)),
+    stockStatuses: STOCK_STATUS_OPTIONS,
+    priceRange: collectionData.price_range
+      ? {
+          min: fromMinor(collectionData.price_range.min_price, collectionData.price_range.currency_minor_unit),
+          max: fromMinor(collectionData.price_range.max_price, collectionData.price_range.currency_minor_unit),
+          currencyCode: collectionData.price_range.currency_code,
+          minorUnit: collectionData.price_range.currency_minor_unit,
+        }
+      : null,
     ratingCounts: collectionData.rating_counts || [],
   };
 }
 
+export function buildStoreApiProductQueryFromShopQuery(
+  query: NormalizedShopQuery,
+  context: ProductQueryContext = {},
+): StoreApiProductQuery {
+  const result: StoreApiProductQuery = {
+    page: query.page,
+    per_page: query.perPage,
+    ...(query.search ? { search: query.search } : {}),
+    ...(context.categoryId ? { category: String(context.categoryId) } : {}),
+    ...(query.minPrice !== undefined ? { min_price: String(query.minPrice) } : {}),
+    ...(query.maxPrice !== undefined ? { max_price: String(query.maxPrice) } : {}),
+    ...(query.stockStatus ? { stock_status: query.stockStatus } : {}),
+    ...(query.orderby ? { orderby: query.orderby } : {}),
+    ...(query.order ? { order: query.order } : {}),
+  };
+
+  if (query.size && context.sizeAttribute?.taxonomy && context.sizeTermId) {
+    result['attributes[0][attribute]'] = context.sizeAttribute.taxonomy;
+    result['attributes[0][term_id]'] = String(context.sizeTermId);
+  }
+
+  return result;
+}
+
+export function buildAggregateQuery(
+  query: NormalizedShopQuery,
+  context: ProductQueryContext = {},
+  excludeDimension: 'size' | 'stock' | 'price' | 'none' = 'none',
+): StorefrontCollectionQuery {
+  const result: StorefrontCollectionQuery = {
+    ...(context.categoryId ? { category: String(context.categoryId) } : {}),
+    ...(query.search ? { search: query.search } : {}),
+    ...(excludeDimension !== 'stock' && query.stockStatus ? { stock_status: query.stockStatus } : {}),
+    calculate_price_range: true,
+    calculate_rating_counts: true,
+    calculate_taxonomy_counts: 'product_cat',
+    ...(context.sizeAttribute?.taxonomy
+      ? {
+          'calculate_attribute_counts[0][taxonomy]': context.sizeAttribute.taxonomy,
+          'calculate_attribute_counts[0][query_type]': 'or' as const,
+        }
+      : {}),
+  };
+
+  if (
+    excludeDimension !== 'size' &&
+    query.size &&
+    context.sizeAttribute?.taxonomy &&
+    context.sizeTermId
+  ) {
+    result['attributes[0][attribute]'] = context.sizeAttribute.taxonomy;
+    result['attributes[0][term_id]'] = String(context.sizeTermId);
+  }
+
+  return result;
+}
+
+export function normalizePaginatedCollectionResult<T>(
+  items: T[],
+  headers: StoreApiPaginationHeaders,
+  input: { page: number; perPage: number },
+): PaginatedStoreResult<T> {
+  const parsedTotal = Number.parseInt(headers.total || '', 10);
+  const parsedTotalPages = Number.parseInt(headers.totalPages || '', 10);
+  const fallbackTotal = items.length + Math.max(0, input.page - 1) * input.perPage;
+  const total = Number.isFinite(parsedTotal) ? parsedTotal : items.length;
+  const totalPages = Number.isFinite(parsedTotalPages) ? parsedTotalPages : Math.max(input.page, items.length < input.perPage ? input.page : input.page);
+
+  return {
+    items,
+    total: Number.isFinite(parsedTotal) ? parsedTotal : Math.max(items.length, fallbackTotal > 0 ? items.length : 0),
+    totalPages,
+    currentPage: input.page,
+    perPage: input.perPage,
+    hasPrevPage: input.page > 1,
+    hasNextPage: input.page < totalPages && items.length > 0,
+  };
+}
+
 export async function getStoreProducts(query: StoreApiProductQuery = {}) {
-  const result = await storeApiRequest<StoreApiProduct[]>('/products', {
+  const result = await storeApiRequest<WooStoreProduct[]>('/products', {
     query,
     next: { revalidate: 60, tags: ['woo-store-products'] },
   });
 
-  return result.data;
+  return result.data.map(adaptStoreProduct);
+}
+
+export async function getPaginatedStoreProducts(query: StoreApiProductQuery = {}) {
+  const result = await storeApiRequest<WooStoreProduct[]>('/products', {
+    query,
+    next: { revalidate: 60, tags: ['woo-store-products'] },
+  });
+
+  return normalizePaginatedCollectionResult(
+    result.data.map(adaptStoreProduct),
+    result.pagination,
+    {
+      page: query.page || 1,
+      perPage: query.per_page || 24,
+    },
+  );
 }
 
 export async function getStoreProductCategories() {
@@ -240,10 +448,13 @@ export async function getStoreProductAttributeTerms(attributeId: number) {
   return result.data;
 }
 
-export async function getStoreProductCollectionData(query: StorefrontCollectionQuery = {}) {
+export async function getStoreProductCollectionData(
+  query: StorefrontCollectionQuery = {},
+  cacheTag = 'woo-store-collection-data',
+) {
   const result = await storeApiRequest<StoreApiCollectionData>('/products/collection-data', {
     query,
-    cache: 'no-store',
+    next: { revalidate: 60, tags: [cacheTag] },
   });
 
   return result.data;
@@ -280,38 +491,89 @@ export async function getStoreOrder(orderId: number | string, orderKey: string, 
   return result.data;
 }
 
-export async function getStorefrontFilters(categorySlug?: string): Promise<StorefrontFilters> {
-  const [categories, attributes] = await Promise.all([
+interface StoreCheckoutOrderInput {
+  key: string;
+  billing_email?: string;
+  payment_method: string;
+  payment_data: Array<{ key: string; value: string }>;
+  billing_address: {
+    first_name: string;
+    last_name: string;
+    company?: string;
+    address_1: string;
+    address_2?: string;
+    city: string;
+    state?: string;
+    postcode?: string;
+    country: string;
+    email?: string;
+    phone?: string;
+  };
+  shipping_address: {
+    first_name: string;
+    last_name: string;
+    company?: string;
+    address_1: string;
+    address_2?: string;
+    city: string;
+    state?: string;
+    postcode?: string;
+    country: string;
+    phone?: string;
+  };
+}
+
+interface StoreCheckoutOrderResponse {
+  order_id: number;
+  status: string;
+  order_key: string;
+  payment_result: {
+    payment_status: string;
+    payment_details: Array<{ key: string; value: string }>;
+    redirect_url: string;
+  } | null;
+}
+
+export async function submitStoreCheckoutOrder(
+  orderId: number | string,
+  input: StoreCheckoutOrderInput,
+  cartToken: string,
+  bearerToken?: string | null,
+): Promise<{ checkout: SafeCheckoutResult; cartToken: string | null }> {
+  const result = await storeApiRequest<StoreCheckoutOrderResponse>(`/checkout/${orderId}`, {
+    method: 'POST',
+    cartToken,
+    bearerToken,
+    body: JSON.stringify(input),
+  });
+
+  return {
+    checkout: normalizeCheckoutResult(result.data),
+    cartToken: result.cartToken,
+  };
+}
+
+export async function getStorefrontFilters(query: StorefrontCollectionQuery = {}): Promise<StorefrontFilters> {
+  const [categories, brands, tags, attributes] = await Promise.all([
     getStoreProductCategories(),
+    getStoreProductBrands(),
+    getStoreProductTags(),
     getStoreProductAttributes(),
   ]);
 
   const sizeAttribute = attributes.find(
     (attribute) => attribute.taxonomy === 'pa_size' || attribute.name.toLowerCase() === 'size',
   );
-  const selectedCategory = categorySlug
-    ? categories.find((category) => category.slug === categorySlug)
-    : null;
 
-  const collectionData = await getStoreProductCollectionData({
-    ...(selectedCategory ? { category: String(selectedCategory.id) } : {}),
-    calculate_price_range: true,
-    calculate_rating_counts: true,
-    calculate_taxonomy_counts: 'product_cat',
-    ...(sizeAttribute
-      ? {
-          'calculate_attribute_counts[0][taxonomy]': sizeAttribute.taxonomy,
-          'calculate_attribute_counts[0][query_type]': 'or' as const,
-        }
-      : {}),
-  });
-
-  const sizeTerms = sizeAttribute
-    ? await getStoreProductAttributeTerms(sizeAttribute.id)
-    : [];
+  const [collectionData, sizeTerms] = await Promise.all([
+    getStoreProductCollectionData(query),
+    sizeAttribute ? getStoreProductAttributeTerms(sizeAttribute.id) : Promise.resolve([]),
+  ]);
 
   return buildStorefrontFilters({
     categories,
+    brands,
+    tags,
     sizeTerms,
     collectionData,
   });

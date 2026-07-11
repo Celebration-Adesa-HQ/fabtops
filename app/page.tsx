@@ -60,19 +60,10 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-24">
-          {products.map((product: any) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
-              id={product.id}
-              handle={product.handle}
-              title={product.title}
-              amount={product.priceRange.minVariantPrice.amount}
-              currencyCode={product.priceRange.minVariantPrice.currencyCode}
-              image={product.images.edges[0]?.node.url}
-              secondaryImage={product.images.edges[1]?.node.url}
-              variantId={product.variants.edges[0]?.node.id}
-              swatches={product.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
-              availableForSale={product.variants.edges.some((v: any) => v.node.availableForSale)}
+              product={product}
             />
           ))}
         </div>

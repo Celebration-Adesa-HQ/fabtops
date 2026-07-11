@@ -1,8 +1,9 @@
-import { getProductBySlug, getProducts } from '@/lib/woocommerce/products';
-import { getStoreProductReviews } from '@/lib/woocommerce/storefront';
-import { ProductView } from '@/components/editorial/ProductView';
-import { notFound } from 'next/navigation';
 import { ProductStructuredData } from '@/components/seo/StructuredData';
+import { ProductView } from '@/components/editorial/ProductView';
+import { getServerAuthSession } from '@/lib/auth/session';
+import { getProductBySlug, getRelatedProductsForProduct } from '@/lib/woocommerce/products';
+import { getCustomerProductReview, listProductReviews } from '@/lib/woocommerce/reviews';
+import { notFound } from 'next/navigation';
 
 interface ProductPageProps {
   params: Promise<{
@@ -22,45 +23,40 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
   return {
     title: `${product.title} | FabTops Digital Flagship`,
-    description: product.description,
+    description: product.shortDescription || product.description,
     openGraph: {
-      images: [product.images.edges[0]?.node.url],
+      images: [product.featuredImage?.url],
     },
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { handle } = await params;
-  
-  // Fetch product data and related products in parallel
-  const [product, allProducts] = await Promise.all([
-    getProductBySlug(handle),
-    getProducts(10)
+  const product = await getProductBySlug(handle);
+
+  if (!product) notFound();
+
+  const session = await getServerAuthSession();
+
+  const [relatedProducts, reviews, ownedReview] = await Promise.all([
+    getRelatedProductsForProduct(product),
+    listProductReviews(product.id, {
+      orderby: 'date',
+      order: 'desc',
+      per_page: 6,
+    }),
+    session?.user?.email ? getCustomerProductReview(product.id, session.user.email) : Promise.resolve(null),
   ]);
-
-  if (!product) {
-    notFound();
-  }
-
-  // Filter out current product and take first 4 for recommendations
-  const relatedProducts = allProducts
-    .filter((p: any) => p.handle !== handle)
-    .slice(0, 4);
-
-  const reviews = await getStoreProductReviews({
-    product_id: product.id,
-    orderby: 'date',
-    order: 'desc',
-    per_page: 6,
-  });
 
   return (
     <>
       <ProductStructuredData product={product} />
-      <ProductView 
-        product={product} 
+      <ProductView
+        product={product}
         reviews={reviews}
-        relatedProducts={relatedProducts} 
+        relatedProducts={relatedProducts}
+        currentUser={session?.user || null}
+        ownedReview={ownedReview}
       />
     </>
   );

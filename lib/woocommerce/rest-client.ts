@@ -57,6 +57,12 @@ function createWooRestClient() {
     consumerSecret: env.consumerSecret,
     version: env.apiVersion as 'wc/v3',
     queryStringAuth: false,
+    axiosConfig: {
+      // Hostinger shared hosting can be slow — allow up to 30 s before
+      // treating the connection as dead. The getProductVariations caller
+      // handles ECONNABORTED gracefully and falls back to [].
+      timeout: 30_000,
+    },
   });
 }
 
@@ -77,6 +83,24 @@ export async function wooRequest<T>(
       : await client[method](endpoint, query);
     return response.data as T;
   } catch (error) {
+    // --- Network / timeout errors (no HTTP response) ---
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      typeof (error as { code?: string }).code === 'string'
+    ) {
+      const code = (error as { code: string }).code;
+      const networkCodes = ['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ECONNABORTED'];
+      if (networkCodes.includes(code)) {
+        throw new Error(
+          `WooCommerce REST API unreachable (${code}) [${method.toUpperCase()} ${path}]. ` +
+          `Check your WOOCOMMERCE_URL environment variable and server connectivity.`,
+        );
+      }
+    }
+
+    // --- HTTP error responses (Axios sets error.response) ---
     const detail =
       typeof error === 'object' &&
       error !== null &&

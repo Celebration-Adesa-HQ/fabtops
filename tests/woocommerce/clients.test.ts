@@ -53,6 +53,7 @@ describe('WooCommerce clients', () => {
       consumerSecret: 'cs_test',
       version: 'wc/v3',
       queryStringAuth: false,
+      axiosConfig: { timeout: 30_000 },
     });
     expect(apiGet).toHaveBeenCalledWith('products', { per_page: '1' });
 

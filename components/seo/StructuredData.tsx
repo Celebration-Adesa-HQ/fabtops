@@ -1,4 +1,5 @@
 import React from 'react';
+import { fromMinorUnits } from '@/lib/woocommerce/store-api';
 
 export function OrganizationStructuredData() {
   const structuredData = {
@@ -55,19 +56,19 @@ export function ProductStructuredData({ product }: { product: any }) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    image: product.images.edges.map((edge: any) => edge.node.url),
-    description: product.description,
-    sku: product.id,
+    image: product.gallery.map((image: any) => image.url),
+    description: product.shortDescription || product.description,
+    sku: product.sku || product.id,
     brand: {
       '@type': 'Brand',
-      name: 'FabTops',
+      name: product.brands?.[0] || 'FabTops',
     },
     offers: {
       '@type': 'Offer',
       url: `https://fabtops.com.ng/product/${product.handle}`,
-      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-      price: product.priceRange.minVariantPrice.amount,
-      availability: product.availableForSale ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      priceCurrency: product.price.currencyCode,
+      price: fromMinorUnits(product.price.amountMinor, product.price.minorUnit),
+      availability: product.availability?.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     },
   };
 

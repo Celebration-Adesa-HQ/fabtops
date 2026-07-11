@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { registerSchema } from '@/lib/schemas';
-import { applyAuthCookies } from '@/lib/auth/session';
-import { createCustomer } from '@/lib/woocommerce/customers';
+import { registerCustomer } from '@/lib/auth/account-service';
+import { getAuthRouteError } from '@/lib/auth/route-error';
 
 export async function POST(request: NextRequest) {
   const parsed = registerSchema.safeParse(await request.json().catch(() => null));
@@ -11,29 +11,26 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const customer = await createCustomer({
-      email: parsed.data.email,
-      first_name: parsed.data.firstName,
-      last_name: parsed.data.lastName,
-      username: parsed.data.email.split('@')[0],
-      password: parsed.data.password,
+    const result = await registerCustomer({
+      ...parsed.data,
+      acceptsMarketing: parsed.data.acceptsMarketing ?? false,
+      headers: request.headers,
     });
-    const session = {
-      user: {
-        id: String(customer.id),
-        email: customer.email,
-        name: `${customer.first_name} ${customer.last_name}`.trim(),
-        firstName: customer.first_name,
-        lastName: customer.last_name,
-        phone: customer.billing?.phone || '',
-      },
-    };
-    const response = NextResponse.json({ success: true, data: session, message: 'Account created' });
-    return applyAuthCookies(response, session);
+    const response = NextResponse.json({
+      success: true,
+      data: result.body,
+      message: 'Account created',
+    }, { status: result.status });
+    const setCookie = result.headers.get('set-cookie');
+    if (setCookie) {
+      response.headers.set('set-cookie', setCookie);
+    }
+    return response;
   } catch (error) {
+    const authError = getAuthRouteError(error, 'Registration failed');
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Registration failed' },
-      { status: 400 },
+      { success: false, error: authError.message },
+      { status: authError.status },
     );
   }
 }
