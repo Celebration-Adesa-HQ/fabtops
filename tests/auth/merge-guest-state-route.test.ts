@@ -18,7 +18,8 @@ const getAccessToken = vi.fn();
 const getCart = vi.fn();
 const addCartItem = vi.fn();
 const updateCartItem = vi.fn();
-const getProductById = vi.fn();
+const updateCartCustomer = vi.fn();
+const ensureWooCustomerLink = vi.fn();
 const prismaWishlistFindMany = vi.fn();
 const prismaWishlistUpsert = vi.fn();
 const prismaTransaction = vi.fn();
@@ -40,10 +41,11 @@ vi.mock('@/lib/woocommerce/cart', () => ({
   getCart,
   addCartItem,
   updateCartItem,
+  updateCartCustomer,
 }));
 
-vi.mock('@/lib/woocommerce/products', () => ({
-  getProductById,
+vi.mock('@/lib/auth/woo-customer', () => ({
+  ensureWooCustomerLink,
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -63,6 +65,31 @@ describe('guest commerce merge route', () => {
       ['woocommerce_cart_token', 'cart-token-1'],
     ]);
     getAccessToken.mockResolvedValue(null);
+    ensureWooCustomerLink.mockResolvedValue({
+      wooCustomerId: '18',
+      customer: {
+        id: 18,
+        email: 'ada@example.com',
+        first_name: 'Ada',
+        last_name: 'Okafor',
+        billing: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          country: 'NG',
+          email: 'ada@example.com',
+          phone: '+2348000000000',
+        },
+        shipping: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          country: 'NG',
+        },
+      },
+    });
     prismaTransaction.mockImplementation(async (callback: (tx: unknown) => Promise<unknown>) => callback({
       wishlistItem: {
         upsert: prismaWishlistUpsert,
@@ -125,24 +152,7 @@ describe('guest commerce merge route', () => {
       cartToken: 'cart-token-1',
     });
 
-    getProductById.mockResolvedValue({
-      id: '101',
-      availableForSale: true,
-      stockQuantity: 2,
-      variants: {
-        edges: [
-          {
-            node: {
-              id: '101',
-              availableForSale: true,
-              stockQuantity: 2,
-            },
-          },
-        ],
-      },
-    });
-
-    updateCartItem.mockResolvedValue({
+    addCartItem.mockResolvedValue({
       cart: {
         items: [
           {
@@ -158,6 +168,46 @@ describe('guest commerce merge route', () => {
         ],
         subtotal: 160,
         totalAmount: 160,
+        discountCodes: [],
+      },
+      cartToken: 'cart-token-2',
+    });
+    updateCartItem.mockResolvedValue({
+      cart: {
+        items: [
+          {
+            id: 'line-1',
+            variantId: '101',
+            title: 'Rose Top',
+            handle: 'rose-top',
+            price: '80.00',
+            quantity: 6,
+            image: '/rose.jpg',
+            selectedOptions: [{ name: 'Size', value: 'M' }],
+          },
+        ],
+        subtotal: 480,
+        totalAmount: 480,
+        discountCodes: [],
+      },
+      cartToken: 'cart-token-2',
+    });
+    updateCartCustomer.mockResolvedValue({
+      cart: {
+        items: [
+          {
+            id: 'line-1',
+            variantId: '101',
+            title: 'Rose Top',
+            handle: 'rose-top',
+            price: '80.00',
+            quantity: 6,
+            image: '/rose.jpg',
+            selectedOptions: [{ name: 'Size', value: 'M' }],
+          },
+        ],
+        subtotal: 480,
+        totalAmount: 480,
         discountCodes: [],
       },
       cartToken: 'cart-token-2',
@@ -260,8 +310,15 @@ describe('guest commerce merge route', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(updateCartItem).toHaveBeenCalledWith('cart-token-1', 'line-1', 2, null);
+    expect(getCart).toHaveBeenCalledWith('cart-token-1', null);
     expect(addCartItem).not.toHaveBeenCalled();
+    expect(updateCartItem).toHaveBeenCalledWith('cart-token-1', 'line-1', 6, null);
+    expect(updateCartCustomer).toHaveBeenCalledWith(
+      'cart-token-2',
+      expect.objectContaining({ email: 'ada@example.com' }),
+      expect.objectContaining({ country: 'NG' }),
+      null,
+    );
     expect(prismaWishlistUpsert).toHaveBeenCalledTimes(2);
     expect(prismaWishlistUpsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
       where: {
@@ -280,11 +337,6 @@ describe('guest commerce merge route', () => {
       },
     }));
     expect(cookieStore.set).toHaveBeenCalledWith(
-      'woocommerce_cart_token',
-      'cart-token-2',
-      expect.objectContaining({ httpOnly: true }),
-    );
-    expect(cookieStore.set).toHaveBeenCalledWith(
       'fabtops_guest_merge_key',
       'merge-2',
       expect.objectContaining({ httpOnly: true }),
@@ -297,7 +349,7 @@ describe('guest commerce merge route', () => {
           items: [
             expect.objectContaining({
               variantId: '101',
-              quantity: 2,
+              quantity: 6,
             }),
           ],
         },
@@ -310,7 +362,7 @@ describe('guest commerce merge route', () => {
 
     getCart.mockResolvedValueOnce({
       cart: body.data.cart,
-      cartToken: 'cart-token-2',
+      cartToken: 'cart-token-1',
     });
 
     const secondRequest = new NextRequest('https://fabtops.test/api/commerce/merge-guest-state', {
@@ -328,6 +380,7 @@ describe('guest commerce merge route', () => {
     expect(secondResponse.status).toBe(200);
     expect(secondBody.data.merged).toBe(false);
     expect(updateCartItem).toHaveBeenCalledTimes(1);
+    expect(updateCartCustomer).toHaveBeenCalledTimes(1);
     expect(prismaWishlistUpsert).toHaveBeenCalledTimes(2);
   });
 
@@ -348,8 +401,7 @@ describe('guest commerce merge route', () => {
       },
       cartToken: 'cart-token-1',
     });
-
-    addCartItem.mockResolvedValue({
+    updateCartCustomer.mockResolvedValue({
       cart: {
         items: [
           {
@@ -367,7 +419,7 @@ describe('guest commerce merge route', () => {
         totalAmount: 80,
         discountCodes: [],
       },
-      cartToken: 'cart-token-2',
+      cartToken: 'cart-token-1',
     });
 
     prismaTransaction.mockRejectedValue(
@@ -424,12 +476,21 @@ describe('guest commerce merge route', () => {
         merged: true,
         wishlistMerged: false,
         cart: {
-          items: [expect.objectContaining({ variantId: '101' })],
+          items: [
+            expect.objectContaining({ variantId: '101', quantity: 1 }),
+          ],
         },
         wishlist: [
           expect.objectContaining({ id: 'top-1' }),
         ],
       },
     });
+    expect(addCartItem).toHaveBeenCalledWith('cart-token-1', 101, 1, null);
+    expect(updateCartCustomer).toHaveBeenCalledWith(
+      'cart-token-2',
+      expect.objectContaining({ email: 'ada@example.com' }),
+      expect.objectContaining({ country: 'NG' }),
+      null,
+    );
   });
 });

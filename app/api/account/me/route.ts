@@ -2,17 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getServerAuthSession } from '@/lib/auth/session';
 import { profileUpdateSchema } from '@/lib/schemas';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { prisma } from '@/lib/db/prisma';
-import { getCustomer, updateCustomer } from '@/lib/woocommerce/customers';
-
-function getWooCustomerId(session: Awaited<ReturnType<typeof getServerAuthSession>>) {
-  const wooCustomerId = session?.user.wooCustomerId || null;
-  if (!wooCustomerId) {
-    return null;
-  }
-
-  return wooCustomerId;
-}
+import { mapProfileUpdateToWooCustomerInput } from '@/lib/woocommerce/customer-mappers';
+import { updateCustomer } from '@/lib/woocommerce/customers';
 
 export async function GET() {
   const session = await getServerAuthSession();
@@ -21,12 +14,8 @@ export async function GET() {
   }
 
   try {
-    const wooCustomerId = getWooCustomerId(session);
-    if (!wooCustomerId) {
-      return NextResponse.json({ success: false, error: 'ACCOUNT_NOT_SYNCED' }, { status: 409 });
-    }
-
-    const customer = await getCustomer(wooCustomerId);
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
+    const customer = linkedCustomer.customer;
     const user = {
       id: session.user.id,
       firstName: session.user.firstName || customer.first_name,
@@ -56,10 +45,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const wooCustomerId = getWooCustomerId(session);
-    if (!wooCustomerId) {
-      return NextResponse.json({ success: false, error: 'ACCOUNT_NOT_SYNCED' }, { status: 409 });
-    }
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
 
     const { firstName, lastName, phone } = parsed.data;
 
@@ -73,13 +59,10 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
-    const customer = await updateCustomer(wooCustomerId, {
-      first_name: firstName,
-      last_name: lastName,
-      billing: {
-        phone,
-      },
-    });
+    const customer = await updateCustomer(
+      linkedCustomer.wooCustomerId,
+      mapProfileUpdateToWooCustomerInput(parsed.data, linkedCustomer.customer, session.user.email),
+    );
 
     const user = {
       id: session.user.id,

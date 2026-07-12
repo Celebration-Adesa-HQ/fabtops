@@ -5,5 +5,5 @@ export default auth.middleware({
 });
 
 export const config = {
-  matcher: ['/account/:path*', '/wishlist'],
-};
+  matcher: ['/account/:path*', '/wishlist/:path*', '/cart/:path*'],
+};  

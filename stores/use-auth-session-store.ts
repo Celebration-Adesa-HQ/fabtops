@@ -10,7 +10,8 @@ interface MergeGuestStateResponse {
     items: ReturnType<typeof useCartStore.getState>['items'];
     subtotal: number;
     totalAmount: number;
-    discountCodes: Array<{ code: string; applicable: boolean }>;
+    discountCodes: ReturnType<typeof useCartStore.getState>['discountCodes'];
+    currencyCode?: string;
   };
   wishlist: ReturnType<typeof useWishlistStore.getState>['favorites'];
   merged: boolean;
@@ -64,18 +65,15 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
     });
 
     if (!user) {
-      useCartStore.getState().setAnonymousSession(true);
       useWishlistStore.getState().setAnonymousSession(true);
+      useCartStore.getState().clearUserScopedState();
       set({
         authStatus: 'unauthenticated',
         sessionUser: null,
         isHydrating: false,
         mergeStatus: 'idle',
       });
-      await Promise.all([
-        useCartStore.getState().initializeCart(),
-        useWishlistStore.getState().initializeWishlist(),
-      ]);
+      await useWishlistStore.getState().initializeWishlist();
       return null;
     }
 
@@ -84,7 +82,6 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
       sessionUser: user,
       isHydrating: false,
     });
-    useCartStore.getState().setAnonymousSession(false);
     useWishlistStore.getState().setAnonymousSession(false);
 
     if (previousStatus !== 'authenticated') {
@@ -101,16 +98,6 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   async runPostAuthMerge() {
     const guestCart = useCartStore.getState().getGuestMergePayload();
     const guestWishlist = useWishlistStore.getState().getGuestMergePayload();
-    const hasGuestState = guestCart.items.length > 0 || guestWishlist.length > 0;
-
-    if (!hasGuestState) {
-      set({ mergeStatus: 'idle' });
-      await Promise.all([
-        useCartStore.getState().initializeCart(),
-        useWishlistStore.getState().initializeWishlist(),
-      ]);
-      return;
-    }
 
     set({ mergeStatus: 'running' });
 
@@ -137,8 +124,8 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
 
       const data = result.data as MergeGuestStateResponse;
       useCartStore.getState().replaceFromServer(data.cart);
-      useWishlistStore.getState().replaceFromServer(data.wishlist);
       useCartStore.getState().clearGuestSnapshot();
+      useWishlistStore.getState().replaceFromServer(data.wishlist);
       if (data.wishlistMerged !== false) {
         useWishlistStore.getState().clearGuestFavorites();
       }
@@ -156,7 +143,6 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
     await fetch('/api/account/logout', { method: 'POST' }).catch(() => null);
     useCartStore.getState().clearUserScopedState();
     useWishlistStore.getState().clearUserScopedState();
-    useCartStore.getState().setAnonymousSession(true);
     useWishlistStore.getState().setAnonymousSession(true);
     set({
       authStatus: 'unauthenticated',

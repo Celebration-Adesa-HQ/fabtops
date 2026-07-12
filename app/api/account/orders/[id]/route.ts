@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { getServerAuthSession } from '@/lib/auth/session';
 import { getCustomerOrder } from '@/lib/woocommerce/orders';
 
@@ -10,14 +11,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    if (!session.user.wooCustomerId) {
-      return NextResponse.json({ success: false, error: 'ACCOUNT_NOT_SYNCED' }, { status: 409 });
-    }
-
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
     const { id } = await params;
     const order = await getCustomerOrder(id);
 
-    if (!order || order.customer_id !== Number(session.user.wooCustomerId)) {
+    if (!order || order.customer_id !== Number(linkedCustomer.wooCustomerId)) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
     }
 

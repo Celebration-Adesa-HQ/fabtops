@@ -1,30 +1,30 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type { CartData, CartItem } from './types';
 import { getBrowserStorage } from './storage';
 
-interface GuestCartSnapshot {
-  items: CartItem[];
-}
-
 interface CartState {
   items: CartItem[];
+  guestSnapshot: { items: CartItem[] };
   isCartOpen: boolean;
   subtotal: number;
   totalAmount: number;
-  discountCodes: Array<{ code: string; applicable: boolean }>;
-  couponError: string | null;
+  currencyCode: string;
+  discountCodes: CartData['discountCodes'];
+  couponFeedback: {
+    action: 'apply' | 'remove' | null;
+    code: string | null;
+    message: string | null;
+    status: 'idle' | 'success' | 'error';
+  };
   checkoutUrl: string | null;
   isLoading: boolean;
-  hasHydratedGuestState: boolean;
-  isAnonymousSession: boolean;
-  guestSnapshot: GuestCartSnapshot;
   setIsCartOpen: (isOpen: boolean) => void;
-  setAnonymousSession: (isAnonymous: boolean) => void;
   markGuestHydrated: () => void;
-  seedFromGuestSnapshot: () => void;
+  getGuestMergePayload: () => { items: CartItem[] };
+  clearGuestSnapshot: () => void;
   syncCart: (cart: CartData) => void;
   initializeCart: () => Promise<void>;
   addToCart: (variantId: string, quantity?: number) => Promise<void>;
@@ -33,10 +33,17 @@ interface CartState {
   applyDiscountCode: (code: string) => Promise<string | null>;
   removeDiscountCode: (code: string) => Promise<string | null>;
   replaceFromServer: (cart: CartData) => void;
-  clearGuestSnapshot: () => void;
   clearUserScopedState: () => void;
-  getGuestMergePayload: () => GuestCartSnapshot;
   totalItems: () => number;
+}
+
+function redirectToLogin() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const target = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.assign(`/login?redirect=${encodeURIComponent(target || '/shop')}`);
 }
 
 async function fetchCartApi(body: Record<string, unknown>) {
@@ -52,21 +59,18 @@ async function fetchCartApi(body: Record<string, unknown>) {
   return result.data as CartData;
 }
 
-function toGuestSnapshot(items: CartItem[]): GuestCartSnapshot {
-  return {
-    items: items.map((item) => ({
-      ...item,
-      selectedOptions: item.selectedOptions || [],
-    })),
-  };
-}
-
 const emptyState = {
   items: [] as CartItem[],
   subtotal: 0,
   totalAmount: 0,
-  discountCodes: [] as Array<{ code: string; applicable: boolean }>,
-  couponError: null as string | null,
+  currencyCode: 'NGN',
+  discountCodes: [] as CartData['discountCodes'],
+  couponFeedback: {
+    action: null as 'apply' | 'remove' | null,
+    code: null as string | null,
+    message: null as string | null,
+    status: 'idle' as 'idle' | 'success' | 'error',
+  },
   checkoutUrl: null as string | null,
 };
 
@@ -74,56 +78,42 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       ...emptyState,
-      isCartOpen: false,
-      isLoading: true,
-      hasHydratedGuestState: false,
-      isAnonymousSession: false,
       guestSnapshot: { items: [] },
+      isCartOpen: false,
+      isLoading: false,
       setIsCartOpen(isOpen) {
         set({ isCartOpen: isOpen });
       },
-      setAnonymousSession(isAnonymous) {
-        set({ isAnonymousSession: isAnonymous });
-      },
       markGuestHydrated() {
-        set({ hasHydratedGuestState: true });
+        // storage rehydration is handled by zustand persist
       },
-      seedFromGuestSnapshot() {
-        const guestItems = get().guestSnapshot.items;
-        if (!guestItems.length) {
-          return;
-        }
-
-        set((state) => (
-          state.items.length
-            ? state
-            : {
-                items: guestItems,
-                checkoutUrl: '/checkout',
-              }
-        ));
+      getGuestMergePayload() {
+        return get().guestSnapshot;
+      },
+      clearGuestSnapshot() {
+        set({ guestSnapshot: { items: [] } });
       },
       syncCart(cart) {
-        set((state) => ({
+        set({
           items: cart.items || [],
           subtotal: cart.subtotal || 0,
           totalAmount: cart.totalAmount || 0,
+          currencyCode: cart.currencyCode || 'NGN',
           discountCodes: cart.discountCodes || [],
-          couponError: null,
           checkoutUrl: (cart.items || []).length ? '/checkout' : null,
-          guestSnapshot: state.isAnonymousSession ? toGuestSnapshot(cart.items || []) : state.guestSnapshot,
-        }));
+        });
       },
       async initializeCart() {
-        if (get().isAnonymousSession) {
-          get().seedFromGuestSnapshot();
-        }
-
         set({ isLoading: true });
         try {
           const cart = await fetchCartApi({ action: 'get' });
           get().syncCart(cart);
         } catch (error) {
+          const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            set({ ...emptyState, guestSnapshot: get().guestSnapshot, isLoading: false });
+            return;
+          }
           console.error('Unable to load WooCommerce cart:', error);
         } finally {
           set({ isLoading: false });
@@ -136,15 +126,29 @@ export const useCartStore = create<CartState>()(
           return;
         }
 
-        set({ isLoading: true, couponError: null });
+        set({
+          isLoading: true,
+          couponFeedback: { action: null, code: null, message: null, status: 'idle' },
+        });
         try {
           const cart = await fetchCartApi({ action: 'add', productId, quantity });
           get().syncCart(cart);
           set({ isCartOpen: true });
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            redirectToLogin();
+            return;
+          }
           if (message !== 'Cart request failed') {
-            set({ couponError: message });
+            set({
+              couponFeedback: {
+                action: null,
+                code: null,
+                message,
+                status: 'error',
+              },
+            });
           } else {
             console.error('WooCommerce cart operation failed:', error);
           }
@@ -153,23 +157,45 @@ export const useCartStore = create<CartState>()(
         }
       },
       async removeFromCart(lineKey) {
-        set({ isLoading: true, couponError: null });
+        set({
+          isLoading: true,
+          couponFeedback: { action: null, code: null, message: null, status: 'idle' },
+        });
         try {
           get().syncCart(await fetchCartApi({ action: 'remove', lineKey }));
         } catch (error) {
+          const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            redirectToLogin();
+            return;
+          }
           console.error('WooCommerce cart operation failed:', error);
         } finally {
           set({ isLoading: false });
         }
       },
       async updateQuantity(lineKey, quantity) {
-        set({ isLoading: true, couponError: null });
+        set({
+          isLoading: true,
+          couponFeedback: { action: null, code: null, message: null, status: 'idle' },
+        });
         try {
           get().syncCart(await fetchCartApi({ action: 'update', lineKey, quantity }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            redirectToLogin();
+            return;
+          }
           if (message !== 'Cart request failed') {
-            set({ couponError: message });
+            set({
+              couponFeedback: {
+                action: null,
+                code: null,
+                message,
+                status: 'error',
+              },
+            });
           } else {
             console.error('WooCommerce cart operation failed:', error);
           }
@@ -182,14 +208,41 @@ export const useCartStore = create<CartState>()(
           return null;
         }
 
-        set({ isLoading: true, couponError: null });
+        set({
+          isLoading: true,
+          couponFeedback: {
+            action: 'apply',
+            code,
+            message: null,
+            status: 'idle',
+          },
+        });
         try {
           get().syncCart(await fetchCartApi({ action: 'applyCoupon', code }));
+          set({
+            couponFeedback: {
+              action: 'apply',
+              code: code.trim().toUpperCase(),
+              message: `Coupon ${code.trim().toUpperCase()} applied.`,
+              status: 'success',
+            },
+          });
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            redirectToLogin();
+            return null;
+          }
           if (message !== 'Cart request failed') {
-            set({ couponError: message });
+            set({
+              couponFeedback: {
+                action: 'apply',
+                code: code.trim().toUpperCase(),
+                message,
+                status: 'error',
+              },
+            });
             return message;
           }
           console.error('WooCommerce cart operation failed:', error);
@@ -203,14 +256,41 @@ export const useCartStore = create<CartState>()(
           return null;
         }
 
-        set({ isLoading: true, couponError: null });
+        set({
+          isLoading: true,
+          couponFeedback: {
+            action: 'remove',
+            code,
+            message: null,
+            status: 'idle',
+          },
+        });
         try {
           get().syncCart(await fetchCartApi({ action: 'removeCoupon', code }));
+          set({
+            couponFeedback: {
+              action: 'remove',
+              code: code.trim().toUpperCase(),
+              message: `Coupon ${code.trim().toUpperCase()} removed.`,
+              status: 'success',
+            },
+          });
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            redirectToLogin();
+            return null;
+          }
           if (message !== 'Cart request failed') {
-            set({ couponError: message });
+            set({
+              couponFeedback: {
+                action: 'remove',
+                code: code.trim().toUpperCase(),
+                message,
+                status: 'error',
+              },
+            });
             return message;
           }
           console.error('WooCommerce cart operation failed:', error);
@@ -221,20 +301,17 @@ export const useCartStore = create<CartState>()(
       },
       replaceFromServer(cart) {
         get().syncCart(cart);
-      },
-      clearGuestSnapshot() {
-        set({ guestSnapshot: { items: [] } });
+        // Ensure the loading overlay is always cleared after a server-driven
+        // cart replacement (e.g. post-login merge) so the UI never stays stuck.
+        set({ isLoading: false });
       },
       clearUserScopedState() {
         set({
           ...emptyState,
+          guestSnapshot: get().guestSnapshot,
           isCartOpen: false,
           isLoading: false,
-          guestSnapshot: { items: [] },
         });
-      },
-      getGuestMergePayload() {
-        return get().guestSnapshot;
       },
       totalItems() {
         return get().items.reduce((total, item) => total + item.quantity, 0);
@@ -246,9 +323,6 @@ export const useCartStore = create<CartState>()(
       partialize: (state) => ({
         guestSnapshot: state.guestSnapshot,
       }),
-      onRehydrateStorage: () => (state) => {
-        state?.markGuestHydrated();
-      },
     },
   ),
 );

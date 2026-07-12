@@ -37,9 +37,27 @@ describe('WooCommerce cart', () => {
       }],
       subtotal: 2500,
       totalAmount: 2375,
-      discountCodes: [{ code: 'welcome10', applicable: true }],
+      discountCodes: [{
+        code: 'WELCOME10',
+        applicable: true,
+        discountTotal: 125,
+        currencyCode: 'NGN',
+      }],
       paymentMethods: ['paystack'],
     });
+  });
+
+  it('normalizes coupon discount totals using Woo minor-unit metadata', () => {
+    const mapped = mapStoreCart(cart);
+
+    expect(mapped.discountCodes).toEqual([
+      {
+        code: 'WELCOME10',
+        applicable: true,
+        discountTotal: 125,
+        currencyCode: 'NGN',
+      },
+    ]);
   });
 
   it('accepts a valid add action with numeric WooCommerce IDs', () => {

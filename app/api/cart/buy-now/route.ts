@@ -2,9 +2,14 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { getServerAuthSession } from '@/lib/auth/session';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { validateCsrf } from '@/lib/security';
-import { addCartItem } from '@/lib/woocommerce/cart';
-import { getAccessToken } from '@/lib/auth/session';
+import {
+  mapWooCustomerToStoreApiBillingAddress,
+  mapWooCustomerToStoreApiShippingAddress,
+} from '@/lib/woocommerce/customer-mappers';
+import { addCartItem, updateCartCustomer } from '@/lib/woocommerce/cart';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
@@ -20,15 +25,12 @@ const buyNowSchema = z.object({
  * checkout URL so the client can redirect the customer immediately.
  *
  * Security: CSRF-validated. Credentials never leave the server.
- * API used: WooCommerce Store API (POST /cart/add-item) — session-scoped via Bearer token
- *           when available, plus Cart-Token header/cookie for guest carts.
+ * API used: WooCommerce Store API (POST /cart/add-item) with an authenticated FabTops session.
  */
 export async function POST(request: NextRequest) {
   if (!validateCsrf(request)) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
-
-  const bearerToken = await getAccessToken();
 
   const parsed = buyNowSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -38,12 +40,27 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const session = await getServerAuthSession();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
+  }
+
   try {
     const cookieStore = await cookies();
     const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
     const { productId, quantity } = parsed.data;
+    const bearerToken = null;
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
+    const billingAddress = mapWooCustomerToStoreApiBillingAddress(linkedCustomer.customer, session.user);
+    const shippingAddress = mapWooCustomerToStoreApiShippingAddress(linkedCustomer.customer, session.user);
 
-    const { cart, cartToken } = await addCartItem(currentToken, productId, quantity, bearerToken);
+    const added = await addCartItem(currentToken, productId, quantity, bearerToken);
+    const { cart, cartToken } = await updateCartCustomer(
+      added.cartToken || currentToken,
+      billingAddress,
+      shippingAddress,
+      bearerToken,
+    );
 
     if (cartToken && cartToken !== currentToken) {
       cookieStore.set(CART_TOKEN_COOKIE, cartToken, {

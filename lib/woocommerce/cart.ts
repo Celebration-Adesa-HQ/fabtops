@@ -55,7 +55,12 @@ export interface StorefrontCart {
   subtotal: number;
   totalAmount: number;
   currencyCode: string;
-  discountCodes: Array<{ code: string; applicable: boolean }>;
+  discountCodes: Array<{
+    code: string;
+    applicable: boolean;
+    discountTotal: number;
+    currencyCode: string;
+  }>;
   shippingRates: StoreApiCart['shipping_rates'];
   paymentMethods: string[];
   needsShipping: boolean;
@@ -87,7 +92,12 @@ export function mapStoreCart(cart: StoreApiCart): StorefrontCart {
     subtotal: Number(fromMinorUnits(cart.totals.total_items, minorUnit)),
     totalAmount: Number(fromMinorUnits(cart.totals.total_price, minorUnit)),
     currencyCode: cart.totals.currency_code,
-    discountCodes: cart.coupons.map((coupon) => ({ code: coupon.code, applicable: true })),
+    discountCodes: cart.coupons.map((coupon) => ({
+      code: coupon.code.trim().toUpperCase(),
+      applicable: true,
+      discountTotal: Number(fromMinorUnits(coupon.totals.total_discount, coupon.totals.currency_minor_unit)),
+      currencyCode: coupon.totals.currency_code,
+    })),
     shippingRates: cart.shipping_rates,
     paymentMethods: cart.payment_methods,
     needsShipping: cart.needs_shipping,
@@ -97,6 +107,36 @@ export function mapStoreCart(cart: StoreApiCart): StorefrontCart {
 export interface CartResult {
   cart: StorefrontCart;
   cartToken: string | null;
+}
+
+function sanitizeAddress(address: unknown) {
+  if (!address || typeof address !== 'object') {
+    return null;
+  }
+
+  const next = Object.fromEntries(
+    Object.entries(address as Record<string, unknown>).filter(([, value]) => {
+      if (value === null || value === undefined) {
+        return false;
+      }
+
+      if (typeof value === 'string') {
+        return value.trim().length > 0;
+      }
+
+      return true;
+    }),
+  );
+
+  // WooCommerce Store API requires a valid country code on every address
+  // object it receives. Without it the endpoint returns 400: Invalid parameter.
+  // Treat an address as absent when no country is present so we fall back to
+  // getCart() instead of submitting an unacceptable payload.
+  if (!next.country || typeof next.country !== 'string' || (next.country as string).trim().length === 0) {
+    return null;
+  }
+
+  return Object.keys(next).length > 0 ? next : null;
 }
 
 async function cartRequest(path: string, cartToken: string | null, init?: RequestInit, bearerToken?: string | null): Promise<CartResult> {
@@ -137,9 +177,16 @@ export function removeCartCoupon(cartToken: string | null, code: string, bearerT
 }
 
 export function updateCartCustomer(cartToken: string | null, billingAddress: unknown, shippingAddress: unknown, bearerToken?: string | null) {
+  const sanitizedBillingAddress = sanitizeAddress(billingAddress);
+  const sanitizedShippingAddress = sanitizeAddress(shippingAddress);
+
+  if (!sanitizedBillingAddress && !sanitizedShippingAddress) {
+    return getCart(cartToken, bearerToken);
+  }
+
   return cartRequest('/cart/update-customer', cartToken, post({
-    billing_address: billingAddress,
-    shipping_address: shippingAddress,
+    ...(sanitizedBillingAddress ? { billing_address: sanitizedBillingAddress } : {}),
+    ...(sanitizedShippingAddress ? { shipping_address: sanitizedShippingAddress } : {}),
   }), bearerToken);
 }
 

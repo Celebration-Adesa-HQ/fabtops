@@ -1,8 +1,11 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getServerAuthSession } from '@/lib/auth/session';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { cartActionSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
+import { mapCheckoutAddressesToWooCustomerUpdate } from '@/lib/woocommerce/customer-mappers';
 import {
   addCartItem,
   applyCartCoupon,
@@ -13,9 +16,14 @@ import {
   updateCartCustomer,
   updateCartItem,
 } from '@/lib/woocommerce/cart';
+import { updateCustomer as updateWooCustomer } from '@/lib/woocommerce/customers';
 import { StoreApiError } from '@/lib/woocommerce/store-api';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
+
+function normalizeCouponCode(code: string) {
+  return code.trim().toUpperCase();
+}
 
 export async function POST(request: NextRequest) {
   if (!validateCsrf(request)) {
@@ -25,6 +33,11 @@ export async function POST(request: NextRequest) {
   const parsed = cartActionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ success: false, error: 'Invalid cart request' }, { status: 400 });
+  }
+
+  const session = await getServerAuthSession();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
   }
 
   try {
@@ -55,14 +68,18 @@ export async function POST(request: NextRequest) {
         result = await removeCartItem(cartToken, action.lineKey, bearerToken);
         break;
       case 'applyCoupon':
-        result = await applyCartCoupon(cartToken, action.code, bearerToken);
+        result = await applyCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
         break;
       case 'removeCoupon':
-        result = await removeCartCoupon(cartToken, action.code, bearerToken);
+        result = await removeCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
         break;
-      case 'updateCustomer':
+      case 'updateCustomer': {
+        const linkedCustomer = await ensureWooCustomerLink(session.user);
+        const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
+        await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
         result = await updateCartCustomer(cartToken, action.billing_address, action.shipping_address, bearerToken);
         break;
+      }
       case 'selectShipping':
         result = await selectShippingRate(cartToken, action.packageId, action.rateId, bearerToken);
         break;

@@ -10,9 +10,11 @@ export function CartSummaryCard() {
     checkoutUrl, 
     subtotal, 
     totalAmount,
+    currencyCode,
     discountCodes,
     applyDiscountCode,
     removeDiscountCode,
+    couponFeedback,
     isLoading
   } = useCart();
   const { formatPrice } = useCurrency();
@@ -23,10 +25,14 @@ export function CartSummaryCard() {
     e.preventDefault();
     if (!promoCode) return;
     setIsApplying(true);
-    await applyDiscountCode(promoCode);
-    setPromoCode('');
+    const err = await applyDiscountCode(promoCode);
+    if (!err) {
+      setPromoCode('');
+    }
     setIsApplying(false);
   };
+
+  const totalSavings = discountCodes.reduce((sum, coupon) => sum + coupon.discountTotal, 0);
 
   return (
     <div className="sticky top-40 bg-brand-light backdrop-blur-xl border border-white/40 p-10 md:p-12 space-y-12 rounded-[2.5rem] shadow-2xl shadow-brand-dark/5">
@@ -37,7 +43,7 @@ export function CartSummaryCard() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Subtotal</span>
-          <span className="text-lg font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
+          <span className="text-lg font-bold text-brand-dark">{formatPrice(subtotal, currencyCode)}</span>
         </div>
         
         {/* Discount Application */}
@@ -59,12 +65,27 @@ export function CartSummaryCard() {
             </button>
           </form>
 
-          <div className="flex flex-wrap gap-2">
+          {couponFeedback.message ? (
+            <p
+              className={`text-[10px] font-bold uppercase tracking-[0.14em] ${
+                couponFeedback.status === 'error' ? 'text-red-700' : 'text-brand-primary'
+              }`}
+            >
+              {couponFeedback.message}
+            </p>
+          ) : null}
+
+          <div className="flex flex-col gap-2">
             {discountCodes.map((dc) => (
-              <div key={dc.code} className="flex items-center gap-3 bg-brand-primary/10 px-4 py-2 rounded-full border border-brand-primary/20">
-                <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
-                  {dc.code} {!dc.applicable && <span className="opacity-60">(Invalid)</span>}
-                </span>
+              <div key={dc.code} className="flex items-center justify-between gap-3 bg-brand-primary/10 px-4 py-3 rounded-2xl border border-brand-primary/20">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
+                    {dc.code} {!dc.applicable && <span className="opacity-60">(Invalid)</span>}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/60">
+                    -{formatPrice(dc.discountTotal, dc.currencyCode)}
+                  </span>
+                </div>
                 <button 
                   onClick={() => removeDiscountCode(dc.code)}
                   className="text-brand-primary hover:text-brand-dark transition-colors"
@@ -81,10 +102,17 @@ export function CartSummaryCard() {
           <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-dark italic opacity-60">Complimentary</span>
         </div>
 
+        {totalSavings > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-primary">Coupon Savings</span>
+            <span className="text-lg font-bold text-brand-primary">-{formatPrice(totalSavings, currencyCode)}</span>
+          </div>
+        )}
+
         {subtotal !== totalAmount && (
           <div className="flex justify-between items-center">
             <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-primary">Total Savings</span>
-            <span className="text-lg font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, 'NGN')}</span>
+            <span className="text-lg font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, currencyCode)}</span>
           </div>
         )}
 
@@ -92,7 +120,7 @@ export function CartSummaryCard() {
           <span className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-dark">Order Total</span>
           <div className="text-right">
             <span className="text-4xl font-heading text-brand-dark tracking-tighter">
-              {formatPrice(totalAmount, 'NGN')}
+              {formatPrice(totalAmount, currencyCode)}
             </span>
           </div>
         </div>

@@ -21,7 +21,12 @@ export interface CartData {
   subtotal: number;
   totalAmount: number;
   currencyCode?: string;
-  discountCodes: Array<{ code: string; applicable: boolean }>;
+  discountCodes: Array<{
+    code: string;
+    applicable: boolean;
+    discountTotal: number;
+    currencyCode: string;
+  }>;
   shippingRates?: unknown[];
   paymentMethods?: string[];
   needsShipping?: boolean;

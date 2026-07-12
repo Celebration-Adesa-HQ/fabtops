@@ -1,26 +1,19 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { getAccessToken, getServerAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { mergeGuestStateSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
-import { addCartItem, getCart, updateCartItem } from '@/lib/woocommerce/cart';
-import { getProductById } from '@/lib/woocommerce/products';
+import {
+  mapWooCustomerToStoreApiBillingAddress,
+  mapWooCustomerToStoreApiShippingAddress,
+} from '@/lib/woocommerce/customer-mappers';
+import { addCartItem, getCart, updateCartCustomer, updateCartItem } from '@/lib/woocommerce/cart';
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 const MERGE_KEY_COOKIE = 'fabtops_guest_merge_key';
-
-type GuestCartItem = {
-  id: string;
-  variantId: string;
-  title: string;
-  handle: string;
-  price: string;
-  quantity: number;
-  image: string;
-  selectedOptions: Array<{ name: string; value: string }>;
-};
 
 type ServerCart = {
   items: Array<{
@@ -35,7 +28,7 @@ type ServerCart = {
   }>;
   subtotal: number;
   totalAmount: number;
-  discountCodes: Array<{ code: string; applicable: boolean }>;
+  discountCodes: Array<{ code: string; applicable: boolean; discountTotal?: number; currencyCode?: string }>;
   currencyCode?: string;
   shippingRates?: unknown[];
   paymentMethods?: string[];
@@ -71,8 +64,17 @@ function buildLineSignature(item: { variantId: string; selectedOptions?: Array<{
   });
 }
 
-function dedupeGuestCartItems(items: GuestCartItem[]) {
-  const merged = new Map<string, GuestCartItem>();
+function dedupeGuestCartItems(items: Array<{
+  id: string;
+  variantId: string;
+  title: string;
+  handle: string;
+  price: string;
+  quantity: number;
+  image: string;
+  selectedOptions: Array<{ name: string; value: string }>;
+}>) {
+  const merged = new Map<string, typeof items[number]>();
 
   for (const item of items) {
     const signature = buildLineSignature(item);
@@ -89,48 +91,6 @@ function dedupeGuestCartItems(items: GuestCartItem[]) {
   }
 
   return [...merged.entries()].map(([signature, item]) => ({ signature, item }));
-}
-
-async function resolveInventoryCap(variantId: string) {
-  const numericId = Number(variantId);
-  if (!Number.isInteger(numericId) || numericId <= 0) {
-    return 99;
-  }
-
-  const product = await getProductById(numericId).catch(() => null);
-  if (!product) {
-    return 99;
-  }
-
-  const legacyVariant = (product as {
-    variants?: { edges?: Array<{ node?: { id?: string; availableForSale?: boolean; stockQuantity?: number } }> };
-    availableForSale?: boolean;
-    stockQuantity?: number;
-  }).variants?.edges?.find((item) => item.node?.id === variantId)?.node;
-  const variation = product.variations?.find((item) => item.id === variantId);
-
-  if (variation && variation.availability.purchasable === false) {
-    return 0;
-  }
-
-  if (!variation && legacyVariant && legacyVariant.availableForSale === false) {
-    return 0;
-  }
-
-  if (!variation && product.availability?.purchasable === false) {
-    return 0;
-  }
-
-  if (!variation && !product.availability && (product as { availableForSale?: boolean }).availableForSale === false) {
-    return 0;
-  }
-
-  const stockQuantity = legacyVariant?.stockQuantity ?? (product as { stockQuantity?: number }).stockQuantity;
-  if (typeof stockQuantity === 'number' && Number.isFinite(stockQuantity)) {
-    return Math.max(0, stockQuantity);
-  }
-
-  return 99;
 }
 
 function toWishlistData(
@@ -246,30 +206,39 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
     let cartResult = await getCart(currentToken, bearerToken);
     const dedupedGuestItems = dedupeGuestCartItems(parsed.data.guestCart.items);
 
     for (const { signature, item } of dedupedGuestItems) {
       const currentLine = cartResult.cart.items.find((cartItem) => buildLineSignature(cartItem) === signature);
-      const currentQuantity = currentLine?.quantity || 0;
-      const inventoryCap = await resolveInventoryCap(item.variantId);
-      const desiredQuantity = Math.min(99, currentQuantity + item.quantity);
-      const targetQuantity = Math.min(desiredQuantity, inventoryCap);
 
       if (!currentLine) {
-        if (targetQuantity <= 0) {
-          continue;
-        }
-
-        cartResult = await addCartItem(cartResult.cartToken, Number(item.variantId), targetQuantity, bearerToken);
+        cartResult = await addCartItem(cartResult.cartToken, Number(item.variantId), item.quantity, bearerToken);
         continue;
       }
 
-      if (targetQuantity === currentQuantity) {
-        continue;
-      }
+      cartResult = await updateCartItem(
+        cartResult.cartToken,
+        currentLine.id,
+        currentLine.quantity + item.quantity,
+        bearerToken,
+      );
+    }
 
-      cartResult = await updateCartItem(cartResult.cartToken, currentLine.id, targetQuantity, bearerToken);
+    // Attempt to sync the customer address to the WooCommerce cart.
+    // This is best-effort: if the customer has no valid address data yet
+    // (e.g. country is missing) the Store API will reject the request with
+    // a 400. We swallow that error so the cart item merge still succeeds.
+    try {
+      cartResult = await updateCartCustomer(
+        cartResult.cartToken,
+        mapWooCustomerToStoreApiBillingAddress(linkedCustomer.customer, session.user),
+        mapWooCustomerToStoreApiShippingAddress(linkedCustomer.customer, session.user),
+        bearerToken,
+      );
+    } catch (addressError) {
+      console.warn('Skipping cart customer address update (incomplete address data):', addressError instanceof Error ? addressError.message : addressError);
     }
 
     const dedupedWishlist = new Map(parsed.data.guestWishlist.map((item) => [item.id, item]));

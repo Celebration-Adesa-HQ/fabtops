@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { getServerAuthSession } from '@/lib/auth/session';
 import { getCustomerOrders } from '@/lib/woocommerce/orders';
 
@@ -9,11 +10,8 @@ export async function GET() {
   }
 
   try {
-    if (!session.user.wooCustomerId) {
-      return NextResponse.json({ success: false, error: 'ACCOUNT_NOT_SYNCED' }, { status: 409 });
-    }
-
-    const orders = await getCustomerOrders(session.user.wooCustomerId);
+    const linkedCustomer = await ensureWooCustomerLink(session.user);
+    const orders = await getCustomerOrders(linkedCustomer.wooCustomerId);
 
     const mapped = orders.map((order) => {
       const items = order.line_items.map((item) => ({

@@ -15,8 +15,9 @@ interface CartContextType {
   totalItems: number;
   subtotal: number;
   totalAmount: number;
-  discountCodes: Array<{ code: string; applicable: boolean }>;
-  couponError: string | null;
+  currencyCode: string;
+  discountCodes: ReturnType<typeof useCartStore.getState>['discountCodes'];
+  couponFeedback: ReturnType<typeof useCartStore.getState>['couponFeedback'];
   checkoutUrl: string | null;
   isLoading: boolean;
 }
@@ -36,8 +37,9 @@ export function useCart(): CartContextType {
   const setIsCartOpen = useCartStore((state) => state.setIsCartOpen);
   const subtotal = useCartStore((state) => state.subtotal);
   const totalAmount = useCartStore((state) => state.totalAmount);
+  const currencyCode = useCartStore((state) => state.currencyCode);
   const discountCodes = useCartStore((state) => state.discountCodes);
-  const couponError = useCartStore((state) => state.couponError);
+  const couponFeedback = useCartStore((state) => state.couponFeedback);
   const checkoutUrl = useCartStore((state) => state.checkoutUrl);
   const isLoading = useCartStore((state) => state.isLoading);
   const totalItems = useCartStore((state) => state.totalItems());
@@ -54,8 +56,9 @@ export function useCart(): CartContextType {
     totalItems,
     subtotal,
     totalAmount,
+    currencyCode,
     discountCodes,
-    couponError,
+    couponFeedback,
     checkoutUrl,
     isLoading,
   };
