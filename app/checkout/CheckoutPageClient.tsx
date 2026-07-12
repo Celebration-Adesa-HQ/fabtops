@@ -3,8 +3,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, LockKeyhole } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { CheckoutOrderSummary } from '@/components/checkout/CheckoutOrderSummary';
 import { checkoutSchema, type CheckoutSchema } from '@/lib/schemas';
 import { useCartStore } from '@/stores/use-cart-store';
 
@@ -35,10 +36,24 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
   const [submitting, setSubmitting] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const initializeCart = useCartStore((state) => state.initializeCart);
+  const items = useCartStore((state) => state.items);
+  const subtotal = useCartStore((state) => state.subtotal);
+  const totalAmount = useCartStore((state) => state.totalAmount);
+  const currencyCode = useCartStore((state) => state.currencyCode);
+  const discountCodes = useCartStore((state) => state.discountCodes);
+  const shippingRates = useCartStore((state) => state.shippingRates);
+  const needsShipping = useCartStore((state) => state.needsShipping);
+  const cartLoading = useCartStore((state) => state.isLoading);
   const { register, handleSubmit, formState: { errors } } = useForm<CheckoutSchema>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: initialValues,
   });
+
+  useEffect(() => {
+    if (items.length === 0) {
+      void initializeCart();
+    }
+  }, [initializeCart, items.length]);
 
   const submit = async (values: CheckoutSchema, isRetry = false) => {
     setSubmitting(true);
@@ -101,7 +116,19 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
           <ArrowLeft size={14} /> Return to bag
         </Link>
         <div className="grid gap-14 lg:grid-cols-[1fr_320px]">
-          <form onSubmit={handleSubmit((values) => submit(values))} className="space-y-12">
+          <div className="lg:order-2">
+            <CheckoutOrderSummary
+            items={items}
+            subtotal={subtotal}
+            totalAmount={totalAmount}
+            currencyCode={currencyCode}
+            discountCodes={discountCodes}
+            shippingRates={shippingRates}
+            needsShipping={needsShipping}
+            isLoading={cartLoading}
+            />
+          </div>
+          <form onSubmit={handleSubmit((values) => submit(values))} className="space-y-12 lg:order-1">
             <header>
               <p className="mb-4 text-[10px] font-black uppercase tracking-[0.45em] text-brand-primary">Secure Customer Checkout</p>
               <h1 className="font-heading text-5xl uppercase tracking-tight text-brand-dark md:text-7xl">Delivery Details</h1>
@@ -140,23 +167,18 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
               {isRetrying ? 'Cleaning up cart…' : submitting ? 'Preparing payment…' : 'Continue securely with Paystack'}
             </button>
           </form>
-
-          <aside className="h-fit border border-brand-dark/10 bg-white/60 p-8 lg:sticky lg:top-32">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/50">WooCommerce Checkout</p>
-            <p className="mt-5 text-sm leading-7 text-brand-dark/60">Prices, stock, coupons, shipping, taxes, and payment availability are calculated directly by WooCommerce.</p>
-            <div className="mt-8 rounded-[1.5rem] border border-brand-dark/8 bg-brand-light/70 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Payment Interrupted?</p>
-              <p className="mt-3 text-sm leading-7 text-brand-dark/60">
-                If your gateway redirects you out before payment completes, use the order recovery flow to reload the unpaid Woo order and continue.
-              </p>
-              <Link
-                href="/checkout/recover"
-                className="mt-5 inline-flex text-[10px] font-black uppercase tracking-[0.32em] text-brand-primary"
-              >
-                Open Recovery
-              </Link>
-            </div>
-          </aside>
+        </div>
+        <div className="mt-10 rounded-[1.5rem] border border-brand-dark/8 bg-white/55 p-5 lg:max-w-[calc(100%-352px)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Payment Interrupted?</p>
+          <p className="mt-3 text-sm leading-7 text-brand-dark/60">
+            If your gateway redirects you out before payment completes, use the order recovery flow to reload the unpaid Woo order and continue.
+          </p>
+          <Link
+            href="/checkout/recover"
+            className="mt-5 inline-flex text-[10px] font-black uppercase tracking-[0.32em] text-brand-primary"
+          >
+            Open Recovery
+          </Link>
         </div>
       </div>
     </main>

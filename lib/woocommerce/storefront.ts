@@ -471,6 +471,7 @@ export async function getStoreProductReviews(query: StoreApiReviewQuery = {}) {
 }
 
 export async function getStoreCheckoutOrder(orderId: number | string, orderKey: string) {
+  // Existing-order recovery only. Do not use this for current-cart checkout.
   const result = await storeApiRequest<StoreApiOrder>(`/checkout/${orderId}`, {
     query: { key: orderKey },
     cache: 'no-store',
@@ -540,6 +541,7 @@ export async function submitStoreCheckoutOrder(
   cartToken: string,
   bearerToken?: string | null,
 ): Promise<{ checkout: SafeCheckoutResult; cartToken: string | null }> {
+  // Existing-order recovery only. Current-cart checkout belongs in lib/woocommerce/checkout.ts.
   const result = await storeApiRequest<StoreCheckoutOrderResponse>(`/checkout/${orderId}`, {
     method: 'POST',
     cartToken,

@@ -83,12 +83,19 @@ function isTransientPrismaError(error: unknown) {
     return false;
   }
 
-  const candidate = error as { code?: string; message?: string };
-  if (candidate.code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'P1001'].includes(candidate.code)) {
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    meta?: { driverAdapterError?: { message?: string; cause?: { message?: string } } };
+  };
+  if (candidate.code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'ETIMEDOUT', 'P1001', 'P1008'].includes(candidate.code)) {
     return true;
   }
 
-  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server/i.test(candidate.message || '');
+  const driverMessage = candidate.meta?.driverAdapterError?.message || candidate.meta?.driverAdapterError?.cause?.message || '';
+  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server|Operation has timed out|SocketTimeout/i.test(
+    `${candidate.message || ''} ${driverMessage}`,
+  );
 }
 
 export function toSessionUser(profile: {

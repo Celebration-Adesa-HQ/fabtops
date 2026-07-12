@@ -12,11 +12,54 @@ interface StoreApiCheckoutResponse {
   } | null;
 }
 
+interface StoreApiCheckoutDraftResponse {
+  order_id: number;
+  status: string;
+  order_key: string;
+  customer_note?: string;
+  payment_method?: string;
+  billing_address?: {
+    first_name?: string;
+    last_name?: string;
+    company?: string;
+    address_1?: string;
+    address_2?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+    email?: string;
+    phone?: string;
+  };
+  shipping_address?: {
+    first_name?: string;
+    last_name?: string;
+    company?: string;
+    address_1?: string;
+    address_2?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+    phone?: string;
+  };
+  payment_result?: StoreApiCheckoutResponse['payment_result'];
+  additional_fields?: Record<string, string | boolean | number | null>;
+  __experimentalCart?: unknown;
+}
+
 export interface SafeCheckoutResult {
   orderId: number;
   status: string;
   paymentStatus: string;
   redirectUrl: string;
+}
+
+export interface CheckoutUpdateInput {
+  payment_method?: string;
+  order_notes?: string;
+  additional_fields?: Record<string, string | boolean | number | null>;
+  calcTotals?: boolean;
 }
 
 export function assertPaymentMethodAvailable(paymentMethods: string[], requiredMethod = 'paystack') {
@@ -34,12 +77,51 @@ export function normalizeCheckoutResult(response: StoreApiCheckoutResponse): Saf
   };
 }
 
+export async function getCheckoutDraft(cartToken: string, bearerToken?: string | null) {
+  const result = await storeApiRequest<StoreApiCheckoutDraftResponse>('/checkout', {
+    cartToken,
+    bearerToken,
+    cache: 'no-store',
+  });
+
+  return {
+    checkout: result.data,
+    cartToken: result.cartToken,
+  };
+}
+
+export async function updateCheckout(
+  cartToken: string,
+  input: CheckoutUpdateInput,
+  bearerToken?: string | null,
+) {
+  const { calcTotals = false, ...payload } = input;
+  const result = await storeApiRequest<StoreApiCheckoutDraftResponse>('/checkout', {
+    method: 'PUT',
+    cartToken,
+    bearerToken,
+    query: calcTotals ? { __experimental_calc_totals: true } : undefined,
+    body: JSON.stringify(payload),
+  });
+
+  return {
+    checkout: result.data,
+    cartToken: result.cartToken,
+  };
+}
+
 export async function submitCheckout(cartToken: string, input: CheckoutSchema, bearerToken?: string | null) {
   const result = await storeApiRequest<StoreApiCheckoutResponse>('/checkout', {
     method: 'POST',
     cartToken,
     bearerToken,
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      billing_address: input.billing_address,
+      shipping_address: input.shipping_address,
+      payment_method: input.payment_method,
+      payment_data: input.payment_data,
+      ...(input.customer_note ? { customer_note: input.customer_note } : {}),
+    }),
   });
   return {
     checkout: normalizeCheckoutResult(result.data),

@@ -27,10 +27,39 @@ async function persistWooCustomerId(userId: string, wooCustomerId: string | null
     return;
   }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { wooCustomerId },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { wooCustomerId },
+    });
+  } catch (error) {
+    if (isTransientPrismaPersistenceError(error)) {
+      return;
+    }
+
+    throw error;
+  }
+}
+
+function isTransientPrismaPersistenceError(error: unknown) {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    meta?: { driverAdapterError?: { message?: string; cause?: { message?: string } } };
+  };
+
+  if (candidate.code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'ETIMEDOUT', 'P1001', 'P1008'].includes(candidate.code)) {
+    return true;
+  }
+
+  const driverMessage = candidate.meta?.driverAdapterError?.message || candidate.meta?.driverAdapterError?.cause?.message || '';
+  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server|Operation has timed out|SocketTimeout/i.test(
+    `${candidate.message || ''} ${driverMessage}`,
+  );
 }
 
 export async function ensureWooCustomerLink(sessionUser: SessionUser): Promise<WooCustomerLinkResult> {

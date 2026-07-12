@@ -13,6 +13,8 @@ interface CartState {
   totalAmount: number;
   currencyCode: string;
   discountCodes: CartData['discountCodes'];
+  shippingRates: CartData['shippingRates'];
+  needsShipping: boolean;
   couponFeedback: {
     action: 'apply' | 'remove' | null;
     code: string | null;
@@ -65,6 +67,8 @@ const emptyState = {
   totalAmount: 0,
   currencyCode: 'NGN',
   discountCodes: [] as CartData['discountCodes'],
+  shippingRates: [] as CartData['shippingRates'],
+  needsShipping: false,
   couponFeedback: {
     action: null as 'apply' | 'remove' | null,
     code: null as string | null,
@@ -100,6 +104,8 @@ export const useCartStore = create<CartState>()(
           totalAmount: cart.totalAmount || 0,
           currencyCode: cart.currencyCode || 'NGN',
           discountCodes: cart.discountCodes || [],
+          shippingRates: cart.shippingRates || [],
+          needsShipping: cart.needsShipping || false,
           checkoutUrl: (cart.items || []).length ? '/checkout' : null,
         });
       },

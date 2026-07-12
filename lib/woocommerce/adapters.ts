@@ -80,6 +80,45 @@ function variantTitle(options: Array<{ name: string; value: string }>) {
   return options.length ? options.map((option) => option.value).join(' / ') : 'Default Title';
 }
 
+function normalizeAttributeLabel(value: string | undefined) {
+  return (value || '').replace(/^pa_/, '').replace(/[-_]+/g, ' ').trim();
+}
+
+function startCase(value: string | undefined) {
+  const normalized = normalizeAttributeLabel(value);
+  if (!normalized) return '';
+
+  return normalized
+    .split(' ')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
+function resolveVariationAttributeName(
+  attribute: WooRestVariation['attributes'][number],
+  parentAttributes: WooRestProduct['attributes'],
+) {
+  if (attribute.name?.trim()) {
+    return attribute.name.trim();
+  }
+
+  const parentMatch = parentAttributes.find((parentAttribute) => (
+    parentAttribute.id === attribute.id ||
+    (!!attribute.slug && parentAttribute.slug === attribute.slug)
+  ));
+
+  if (parentMatch?.name?.trim()) {
+    return parentMatch.name.trim();
+  }
+
+  if (attribute.slug) {
+    return startCase(attribute.slug);
+  }
+
+  return attribute.id ? `Attribute ${attribute.id}` : 'Option';
+}
+
 function normalizeGallery(images: Array<{ src: string; alt?: string; name?: string }>, fallbackAlt: string) {
   const gallery = images
     .map((image) => storefrontImage(image, fallbackAlt))
@@ -198,7 +237,7 @@ export function adaptRestProduct(product: WooRestProduct, variations: WooRestVar
   const storefrontVariations: StorefrontVariation[] | undefined = variations.length
     ? variations.map((variation) => {
         const selectedOptions = variation.attributes.map((attribute) => ({
-          name: attribute.name,
+          name: resolveVariationAttributeName(attribute, product.attributes),
           value: attribute.option,
         }));
         return {

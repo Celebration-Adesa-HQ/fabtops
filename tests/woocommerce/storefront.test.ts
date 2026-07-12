@@ -89,6 +89,84 @@ describe('WooCommerce Storefront helpers', () => {
     });
   });
 
+  it('submits recovery payments through the checkout-order endpoint only', async () => {
+    storeApiRequest.mockResolvedValue({
+      data: {
+        order_id: 321,
+        status: 'pending',
+        order_key: 'wc_order_abc',
+        payment_result: {
+          payment_status: 'pending',
+          payment_details: [],
+          redirect_url: 'https://payments.example.com/authorize',
+        },
+      },
+      cartToken: 'cart-token-2',
+      pagination: {},
+    });
+
+    const { submitStoreCheckoutOrder } = await import('../../lib/woocommerce/storefront');
+    await submitStoreCheckoutOrder(321, {
+      key: 'wc_order_abc',
+      billing_email: 'guest@example.com',
+      payment_method: 'paystack',
+      payment_data: [],
+      billing_address: {
+        first_name: 'Ada',
+        last_name: 'Okafor',
+        address_1: '1 Marina Road',
+        city: 'Lagos',
+        state: 'LA',
+        postcode: '100001',
+        country: 'NG',
+        email: 'guest@example.com',
+        phone: '+2348000000000',
+      },
+      shipping_address: {
+        first_name: 'Ada',
+        last_name: 'Okafor',
+        address_1: '1 Marina Road',
+        city: 'Lagos',
+        state: 'LA',
+        postcode: '100001',
+        country: 'NG',
+      },
+    }, 'cart-token-1');
+
+    expect(storeApiRequest).toHaveBeenCalledWith('/checkout/321', {
+      method: 'POST',
+      cartToken: 'cart-token-1',
+      bearerToken: undefined,
+      body: JSON.stringify({
+        key: 'wc_order_abc',
+        billing_email: 'guest@example.com',
+        payment_method: 'paystack',
+        payment_data: [],
+        billing_address: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          state: 'LA',
+          postcode: '100001',
+          country: 'NG',
+          email: 'guest@example.com',
+          phone: '+2348000000000',
+        },
+        shipping_address: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          state: 'LA',
+          postcode: '100001',
+          country: 'NG',
+        },
+      }),
+    });
+    expect(storeApiRequest).not.toHaveBeenCalledWith('/checkout', expect.anything());
+  });
+
   it('loads attribute terms through the Store API attribute taxonomy endpoint', async () => {
     storeApiRequest.mockResolvedValue({
       data: [],

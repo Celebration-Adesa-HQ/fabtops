@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getCategories, getProductBySlug, getProducts } from '../../lib/woocommerce/products';
 import type { RestProduct } from '../../lib/woocommerce/types';
+import { liveVariableProduct, liveVariableVariations } from './fixtures/live-rest-product';
 
 const { wooRequest } = vi.hoisted(() => ({
   wooRequest: vi.fn(),
@@ -66,38 +67,28 @@ describe('WooCommerce product helpers', () => {
   });
 
   it('loads a product and its variations through wc/v3 product queries', async () => {
-    const restProductDetail = {
-      id: 10,
-      name: 'Silk Set',
-      slug: 'silk-set',
-      type: 'variable',
-      status: 'publish',
-      description: '',
-      short_description: '',
-      price: '20000',
-      regular_price: '20000',
-      stock_status: 'instock',
-      purchasable: true,
-      categories: [],
-      tags: [],
-      images: [],
-      attributes: [],
-      variations: [101],
-    };
     wooRequest
-      .mockResolvedValueOnce([restProductDetail])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([liveVariableProduct])
+      .mockResolvedValueOnce(liveVariableVariations);
 
-    const product = await getProductBySlug('silk set');
+    const product = await getProductBySlug('isla-satin-tie-midi-dress');
 
-    expect(product?.handle).toBe('silk-set');
+    expect(product?.handle).toBe('isla-satin-tie-midi-dress');
+    expect(product?.options).toEqual([
+      { id: '2', name: 'Size', values: ['L', 'M', 'S', 'XL', 'XS'] },
+      { id: '3', name: 'Color', values: ['Rose'] },
+    ]);
+    expect(product?.variations?.[0].selectedOptions).toEqual([
+      { name: 'Size', value: 'M' },
+      { name: 'Color', value: 'Rose' },
+    ]);
     expect(wooRequest).toHaveBeenNthCalledWith(1, '/products', {
-      query: { slug: 'silk set', status: 'publish', per_page: 1 },
-      next: { revalidate: 60, tags: ['woo-product-silk set'] },
+      query: { slug: 'isla-satin-tie-midi-dress', status: 'publish', per_page: 1 },
+      next: { revalidate: 60, tags: ['woo-product-isla-satin-tie-midi-dress'] },
     });
-    expect(wooRequest).toHaveBeenNthCalledWith(2, '/products/10/variations', {
+    expect(wooRequest).toHaveBeenNthCalledWith(2, '/products/632/variations', {
       query: { per_page: 100 },
-      next: { revalidate: 60, tags: ['woo-product-10'] },
+      next: { revalidate: 60, tags: ['woo-product-632'] },
     });
   });
 

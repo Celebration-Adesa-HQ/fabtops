@@ -89,12 +89,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${raleway.variable} ${playfair.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={`${raleway.variable} ${playfair.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <OrganizationStructuredData />
         <WebsiteStructuredData />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
           <CartDrawer />
           <main className="flex-grow">

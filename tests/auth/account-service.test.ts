@@ -379,6 +379,45 @@ describe('account service', () => {
     });
   });
 
+  it('returns the auth session user when Prisma session enrichment times out', async () => {
+    getSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user_91',
+            email: 'grace@example.com',
+            name: 'Grace Hopper',
+          },
+        },
+      },
+      headers: new Headers(),
+      error: null,
+    });
+    prismaUserFindUnique.mockRejectedValue(
+      Object.assign(new Error('Operation has timed out'), {
+        code: 'P1008',
+      }),
+    );
+
+    const { getCustomerSession } = await import('../../lib/auth/account-service');
+    const result = await getCustomerSession({
+      headers: new Headers({ cookie: 'neon-auth.session_token=abc123' }),
+    });
+
+    expect(result).toMatchObject({
+      status: 200,
+      body: {
+        user: {
+          id: 'user_91',
+          email: 'grace@example.com',
+          firstName: 'Grace',
+          lastName: 'Hopper',
+          wooCustomerId: null,
+        },
+      },
+    });
+  });
+
   it('delegates forgot-password and reset-password through Neon Auth methods', async () => {
     requestPasswordReset.mockResolvedValue({
       data: {

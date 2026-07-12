@@ -158,12 +158,12 @@ function normalizePersistenceError(error: unknown) {
 
 function isTransientPrismaConnectivityError(error: { code?: string; message?: string } | null | undefined) {
   const code = error?.code;
-  if (code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'P1001'].includes(code)) {
+  if (code && ['ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND', 'ETIMEDOUT', 'P1001', 'P1008'].includes(code)) {
     return true;
   }
 
   const message = error?.message || '';
-  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server/i.test(message);
+  return /getaddrinfo\s+(EAI_AGAIN|ENOTFOUND)\b|Can't reach database server|Operation has timed out|SocketTimeout/i.test(message);
 }
 
 async function findMirroredProfileSafely(userId: string) {

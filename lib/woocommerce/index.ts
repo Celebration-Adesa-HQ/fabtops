@@ -12,7 +12,17 @@
  * Cart                   → WooCommerce Store API (POST, Cart-Token session)
  *                          Never touches the REST API.
  *
- * Checkout               → WooCommerce Store API (POST /checkout)
+ * Checkout               → WooCommerce Store API
+ *                          - GET /checkout for draft checkout data
+ *                          - PUT /checkout for persisted checkout state
+ *                          - POST /checkout for current-cart payment
+ *                          Never mixes with /checkout/{orderId}.
+ *
+ * Recovery / Pay-order   → WooCommerce Store API
+ *                          - GET /order/{id}
+ *                          - GET /checkout/{id}
+ *                          - POST /checkout/{id}
+ *                          Existing-order flows only.
  *                          Never touches the REST API.
  *
  * REST API (server-only) → Used for all product/category reads.
@@ -112,10 +122,12 @@ export type { CartResult, StorefrontCart } from './cart';
 // Checkout helpers (Store API)
 export {
   assertPaymentMethodAvailable,
+  getCheckoutDraft,
   normalizeCheckoutResult,
   submitCheckout,
+  updateCheckout,
 } from './checkout';
-export type { SafeCheckoutResult } from './checkout';
+export type { CheckoutUpdateInput, SafeCheckoutResult } from './checkout';
 
 // Shape adapters (WooCommerce → StorefrontProduct / StorefrontCategory)
 export { adaptRestProduct, adaptStoreProduct } from './adapters';

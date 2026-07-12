@@ -16,6 +16,28 @@ export interface CartItem {
   selectedOptions: SelectedOption[];
 }
 
+export interface ShippingRateOption {
+  rate_id: string;
+  name: string;
+  description: string;
+  delivery_time: string;
+  price: string;
+  taxes: string;
+  instance_id: number;
+  method_id: string;
+  meta_data: Array<{ key: string; value: string }>;
+  selected: boolean;
+  currency_code: string;
+  currency_minor_unit: number;
+}
+
+export interface ShippingRatePackage {
+  package_id: number;
+  name: string;
+  destination: Record<string, string>;
+  shipping_rates: ShippingRateOption[];
+}
+
 export interface CartData {
   items: CartItem[];
   subtotal: number;
@@ -27,7 +49,7 @@ export interface CartData {
     discountTotal: number;
     currencyCode: string;
   }>;
-  shippingRates?: unknown[];
+  shippingRates?: ShippingRatePackage[];
   paymentMethods?: string[];
   needsShipping?: boolean;
 }

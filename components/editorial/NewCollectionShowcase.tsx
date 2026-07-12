@@ -23,6 +23,7 @@ export function NewCollectionShowcase() {
                 src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=1200"
                 alt="New Collection"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </motion.div>
@@ -39,6 +40,7 @@ export function NewCollectionShowcase() {
                 src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800"
                 alt="Detail"
                 fill
+                sizes="(max-width: 1024px) 66vw, 33vw"
                 className="object-cover"
               />
             </motion.div>

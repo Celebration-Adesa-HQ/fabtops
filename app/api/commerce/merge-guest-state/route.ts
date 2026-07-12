@@ -14,6 +14,7 @@ import { addCartItem, getCart, updateCartCustomer, updateCartItem } from '@/lib/
 
 const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 const MERGE_KEY_COOKIE = 'fabtops_guest_merge_key';
+const TEMP_DISABLE_GUEST_CART_MERGE = true;
 
 type ServerCart = {
   items: Array<{
@@ -166,6 +167,26 @@ function buildCookieOptions() {
   };
 }
 
+function buildExpiredCookieOptions() {
+  return {
+    ...buildCookieOptions(),
+    maxAge: 0,
+  };
+}
+
+function emptyCart(): ServerCart {
+  return {
+    items: [],
+    subtotal: 0,
+    totalAmount: 0,
+    discountCodes: [],
+    currencyCode: 'NGN',
+    shippingRates: [],
+    paymentMethods: [],
+    needsShipping: false,
+  };
+}
+
 export async function POST(request: NextRequest) {
   if (!validateCsrf(request)) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
@@ -187,6 +208,22 @@ export async function POST(request: NextRequest) {
     const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
     const previousMergeKey = cookieStore.get(MERGE_KEY_COOKIE)?.value || null;
     const bearerToken = await getAccessToken();
+
+    if (TEMP_DISABLE_GUEST_CART_MERGE) {
+      cookieStore.set(CART_TOKEN_COOKIE, '', buildExpiredCookieOptions());
+      cookieStore.set(MERGE_KEY_COOKIE, '', buildExpiredCookieOptions());
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          merged: false,
+          wishlistMerged: false,
+          cart: emptyCart(),
+          wishlist: await readCanonicalWishlistSafely(session.user.id, normalizeWishlistFallback(parsed.data.guestWishlist)),
+        },
+        message: 'Guest cart merge temporarily disabled for checkout debugging.',
+      });
+    }
 
     if (previousMergeKey === mergeKey) {
       const currentCart = await getCart(currentToken, bearerToken);

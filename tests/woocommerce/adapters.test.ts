@@ -3,6 +3,7 @@ import {
   adaptRestProduct,
   adaptStoreProduct,
 } from '../../lib/woocommerce/adapters';
+import { liveVariableProduct, liveVariableVariations } from './fixtures/live-rest-product';
 
 describe('WooCommerce product adapters', () => {
   it('maps a Store API product to the stable storefront shape', () => {
@@ -124,5 +125,47 @@ describe('WooCommerce product adapters', () => {
       brands: [],
       averageRating: 0,
     });
+  });
+
+  it('maps live wc/v3 product payloads and preserves attribute groups and selected options', () => {
+    const product = adaptRestProduct(liveVariableProduct, liveVariableVariations);
+
+    expect(product).toMatchObject({
+      id: '632',
+      handle: 'isla-satin-tie-midi-dress',
+      title: 'Isla Satin Tie Midi Dress',
+      brands: ['FabTops'],
+      averageRating: 0,
+      variationIds: ['652', '653', '654', '655', '656'],
+      options: [
+        { id: '2', name: 'Size', values: ['L', 'M', 'S', 'XL', 'XS'] },
+        { id: '3', name: 'Color', values: ['Rose'] },
+      ],
+    });
+    expect(product.variations?.[0]).toMatchObject({
+      id: '654',
+      title: 'M / Rose',
+      selectedOptions: [
+        { name: 'Size', value: 'M' },
+        { name: 'Color', value: 'Rose' },
+      ],
+    });
+  });
+
+  it('resolves human-readable variation attribute names from parent product attributes when variation names are missing', () => {
+    const product = adaptRestProduct(liveVariableProduct, [
+      {
+        ...liveVariableVariations[0],
+        attributes: [
+          { id: 2, name: '', slug: 'pa_size', option: 'M' },
+          { id: 3, name: '', slug: 'pa_color', option: 'Rose' },
+        ],
+      },
+    ]);
+
+    expect(product.variations?.[0].selectedOptions).toEqual([
+      { name: 'Size', value: 'M' },
+      { name: 'Color', value: 'Rose' },
+    ]);
   });
 });

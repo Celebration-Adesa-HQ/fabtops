@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { currencies, useCurrencyStore, type Currency } from '@/stores/use-currency-store';
 
 interface CurrencyContextType {
@@ -22,11 +22,53 @@ export function useCurrency(): CurrencyContextType {
   const setCurrency = useCurrencyStore((state) => state.setCurrency);
   const convertPrice = useCurrencyStore((state) => state.convertPrice);
   const formatPrice = useCurrencyStore((state) => state.formatPrice);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  const fallbackCurrency = currencies[0];
+  const activeCurrency = isHydrated ? current : fallbackCurrency;
 
   return {
-    current,
+    current: activeCurrency,
     setCurrency,
-    convertPrice,
-    formatPrice,
+    convertPrice(amount, fromCurrency = 'NGN') {
+      if (isHydrated) {
+        return convertPrice(amount, fromCurrency);
+      }
+
+      return fromCurrency === fallbackCurrency.code ? String(Number(amount)) : convertAmountForCurrency(fallbackCurrency, amount, fromCurrency);
+    },
+    formatPrice(amount, fromCurrency = 'NGN') {
+      if (isHydrated) {
+        return formatPrice(amount, fromCurrency);
+      }
+
+      return formatCurrencyAmount(fallbackCurrency, amount, fromCurrency);
+    },
   };
+}
+
+function convertAmountForCurrency(current: Currency, amount: string | number, fromCurrency = 'NGN') {
+  const numericAmount = Number(amount);
+  if (Number.isNaN(numericAmount)) {
+    return '0';
+  }
+
+  const sourceCurrency = currencies.find((currency) => currency.code === fromCurrency) || currencies[0];
+  const inNgn = numericAmount / sourceCurrency.rate;
+  return (inNgn * current.rate).toFixed(2);
+}
+
+function formatCurrencyAmount(current: Currency, amount: string | number, fromCurrency = 'NGN') {
+  const converted = convertAmountForCurrency(current, amount, fromCurrency);
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: current.code,
+    minimumFractionDigits: current.code === 'NGN' ? 0 : 2,
+    maximumFractionDigits: current.code === 'NGN' ? 0 : 2,
+  }).format(Number(converted));
 }

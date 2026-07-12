@@ -96,7 +96,10 @@ describe('checkout route', () => {
     const { POST } = await import('../../app/api/checkout/route');
     const request = new NextRequest('https://fabtops.test/api/checkout', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        cookie: 'woocommerce_cart_token=cart-token-1',
+      },
       body: JSON.stringify({
         billing_address: {
           first_name: 'Ada',
@@ -136,11 +139,7 @@ describe('checkout route', () => {
       }),
       null,
     );
-    expect(cookieStore.set).toHaveBeenCalledWith(
-      'woocommerce_cart_token',
-      'cart-token-3',
-      expect.objectContaining({ httpOnly: true }),
-    );
+    expect(response.headers.get('set-cookie')).toContain('woocommerce_cart_token=cart-token-3');
     expect(body.success).toBe(true);
   });
 
@@ -225,11 +224,7 @@ describe('checkout route', () => {
       }),
       null,
     );
-    expect(cookieStore.set).toHaveBeenCalledWith(
-      'woocommerce_cart_token',
-      'guest-cart-token-3',
-      expect.objectContaining({ httpOnly: true }),
-    );
+    expect(response.headers.get('set-cookie')).toContain('woocommerce_cart_token=guest-cart-token-3');
     expect(body.success).toBe(true);
   });
 });

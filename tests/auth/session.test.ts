@@ -58,4 +58,36 @@ describe('auth session helper', () => {
       },
     });
   });
+
+  it('treats Prisma socket timeouts as transient during session enrichment', async () => {
+    nextHeaders.mockResolvedValue(new Headers());
+    authGetSession.mockResolvedValue({
+      data: {
+        user: {
+          id: 'user_808',
+          email: 'grace@example.com',
+          name: 'Grace Hopper',
+        },
+      },
+      error: null,
+    });
+    prismaUserFindUnique.mockRejectedValue(
+      Object.assign(new Error('Operation has timed out'), {
+        code: 'P1008',
+      }),
+    );
+
+    const { getServerAuthSession } = await import('../../lib/auth/session');
+    const session = await getServerAuthSession();
+
+    expect(session).toMatchObject({
+      user: {
+        id: 'user_808',
+        email: 'grace@example.com',
+        firstName: 'Grace',
+        lastName: 'Hopper',
+        wooCustomerId: null,
+      },
+    });
+  });
 });

@@ -123,7 +123,7 @@ describe('guest commerce merge route', () => {
     });
   });
 
-  it('merges guest cart and wishlist into canonical authenticated state and becomes idempotent', async () => {
+  it('temporarily disables guest cart merge and clears merge cookies for debugging', async () => {
     getServerAuthSession.mockResolvedValue({
       user: {
         id: 'user_12',
@@ -310,48 +310,28 @@ describe('guest commerce merge route', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(getCart).toHaveBeenCalledWith('cart-token-1', null);
+    expect(getCart).not.toHaveBeenCalled();
     expect(addCartItem).not.toHaveBeenCalled();
-    expect(updateCartItem).toHaveBeenCalledWith('cart-token-1', 'line-1', 6, null);
-    expect(updateCartCustomer).toHaveBeenCalledWith(
-      'cart-token-2',
-      expect.objectContaining({ email: 'ada@example.com' }),
-      expect.objectContaining({ country: 'NG' }),
-      null,
+    expect(updateCartItem).not.toHaveBeenCalled();
+    expect(updateCartCustomer).not.toHaveBeenCalled();
+    expect(prismaWishlistUpsert).not.toHaveBeenCalled();
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'woocommerce_cart_token',
+      '',
+      expect.objectContaining({ httpOnly: true, maxAge: 0 }),
     );
-    expect(prismaWishlistUpsert).toHaveBeenCalledTimes(2);
-    expect(prismaWishlistUpsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
-      where: {
-        userId_productId: {
-          userId: 'user_12',
-          productId: 'top-1',
-        },
-      },
-    }));
-    expect(prismaWishlistUpsert).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      where: {
-        userId_productId: {
-          userId: 'user_12',
-          productId: 'dress-2',
-        },
-      },
-    }));
     expect(cookieStore.set).toHaveBeenCalledWith(
       'fabtops_guest_merge_key',
-      'merge-2',
-      expect.objectContaining({ httpOnly: true }),
+      '',
+      expect.objectContaining({ httpOnly: true, maxAge: 0 }),
     );
     expect(body).toMatchObject({
       success: true,
       data: {
-        merged: true,
+        merged: false,
+        wishlistMerged: false,
         cart: {
-          items: [
-            expect.objectContaining({
-              variantId: '101',
-              quantity: 6,
-            }),
-          ],
+          items: [],
         },
         wishlist: [
           expect.objectContaining({ id: 'top-1' }),
@@ -360,73 +340,16 @@ describe('guest commerce merge route', () => {
       },
     });
 
-    getCart.mockResolvedValueOnce({
-      cart: body.data.cart,
-      cartToken: 'cart-token-1',
-    });
-
-    const secondRequest = new NextRequest('https://fabtops.test/api/commerce/merge-guest-state', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        origin: 'https://fabtops.test',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const secondResponse = await POST(secondRequest);
-    const secondBody = await secondResponse.json();
-
-    expect(secondResponse.status).toBe(200);
-    expect(secondBody.data.merged).toBe(false);
-    expect(updateCartItem).toHaveBeenCalledTimes(1);
-    expect(updateCartCustomer).toHaveBeenCalledTimes(1);
-    expect(prismaWishlistUpsert).toHaveBeenCalledTimes(2);
+    expect(body.message).toContain('temporarily disabled');
   });
 
-  it('keeps cart merge successful when wishlist persistence is temporarily unavailable', async () => {
+  it('returns a clean empty cart even when guest merge payload includes items', async () => {
     getServerAuthSession.mockResolvedValue({
       user: {
         id: 'user_12',
         email: 'ada@example.com',
       },
     });
-
-    getCart.mockResolvedValue({
-      cart: {
-        items: [],
-        subtotal: 0,
-        totalAmount: 0,
-        discountCodes: [],
-      },
-      cartToken: 'cart-token-1',
-    });
-    updateCartCustomer.mockResolvedValue({
-      cart: {
-        items: [
-          {
-            id: 'line-1',
-            variantId: '101',
-            title: 'Rose Top',
-            handle: 'rose-top',
-            price: '80.00',
-            quantity: 1,
-            image: '/rose.jpg',
-            selectedOptions: [],
-          },
-        ],
-        subtotal: 80,
-        totalAmount: 80,
-        discountCodes: [],
-      },
-      cartToken: 'cart-token-1',
-    });
-
-    prismaTransaction.mockRejectedValue(
-      Object.assign(new Error("Invalid `prisma.wishlistItem.upsert()` invocation:\n\nCan't reach database server at pooled.db.prisma.io"), {
-        code: 'P1001',
-      }),
-    );
 
     const { POST } = await import('../../app/api/commerce/merge-guest-state/route');
     const request = new NextRequest('https://fabtops.test/api/commerce/merge-guest-state', {
@@ -473,24 +396,18 @@ describe('guest commerce merge route', () => {
     expect(body).toMatchObject({
       success: true,
       data: {
-        merged: true,
+        merged: false,
         wishlistMerged: false,
         cart: {
-          items: [
-            expect.objectContaining({ variantId: '101', quantity: 1 }),
-          ],
+          items: [],
         },
         wishlist: [
           expect.objectContaining({ id: 'top-1' }),
+          expect.objectContaining({ id: 'dress-2' }),
         ],
       },
     });
-    expect(addCartItem).toHaveBeenCalledWith('cart-token-1', 101, 1, null);
-    expect(updateCartCustomer).toHaveBeenCalledWith(
-      'cart-token-2',
-      expect.objectContaining({ email: 'ada@example.com' }),
-      expect.objectContaining({ country: 'NG' }),
-      null,
-    );
+    expect(addCartItem).not.toHaveBeenCalled();
+    expect(updateCartCustomer).not.toHaveBeenCalled();
   });
 });
