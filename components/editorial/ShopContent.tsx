@@ -2,179 +2,162 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { ProductCard } from './ProductCard';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Filter, X, ChevronDown, Check, SlidersHorizontal } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
+import { ProductCard } from './ProductCard';
 import { cn } from '@/lib/utils';
-
-interface Product {
-  id: string;
-  handle: string;
-  title: string;
-  productType: string;
-  priceRange: {
-    minVariantPrice: {
-      amount: string;
-      currencyCode: string;
-    };
-  };
-  images: {
-    edges: {
-      node: {
-        url: string;
-        alt: string;
-      };
-    }[];
-  };
-  options: {
-    name: string;
-    values: string[];
-  }[];
-  variants: {
-    edges: {
-      node: {
-        id: string;
-        title: string;
-        availableForSale: boolean;
-        selectedOptions: {
-          name: string;
-          value: string;
-        }[];
-      };
-    }[];
-  };
-}
+import {
+  buildNextShopQuery,
+  serializeShopQuery,
+  type NormalizedShopQuery,
+} from '@/lib/shop/shop-query';
+import { fromMinorUnits } from '@/lib/woocommerce/store-api';
+import type { PaginatedStoreResult, StorefrontProduct } from '@/lib/woocommerce/types';
+import type { StorefrontFilterOption, StorefrontFilters } from '@/lib/woocommerce/storefront';
 
 const SORT_OPTIONS = [
-  { label: 'Newest', value: 'newest' },
-  { label: 'Price: Low to High', value: 'price-asc' },
-  { label: 'Price: High to Low', value: 'price-desc' },
-];
-
-const PRICE_RANGES = [
-  { label: 'Under ₦10,000', min: 0, max: 10000 },
-  { label: '₦10,000 - ₦25,000', min: 10000, max: 25000 },
-  { label: '₦25,000 - ₦50,000', min: 25000, max: 50000 },
-  { label: '₦50,000+', min: 50000, max: Infinity },
-];
-
-const PREDEFINED_CATEGORIES = ['Tops', 'Sets', 'Dresses', 'Luxe Accessories', 'Archive'];
+  { label: 'Newest', orderby: 'date', order: 'desc' },
+  { label: 'Price: Low to High', orderby: 'price', order: 'asc' },
+  { label: 'Price: High to Low', orderby: 'price', order: 'desc' },
+  { label: 'Top Rated', orderby: 'rating', order: 'desc' },
+] as const;
 
 interface ShopContentProps {
-  products: Product[];
+  result?: PaginatedStoreResult<StorefrontProduct>;
+  filters?: StorefrontFilters;
+  query: NormalizedShopQuery;
+  basePath: string;
   title?: string;
   subtitle?: string;
   heroImage?: string;
   isCollection?: boolean;
+  errorMessage?: string | null;
 }
 
-export function ShopContent({ 
-  products: initialProducts, 
-  title = "All Silhouettes", 
-  subtitle = "Meticulously crafted silhouettes for the modern, evolving woman.",
+function filterIsActive(currentValue: string | undefined, optionValue: string) {
+  return currentValue === optionValue;
+}
+
+function normalizePath(basePath: string, query: NormalizedShopQuery) {
+  const serialized = serializeShopQuery(query);
+  return serialized ? `${basePath}?${serialized}` : basePath;
+}
+
+function formatPriceInput(value?: number) {
+  return value === undefined ? '' : String(value);
+}
+
+export function ShopContent({
+  result,
+  filters,
+  query,
+  basePath,
+  title = 'All Silhouettes',
+  subtitle = 'Meticulously crafted silhouettes for the modern, evolving woman.',
   heroImage,
-  isCollection = false
+  isCollection = false,
+  errorMessage,
 }: ShopContentProps) {
-  const [products, setProducts] = React.useState(initialProducts);
+  const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
-  const [activeFilters, setActiveFilters] = React.useState<{ [key: string]: string[] }>({});
-  const [sortBy, setSortBy] = React.useState('newest');
+  const [draftSearch, setDraftSearch] = React.useState(query.search);
+  const [draftMinPrice, setDraftMinPrice] = React.useState(formatPriceInput(query.minPrice));
+  const [draftMaxPrice, setDraftMaxPrice] = React.useState(formatPriceInput(query.maxPrice));
+  const [isPending, startTransition] = React.useTransition();
 
-  // Extract all unique sizes for filters
-  const filterOptions = React.useMemo(() => {
-    const sizes = new Set<string>();
+  React.useEffect(() => {
+    setDraftSearch(query.search);
+    setDraftMinPrice(formatPriceInput(query.minPrice));
+    setDraftMaxPrice(formatPriceInput(query.maxPrice));
+  }, [query.search, query.minPrice, query.maxPrice]);
 
-    initialProducts.forEach((product) => {
-      product.options.forEach((option) => {
-        if (option.name.toLowerCase() === 'size') option.values.forEach((v) => sizes.add(v));
-      });
+  const navigate = React.useCallback((patch: Partial<NormalizedShopQuery>) => {
+    startTransition(() => {
+      const nextQuery = buildNextShopQuery(query, patch);
+      router.push(normalizePath(basePath, nextQuery), { scroll: false });
     });
+  }, [basePath, query, router]);
 
-    return [
-      { name: 'Category', options: PREDEFINED_CATEGORIES },
-      { name: 'Size', options: Array.from(sizes).sort() },
-      { name: 'Price', options: PRICE_RANGES.map(r => r.label) },
-    ];
-  }, [initialProducts]);
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      if (draftSearch === query.search) return;
+      navigate({ search: draftSearch.trim() });
+    }, 350);
 
-  const toggleFilter = (category: string, value: string) => {
-    setActiveFilters((prev) => {
-      const current = prev[category] || [];
-      const updated = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
-      
-      return { ...prev, [category]: updated };
+    return () => window.clearTimeout(timeout);
+  }, [draftSearch, navigate, query.search]);
+
+  const products = result?.items || [];
+  const totalResults = result?.total || 0;
+  const activeChips = [
+    !isCollection && query.category ? { label: 'Category', value: query.category, clear: () => navigate({ category: undefined }) } : null,
+    query.size ? { label: 'Size', value: query.size, clear: () => navigate({ size: undefined }) } : null,
+    query.stockStatus ? { label: 'Stock', value: query.stockStatus, clear: () => navigate({ stockStatus: undefined }) } : null,
+    query.minPrice !== undefined || query.maxPrice !== undefined
+      ? {
+          label: 'Price',
+          value: `${query.minPrice ?? 0} - ${query.maxPrice ?? 'Any'}`,
+          clear: () => navigate({ minPrice: undefined, maxPrice: undefined }),
+        }
+      : null,
+    query.search ? { label: 'Search', value: query.search, clear: () => navigate({ search: '' }) } : null,
+  ].filter(Boolean) as Array<{ label: string; value: string; clear: () => void }>;
+
+  const selectedSort = SORT_OPTIONS.find((option) => option.orderby === query.orderby && option.order === query.order) || SORT_OPTIONS[0];
+
+  const applyDraftPrice = () => {
+    navigate({
+      minPrice: draftMinPrice ? Number(draftMinPrice) : undefined,
+      maxPrice: draftMaxPrice ? Number(draftMaxPrice) : undefined,
     });
   };
 
-  const clearFilters = () => setActiveFilters({});
-
-  // Filtering and Sorting Logic
-  React.useEffect(() => {
-    let filtered = [...initialProducts];
-
-    // Apply filters
-    Object.entries(activeFilters).forEach(([category, values]) => {
-      if (values.length === 0) return;
-
-      if (category === 'Category') {
-        filtered = filtered.filter((p) => 
-          values.some(v => v.toLowerCase() === (p.productType || '').toLowerCase())
-        );
-      } else if (category === 'Size') {
-        filtered = filtered.filter((p) => 
-          p.options.some((opt) => 
-            opt.name.toLowerCase() === 'size' && 
-            opt.values.some((v) => values.includes(v))
-          )
-        );
-      } else if (category === 'Price') {
-        filtered = filtered.filter((p) => {
-          const productPrice = parseFloat(p.priceRange.minVariantPrice.amount);
-          return values.some(label => {
-            const range = PRICE_RANGES.find(r => r.label === label);
-            return range ? productPrice >= range.min && productPrice < range.max : true;
-          });
-        });
-      }
-    });
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      const priceA = parseFloat(a.priceRange.minVariantPrice.amount);
-      const priceB = parseFloat(b.priceRange.minVariantPrice.amount);
-
-      if (sortBy === 'price-asc') return priceA - priceB;
-      if (sortBy === 'price-desc') return priceB - priceA;
-      return 0;
-    });
-
-    setProducts(filtered);
-  }, [activeFilters, sortBy, initialProducts]);
-
-  const totalActiveFilters = Object.values(activeFilters).flat().length;
+  const renderFilterButton = (
+    group: string,
+    option: StorefrontFilterOption,
+    active: boolean,
+    onClick: () => void,
+  ) => (
+    <button
+      key={`${group}-${option.value}`}
+      onClick={onClick}
+      className={cn(
+        'group flex w-full items-center gap-4 py-1 text-left text-xs tracking-wide transition-all duration-300',
+        active ? 'translate-x-2 font-black text-brand-dark' : 'text-brand-dark/40 hover:translate-x-1 hover:text-brand-dark',
+      )}
+    >
+      <div
+        className={cn(
+          'flex h-5 w-5 items-center justify-center rounded-lg border bg-white shadow-sm transition-all duration-500',
+          active
+            ? 'border-brand-primary bg-brand-primary text-white shadow-brand-primary/20'
+            : 'border-brand-dark/10 group-hover:border-brand-dark/30',
+        )}
+      >
+        {active && <Check className="h-3 w-3 stroke-[3]" />}
+      </div>
+      <span className="text-[10px] font-bold uppercase tracking-widest">
+        {option.label}
+        {typeof option.count === 'number' ? ` (${option.count})` : ''}
+      </span>
+    </button>
+  );
 
   return (
-    <div className="bg-brand-light min-h-screen pt-32 pb-20 px-6 md:px-12">
-      <div className="max-w-[1400px] mx-auto">
-        {/* Hero Section if provided */}
+    <div className="min-h-screen bg-brand-light px-6 pb-20 pt-32 md:px-12">
+      <div className="mx-auto max-w-[1400px]">
         {heroImage && (
-          <div className="relative w-full h-[40vh] mb-20 overflow-hidden">
-            <Image
-              src={heroImage}
-              alt={title}
-              fill
-              className="object-cover"
-            />
+          <div className="relative mb-20 h-[40vh] w-full overflow-hidden">
+            <Image src={heroImage} alt={title} fill className="object-cover" />
             <div className="absolute inset-0 bg-brand-dark/20" />
-            <div className="absolute inset-0 flex items-center justify-center text-center p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
               <div className="space-y-4">
-                <h1 className="font-heading text-5xl md:text-8xl uppercase tracking-tighter text-brand-light leading-none">
+                <h1 className="font-heading text-5xl uppercase tracking-tighter text-brand-light leading-none md:text-8xl">
                   {title}
                 </h1>
-                <p className="text-brand-light/80 text-sm md:text-base uppercase tracking-widest max-w-xl mx-auto">
+                <p className="mx-auto max-w-xl text-sm uppercase tracking-widest text-brand-light/80 md:text-base">
                   {subtitle}
                 </p>
               </div>
@@ -182,193 +165,253 @@ export function ShopContent({
           </div>
         )}
 
-        {/* Header Section */}
-        <header
-          className={cn("mb-12 space-y-6", heroImage && "hidden md:block")}
-        >
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header className={cn('mb-12 space-y-6', heroImage && 'hidden md:block')}>
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             {!heroImage && (
               <div className="space-y-2">
-                <h1 className="font-heading text-5xl md:text-7xl uppercase tracking-tighter text-brand-dark leading-none">
+                <h1 className="font-heading text-5xl uppercase tracking-tighter text-brand-dark leading-none md:text-7xl">
                   {title}
                 </h1>
-                <p className="text-brand-dark/60 text-sm max-w-md uppercase tracking-wide">
+                <p className="max-w-md text-sm uppercase tracking-wide text-brand-dark/60">
                   {subtitle}
                 </p>
               </div>
             )}
 
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 border border-brand-dark/10 hover:border-brand-dark transition-colors text-[11px] uppercase tracking-widest font-bold md:hidden"
-              >
-                <SlidersHorizontal className="h-3 w-3" />
-                Filter {totalActiveFilters > 0 && `(${totalActiveFilters})`}
-              </button>
+            <div className="flex flex-1 flex-col gap-4 md:max-w-xl">
+              <label className="flex items-center gap-3 border border-brand-dark/10 bg-white/50 px-4 py-3 text-[11px] uppercase tracking-widest text-brand-dark/45">
+                <Search className="h-4 w-4" />
+                <input
+                  value={draftSearch}
+                  onChange={(event) => setDraftSearch(event.target.value)}
+                  placeholder="Search silhouettes"
+                  className="w-full bg-transparent text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/30 focus:outline-none"
+                />
+              </label>
 
-              <div className="relative group">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-transparent pl-6 pr-10 py-3 border border-brand-dark/10 hover:border-brand-dark transition-colors text-[11px] uppercase tracking-widest font-bold cursor-pointer focus:outline-none"
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="flex items-center gap-2 border border-brand-dark/10 px-6 py-3 text-[11px] font-bold uppercase tracking-widest transition-colors hover:border-brand-dark md:hidden"
                 >
-                  {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none" />
+                  <SlidersHorizontal className="h-3 w-3" />
+                  Filter {activeChips.length > 0 && `(${activeChips.length})`}
+                </button>
+
+                <div className="relative group">
+                  <select
+                    value={`${selectedSort.orderby}:${selectedSort.order}`}
+                    onChange={(event) => {
+                      const [orderby, order] = event.target.value.split(':') as [NormalizedShopQuery['orderby'], NormalizedShopQuery['order']];
+                      navigate({ orderby, order });
+                    }}
+                    className="cursor-pointer appearance-none border border-brand-dark/10 bg-transparent py-3 pl-6 pr-10 text-[11px] font-bold uppercase tracking-widest transition-colors hover:border-brand-dark focus:outline-none"
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option key={`${option.orderby}:${option.order}`} value={`${option.orderby}:${option.order}`}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2" />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-brand-dark/10 pt-8">
-            <span className="text-[11px] uppercase tracking-widest text-brand-dark/40 font-bold">
-              {products.length} {products.length === 1 ? "Piece" : "Pieces"}{" "}
-              Found
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-brand-dark/10 pt-8">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40">
+              {totalResults} {totalResults === 1 ? 'Piece' : 'Pieces'} Found
             </span>
-
-            {totalActiveFilters > 0 && (
+            {activeChips.length > 0 && (
               <button
-                onClick={clearFilters}
-                className="text-[10px] uppercase tracking-widest text-brand-primary font-bold hover:underline"
+                onClick={() => navigate({ category: undefined, size: undefined, stockStatus: undefined, minPrice: undefined, maxPrice: undefined, search: '' })}
+                className="text-[10px] font-bold uppercase tracking-widest text-brand-primary hover:underline"
               >
-                Clear All Filters
+                Clear Filters
               </button>
             )}
           </div>
 
-          {/* Quick Category Navigation */}
-          <div className="flex items-center gap-4 overflow-x-auto pb-4 pt-4 no-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
-            {PREDEFINED_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => toggleFilter('Category', cat)}
-                className={cn(
-                  "whitespace-nowrap px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all duration-500 border",
-                  activeFilters['Category']?.includes(cat)
-                    ? "bg-brand-dark text-white border-brand-dark shadow-xl shadow-brand-dark/20"
-                    : "bg-white/40 text-brand-dark/40 border-brand-dark/5 hover:border-brand-dark/20 hover:text-brand-dark"
-                )}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          {activeChips.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              {activeChips.map((chip) => (
+                <button
+                  key={`${chip.label}:${chip.value}`}
+                  onClick={chip.clear}
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-white/60 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-brand-dark"
+                >
+                  <span>{chip.label}: {chip.value}</span>
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!isCollection && !!filters?.categories.length && (
+            <div className="no-scrollbar -mx-6 flex items-center gap-4 overflow-x-auto px-6 pb-4 pt-4 md:mx-0 md:px-0">
+              {filters.categories.map((category) => (
+                <button
+                  key={category.value}
+                  onClick={() => navigate({ category: filterIsActive(query.category, category.value) ? undefined : category.value })}
+                  className={cn(
+                    'whitespace-nowrap rounded-full border px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-500',
+                    filterIsActive(query.category, category.value)
+                      ? 'border-brand-dark bg-brand-dark text-white shadow-xl shadow-brand-dark/20'
+                      : 'border-brand-dark/5 bg-white/40 text-brand-dark/40 hover:border-brand-dark/20 hover:text-brand-dark',
+                  )}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
-          {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block w-72 shrink-0 space-y-12 sticky top-40 h-fit">
+        <div className="flex flex-col gap-12 lg:flex-row lg:gap-20">
+          <aside className="sticky top-40 hidden h-fit w-72 shrink-0 space-y-12 lg:block">
             <div className="space-y-4">
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary">
+              <span className="text-[9px] font-black uppercase tracking-[0.5em] text-brand-primary md:text-[10px] md:tracking-[0.6em]">
                 Refine Your Selection
               </span>
               <div className="h-px w-full bg-brand-dark/5" />
             </div>
 
-            {filterOptions.map((group) => (
-              <div key={group.name} className="space-y-8">
-                <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark flex items-center justify-between">
-                  {group.name}
-                  {activeFilters[group.name]?.length > 0 && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                  )}
+            {!isCollection && !!filters?.categories.length && (
+              <div className="space-y-8">
+                <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                  Category
+                  {query.category && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
                 </h3>
                 <ul className="space-y-4">
-                  {group.options.map((option) => (
-                    <li key={option}>
-                      <button
-                        onClick={() => toggleFilter(group.name, option)}
-                        className={cn(
-                          "group flex items-center gap-4 text-xs tracking-wide transition-all duration-300 w-full text-left py-1",
-                          activeFilters[group.name]?.includes(option)
-                            ? "text-brand-dark font-black translate-x-2"
-                            : "text-brand-dark/40 hover:text-brand-dark hover:translate-x-1",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "h-5 w-5 rounded-lg border transition-all duration-500 flex items-center justify-center shadow-sm",
-                            activeFilters[group.name]?.includes(option)
-                              ? "border-brand-primary bg-brand-primary text-white shadow-brand-primary/20"
-                              : "border-brand-dark/10 bg-white group-hover:border-brand-dark/30",
-                          )}
-                        >
-                          {activeFilters[group.name]?.includes(option) && (
-                            <Check className="h-3 w-3 stroke-[3]" />
-                          )}
-                        </div>
-                        <span className="uppercase tracking-widest text-[10px] font-bold">
-                          {option}
-                        </span>
-                      </button>
+                  {filters.categories.map((option) => (
+                    <li key={option.value}>
+                      {renderFilterButton('category', option, filterIsActive(query.category, option.value), () =>
+                        navigate({ category: filterIsActive(query.category, option.value) ? undefined : option.value }))}
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
+            )}
 
-            <div className="pt-8">
-              <div className="bg-brand-dark/5 p-8 rounded-[2rem] space-y-4 border border-brand-dark/5">
-                <h4 className="font-heading text-xl text-brand-dark uppercase">
-                  Personal Stylist
-                </h4>
-                <p className="text-[10px] text-brand-dark/60 leading-relaxed uppercase tracking-widest font-bold">
-                  Need assistance finding the perfect silhouette for your body
-                  type?
-                </p>
-                <button className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-primary hover:tracking-[0.4em] transition-all">
-                  Contact Studio →
-                </button>
+            {!!filters?.sizes.length && (
+              <div className="space-y-8">
+                <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                  Size
+                  {query.size && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
+                </h3>
+                <ul className="space-y-4">
+                  {filters.sizes.map((option) => (
+                    <li key={option.value}>
+                      {renderFilterButton('size', option, filterIsActive(query.size, option.value), () =>
+                        navigate({ size: filterIsActive(query.size, option.value) ? undefined : option.value }))}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+
+            <div className="space-y-8">
+              <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                Stock
+                {query.stockStatus && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
+              </h3>
+              <ul className="space-y-4">
+                {filters?.stockStatuses.map((option) => (
+                  <li key={option.value}>
+                    {renderFilterButton('stock', option, filterIsActive(query.stockStatus, option.value), () =>
+                      navigate({ stockStatus: filterIsActive(query.stockStatus, option.value) ? undefined : option.value as NormalizedShopQuery['stockStatus'] }))}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-5 rounded-[2rem] border border-brand-dark/5 bg-brand-dark/5 p-8">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">Price Range</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  value={draftMinPrice}
+                  onChange={(event) => setDraftMinPrice(event.target.value)}
+                  placeholder="Min"
+                  className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                />
+                <input
+                  value={draftMaxPrice}
+                  onChange={(event) => setDraftMaxPrice(event.target.value)}
+                  placeholder="Max"
+                  className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                />
+              </div>
+              {filters?.priceRange && (
+                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">
+                  Range {fromMinorUnits(String(Math.round(filters.priceRange.min * 100)), filters.priceRange.minorUnit)} to {fromMinorUnits(String(Math.round(filters.priceRange.max * 100)), filters.priceRange.minorUnit)} {filters.priceRange.currencyCode}
+                </p>
+              )}
+              <button
+                onClick={applyDraftPrice}
+                className="w-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-brand-primary"
+              >
+                Apply Price
+              </button>
             </div>
           </aside>
 
-          {/* Product Grid */}
           <div className="flex-1">
-            {products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-8 gap-y-16">
-                {products.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: (index % 3) * 0.1 }}
-                  >
-                    <ProductCard
-                      id={product.id}
-                      handle={product.handle}
-                      title={product.title}
-                      amount={product.priceRange.minVariantPrice.amount}
-                      currencyCode={product.priceRange.minVariantPrice.currencyCode}
-                      image={
-                        product.images.edges[0]?.node.url ||
-                        "https://via.placeholder.com/600x800"
-                      }
-                      secondaryImage={product.images.edges[1]?.node.url}
-                      swatches={
-                        product.options.find(
-                          (opt) => opt.name.toLowerCase() === "color",
-                        )?.values
-                      }
-                      variantId={product.variants.edges[0]?.node.id}
-                      availableForSale={product.variants.edges.some((v: any) => v.node.availableForSale)}
-                    />
-                  </motion.div>
-                ))}
+            {errorMessage ? (
+              <div className="space-y-4 py-32 text-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+                  We couldn&apos;t load the catalogue right now.
+                </p>
+                <p className="mx-auto max-w-xl text-sm text-brand-dark/55">{errorMessage}</p>
               </div>
+            ) : products.length > 0 ? (
+              <>
+                <div className={cn('grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3', isPending && 'opacity-70')}>
+                  {products.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: (index % 3) * 0.08 }}
+                    >
+                      <ProductCard product={product} />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {result && result.totalPages > 1 && (
+                  <div className="mt-16 flex flex-col items-center gap-5 border-t border-brand-dark/10 pt-10">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-dark/35">
+                      Page {result.currentPage} of {result.totalPages}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => navigate({ page: Math.max(1, result.currentPage - 1) })}
+                        disabled={!result.hasPrevPage}
+                        className="border border-brand-dark/10 px-5 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark transition-colors hover:border-brand-dark disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => navigate({ page: result.currentPage + 1 })}
+                        disabled={!result.hasNextPage}
+                        className="border border-brand-dark/10 px-5 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark transition-colors hover:border-brand-dark disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="py-40 text-center space-y-4">
-                <p className="text-brand-dark/40 uppercase tracking-widest text-xs font-bold">
-                  No pieces match your selection
+              <div className="space-y-4 py-40 text-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+                  No pieces match your current selection
                 </p>
                 <button
-                  onClick={clearFilters}
-                  className="px-8 py-4 bg-brand-dark text-brand-light text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-brand-primary transition-colors"
+                  onClick={() => navigate({ category: undefined, size: undefined, stockStatus: undefined, minPrice: undefined, maxPrice: undefined, search: '' })}
+                  className="bg-brand-dark px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-light transition-colors hover:bg-brand-primary"
                 >
                   Reset Filters
                 </button>
@@ -378,51 +421,83 @@ export function ShopContent({
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
-      <Drawer
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        title="Filter Pieces"
-      >
-        <div className="space-y-10 pb-20">
-          {filterOptions.map(
-            (group) =>
-              group.options.length > 0 && (
-                <div key={group.name} className="space-y-6">
-                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">
-                    {group.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {group.options.map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => toggleFilter(group.name, option)}
-                        className={cn(
-                          "px-4 py-2 text-sm border transition-all",
-                          activeFilters[group.name]?.includes(option)
-                            ? "border-brand-primary bg-brand-primary text-white"
-                            : "border-brand-dark/10 text-brand-dark/60",
-                        )}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ),
+      <Drawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} title="Filter Pieces">
+        <div className="space-y-10 pb-24">
+          {!isCollection && !!filters?.categories.length && (
+            <div className="space-y-6">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Category</h3>
+              <div className="flex flex-wrap gap-2">
+                {filters.categories.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => navigate({ category: filterIsActive(query.category, option.value) ? undefined : option.value })}
+                    className={cn(
+                      'border px-4 py-2 text-sm transition-all',
+                      filterIsActive(query.category, option.value)
+                        ? 'border-brand-primary bg-brand-primary text-white'
+                        : 'border-brand-dark/10 text-brand-dark/60',
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
+
+          {!!filters?.sizes.length && (
+            <div className="space-y-6">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Size</h3>
+              <div className="flex flex-wrap gap-2">
+                {filters.sizes.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => navigate({ size: filterIsActive(query.size, option.value) ? undefined : option.value })}
+                    className={cn(
+                      'border px-4 py-2 text-sm transition-all',
+                      filterIsActive(query.size, option.value)
+                        ? 'border-brand-primary bg-brand-primary text-white'
+                        : 'border-brand-dark/10 text-brand-dark/60',
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-6">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Stock</h3>
+            <div className="flex flex-wrap gap-2">
+              {filters?.stockStatuses.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => navigate({ stockStatus: filterIsActive(query.stockStatus, option.value) ? undefined : option.value as NormalizedShopQuery['stockStatus'] })}
+                  className={cn(
+                    'border px-4 py-2 text-sm transition-all',
+                    filterIsActive(query.stockStatus, option.value)
+                      ? 'border-brand-primary bg-brand-primary text-white'
+                      : 'border-brand-dark/10 text-brand-dark/60',
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-brand-light border-t border-brand-dark/10 flex gap-4">
+        <div className="fixed bottom-0 left-0 right-0 flex gap-4 border-t border-brand-dark/10 bg-brand-light p-6">
           <button
-            onClick={clearFilters}
-            className="flex-1 py-4 border border-brand-dark/10 text-[11px] uppercase tracking-widest font-bold"
+            onClick={() => navigate({ category: undefined, size: undefined, stockStatus: undefined, minPrice: undefined, maxPrice: undefined, search: '' })}
+            className="flex-1 border border-brand-dark/10 py-4 text-[11px] font-bold uppercase tracking-widest"
           >
             Clear
           </button>
           <button
             onClick={() => setIsFilterOpen(false)}
-            className="flex-1 py-4 bg-brand-dark text-white text-[11px] uppercase tracking-widest font-bold"
+            className="flex-1 bg-brand-dark py-4 text-[11px] font-bold uppercase tracking-widest text-white"
           >
             Show Results
           </button>

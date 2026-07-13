@@ -1,116 +1,35 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useAuth } from './use-auth';
-
-const wishlistApiCall = async (body: any) => {
-  try {
-    const res = await fetch('/api/wishlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    return res.json();
-  } catch (error) {
-    console.error('Wishlist API sync failed:', error);
-  }
-};
-
-export interface FavoriteProduct {
-  id: string;
-  variantId: string;
-  title: string;
-  handle: string;
-  price: string;
-  currencyCode: string;
-  imageUrl: string;
-  imageAlt: string;
-}
+import type { ReactNode } from 'react';
+import { useWishlistStore } from '@/stores/use-wishlist-store';
+import type { FavoriteProduct } from '@/stores/types';
 
 interface FavoritesContextType {
   favorites: FavoriteProduct[];
   isFavorited: (id: string) => boolean;
-  toggleFavorite: (product: FavoriteProduct, isAuthenticated: boolean) => void;
+  toggleFavorite: (product: FavoriteProduct) => Promise<void>;
   count: number;
+  isLoading: boolean;
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
-const BASE_STORAGE_KEY = 'fabtops_favorites';
+export type { FavoriteProduct };
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
-  const { customer, isAuthenticated } = useAuth();
-
-  // Determine storage key based on user
-  const storageKey = customer?.id 
-    ? `${BASE_STORAGE_KEY}_${customer.id.replace(/[^a-zA-Z0-9]/g, '_')}` 
-    : BASE_STORAGE_KEY;
-
-  // Hydrate from localStorage when storageKey changes (user logs in/out)
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setFavorites([]);
-      return;
-    }
-
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        setFavorites(JSON.parse(stored));
-      } else {
-        setFavorites([]);
-      }
-    } catch {
-      setFavorites([]);
-    }
-  }, [storageKey, isAuthenticated]);
-
-  // Persist to localStorage on change
-  useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.setItem(storageKey, JSON.stringify(favorites));
-    }
-  }, [favorites, storageKey, isAuthenticated]);
-
-  const isFavorited = useCallback(
-    (id: string) => favorites.some((f) => f.id === id),
-    [favorites],
-  );
-
-  const toggleFavorite = useCallback(
-    async (product: FavoriteProduct, isAuthenticated: boolean) => {
-      if (!isAuthenticated) {
-        // Redirect to login — handled in the UI layer
-        window.location.href = `/login?redirect=/wishlist`;
-        return;
-      }
-
-      const isAdding = !favorites.some((f) => f.id === product.id);
-
-      setFavorites((prev) =>
-        isAdding
-          ? [...prev, product]
-          : prev.filter((f) => f.id !== product.id)
-      );
-
-      // Sync with API for architectural consistency
-      await wishlistApiCall({
-        action: isAdding ? 'add' : 'remove',
-        product
-      });
-    },
-    [favorites],
-  );
-
-  return (
-    <FavoritesContext.Provider value={{ favorites, isFavorited, toggleFavorite, count: favorites.length }}>
-      {children}
-    </FavoritesContext.Provider>
-  );
+  return <>{children}</>;
 }
 
-export function useFavorites() {
-  const ctx = useContext(FavoritesContext);
-  if (!ctx) throw new Error('useFavorites must be used within FavoritesProvider');
-  return ctx;
+export function useFavorites(): FavoritesContextType {
+  const favorites = useWishlistStore((state) => state.favorites);
+  const isLoading = useWishlistStore((state) => state.isLoading);
+  const toggleFavorite = useWishlistStore((state) => state.toggleFavorite);
+  const count = useWishlistStore((state) => state.count());
+  const isFavorited = useWishlistStore((state) => state.isFavorited);
+
+  return {
+    favorites,
+    isFavorited,
+    toggleFavorite,
+    count,
+    isLoading,
+  };
 }

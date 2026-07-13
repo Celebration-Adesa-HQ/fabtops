@@ -15,6 +15,7 @@ export function Hero() {
           alt="Fabtops Heritage Hero"
           fill
           priority
+          sizes="100vw"
           className="object-cover object-center"
         />
         {/* Soft gradient overlay for readability */}
@@ -86,4 +87,3 @@ export function Hero() {
     </section>
   );
 }
-

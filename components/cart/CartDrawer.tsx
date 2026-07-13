@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Loader2 } from 'lucide-react';
-import { useCart, getEnhancedCheckoutUrl } from './CartProvider';
-import { useAuth } from '@/lib/use-auth';
+import { useCart } from './CartProvider';
 import { Drawer } from '@/components/ui/Drawer';
 import { useCurrency } from '@/lib/currency-context';
 
@@ -19,25 +18,25 @@ export function CartDrawer() {
     updateQuantity, 
     subtotal, 
     totalAmount,
+    currencyCode,
     discountCodes,
     applyDiscountCode,
     removeDiscountCode,
+    couponFeedback,
     checkoutUrl,
     isLoading
   } = useCart();
   const { formatPrice } = useCurrency();
-  const { isAuthenticated } = useAuth();
   const [promoCode, setPromoCode] = React.useState('');
   const [isApplying, setIsApplying] = React.useState(false);
   
-  const enhancedCheckoutUrl = getEnhancedCheckoutUrl(checkoutUrl, '/shop');
-
   const handleApplyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCode) return;
     setIsApplying(true);
-    await applyDiscountCode(promoCode);
-    setPromoCode('');
+    const err = await applyDiscountCode(promoCode);
+    // Only clear the input on success so the user can correct a typo
+    if (!err) setPromoCode('');
     setIsApplying(false);
   };
 
@@ -48,24 +47,7 @@ export function CartDrawer() {
       title="My Bag"
     >
       <div className="flex flex-col h-[calc(100vh-180px)]">
-        {!isAuthenticated ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
-              <ShoppingBag size={40} />
-            </div>
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-widest font-bold text-brand-dark">Sign in to Shop</p>
-              <p className="text-sm text-brand-dark/40 font-light">Please log in to your account to manage your shopping bag and access exclusive features.</p>
-            </div>
-            <Link
-              href="/login"
-              onClick={() => setIsCartOpen(false)}
-              className="w-full bg-brand-dark text-white text-[10px] uppercase tracking-[0.3em] font-bold py-5 hover:bg-brand-primary transition-all duration-500"
-            >
-              Sign In
-            </Link>
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
             <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
               <ShoppingBag size={40} />
@@ -107,6 +89,7 @@ export function CartDrawer() {
                         src={item.image}
                         alt={item.title}
                         fill
+                        sizes="96px"
                         className="object-cover"
                       />
                     </div>
@@ -182,11 +165,26 @@ export function CartDrawer() {
                   </button>
                 </form>
 
+                {couponFeedback.message ? (
+                  <p
+                    className={`text-[10px] font-bold uppercase tracking-[0.14em] ${
+                      couponFeedback.status === 'error' ? 'text-red-700' : 'text-brand-primary'
+                    }`}
+                  >
+                    {couponFeedback.message}
+                  </p>
+                ) : null}
+
                 {discountCodes.map((dc) => (
-                  <div key={dc.code} className="flex items-center justify-between bg-brand-primary/10 px-4 py-2 rounded-full border border-brand-primary/20">
-                    <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
-                      {dc.code} {!dc.applicable && <span className="opacity-60">(Not Applicable)</span>}
-                    </span>
+                  <div key={dc.code} className="flex items-center justify-between gap-3 bg-brand-primary/10 px-4 py-3 rounded-2xl border border-brand-primary/20">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
+                        {dc.code} {!dc.applicable && <span className="opacity-60">(Not Applicable)</span>}
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/60">
+                        -{formatPrice(dc.discountTotal, dc.currencyCode)}
+                      </span>
+                    </div>
                     <button 
                       onClick={() => removeDiscountCode(dc.code)}
                       className="text-brand-primary hover:text-brand-dark transition-colors"
@@ -202,17 +200,25 @@ export function CartDrawer() {
               <div className="space-y-2">
                 <div className="flex justify-between items-end">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Subtotal</span>
-                  <span className="text-sm font-bold text-brand-dark">{formatPrice(subtotal, 'NGN')}</span>
+                  <span className="text-sm font-bold text-brand-dark">{formatPrice(subtotal, currencyCode)}</span>
                 </div>
+                {discountCodes.length > 0 && (
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-brand-primary">Coupon Savings</span>
+                    <span className="text-sm font-bold text-brand-primary">
+                      -{formatPrice(discountCodes.reduce((sum, coupon) => sum + coupon.discountTotal, 0), currencyCode)}
+                    </span>
+                  </div>
+                )}
                 {subtotal !== totalAmount && (
                    <div className="flex justify-between items-end">
                     <span className="text-[10px] uppercase tracking-widest font-bold text-brand-primary">Savings</span>
-                    <span className="text-sm font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, 'NGN')}</span>
+                    <span className="text-sm font-bold text-brand-primary">-{formatPrice(subtotal - totalAmount, currencyCode)}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-end pt-2 border-t border-brand-dark/5">
                   <span className="text-[11px] uppercase tracking-widest font-black text-brand-dark">Estimated Total</span>
-                  <span className="text-xl font-black text-brand-dark">{formatPrice(totalAmount, 'NGN')}</span>
+                  <span className="text-xl font-black text-brand-dark">{formatPrice(totalAmount, currencyCode)}</span>
                 </div>
               </div>
 
@@ -220,7 +226,7 @@ export function CartDrawer() {
               
               <div className="space-y-3">
                 <a
-                  href={enhancedCheckoutUrl || '#'}
+                  href={checkoutUrl || '#'}
                   className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3">

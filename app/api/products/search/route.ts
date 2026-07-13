@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchProducts } from '@/lib/shopify';
+import { searchProducts } from '@/lib/woocommerce/products';
 import { z } from 'zod';
 
 const searchQuerySchema = z.string().min(1).max(100);
@@ -33,4 +33,3 @@ export async function GET(request: Request) {
     }, { status: 500 });
   }
 }
-

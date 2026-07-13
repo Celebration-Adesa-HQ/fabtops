@@ -1,80 +1,118 @@
 import { NextResponse } from 'next/server';
-import { validateCsrf, getAuthenticatedCustomer } from '@/lib/security';
+import type { NextRequest } from 'next/server';
+import { getServerAuthSession } from '@/lib/auth/session';
+import { prisma } from '@/lib/db/prisma';
 import { wishlistActionSchema } from '@/lib/schemas';
 
-// This API route handles wishlist operations securely.
-// In a production environment, this would interact with a database (like Neon/PostgreSQL)
-// using the authenticated customer.id.
+function toWishlistData(
+  items: Array<{
+    productId: string;
+    variantId: string;
+    title: string;
+    handle: string;
+    price: string;
+    currencyCode: string;
+    imageUrl: string;
+    imageAlt: string;
+  }>,
+) {
+  return items.map((item) => ({
+    id: item.productId,
+    variantId: item.variantId,
+    title: item.title,
+    handle: item.handle,
+    price: item.price,
+    currencyCode: item.currencyCode,
+    imageUrl: item.imageUrl,
+    imageAlt: item.imageAlt,
+  }));
+}
 
-export async function POST(req: Request) {
-  // 1. CSRF Protection
-  if (!validateCsrf(req)) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Forbidden' 
-    }, { status: 403 });
-  }
-
-  // 2. Authentication Check
-  const { authenticated, customer } = await getAuthenticatedCustomer();
-  if (!authenticated || !customer) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Not authenticated' 
-    }, { status: 401 });
+export async function GET() {
+  const session = await getServerAuthSession();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
   }
 
   try {
-    // 3. Payload Validation
-    const body = await req.json();
-    const validation = wishlistActionSchema.safeParse(body);
+    const items = await prisma.wishlistItem.findMany({
+      where: { userId: session.user.id },
+      orderBy: { updatedAt: 'desc' },
+    });
 
-    if (!validation.success) {
-      return NextResponse.json({ 
-        success: false, 
-        error: validation.error.issues[0].message 
-      }, { status: 400 });
+    return NextResponse.json({ success: true, data: toWishlistData(items) });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Unable to load wishlist' },
+      { status: 400 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const session = await getServerAuthSession();
+  if (!session) {
+    return NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
+  }
+
+  const parsed = wishlistActionSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Invalid wishlist payload' }, { status: 400 });
+  }
+
+  try {
+    if (parsed.data.action === 'add') {
+      await prisma.wishlistItem.upsert({
+        where: {
+          userId_productId: {
+            userId: session.user.id,
+            productId: parsed.data.product.id,
+          },
+        },
+        create: {
+          userId: session.user.id,
+          productId: parsed.data.product.id,
+          variantId: parsed.data.product.variantId,
+          title: parsed.data.product.title,
+          handle: parsed.data.product.handle,
+          price: parsed.data.product.price,
+          currencyCode: parsed.data.product.currencyCode,
+          imageUrl: parsed.data.product.imageUrl,
+          imageAlt: parsed.data.product.imageAlt,
+        },
+        update: {
+          variantId: parsed.data.product.variantId,
+          title: parsed.data.product.title,
+          handle: parsed.data.product.handle,
+          price: parsed.data.product.price,
+          currencyCode: parsed.data.product.currencyCode,
+          imageUrl: parsed.data.product.imageUrl,
+          imageAlt: parsed.data.product.imageAlt,
+        },
+      });
+    } else {
+      await prisma.wishlistItem.deleteMany({
+        where: {
+          userId: session.user.id,
+          productId: parsed.data.product.id,
+        },
+      });
     }
 
-    const { action, product } = validation.data;
-
-    // Simulate server-side processing/logging securely using authenticated customer.id
-    console.log(`[Wishlist API] Action: ${action} for Customer: ${customer.id}`, product.title);
-
-    // In the future, we would save to a database here (e.g. Prisma connection using customer.id)
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: { product, action },
-      message: `Wishlist ${action} successful`
+    const items = await prisma.wishlistItem.findMany({
+      where: { userId: session.user.id },
+      orderBy: { updatedAt: 'desc' },
     });
-  } catch (error: any) {
-    console.error('Wishlist API Error:', error.message || error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Wishlist operation failed' 
-    }, { status: 500 });
+
+    return NextResponse.json({
+      success: true,
+      data: toWishlistData(items),
+      message: 'Wishlist updated',
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Unable to update wishlist' },
+      { status: 400 },
+    );
   }
 }
-
-export async function GET(req: Request) {
-  // Authentication Check
-  const { authenticated, customer } = await getAuthenticatedCustomer();
-  if (!authenticated || !customer) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Not authenticated' 
-    }, { status: 401 });
-  }
-
-  // Simulate fetching from a database securely using authenticated customer.id
-  return NextResponse.json({ 
-    success: true,
-    data: {
-      customerId: customer.id,
-      favorites: [] // Return empty for now as it's primarily client-side/localStorage
-    },
-    message: 'Wishlist fetched successfully'
-  });
-}
-

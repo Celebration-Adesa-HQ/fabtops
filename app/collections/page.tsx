@@ -1,7 +1,9 @@
-import { getCollections } from '@/lib/shopify';
+import { getCategories } from '@/lib/woocommerce/products';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Collections | FabTops Digital Flagship',
@@ -40,7 +42,16 @@ const collectionGrid = [
 ];
 
 export default async function CollectionsPage() {
-  const collections = await getCollections();
+  const categories = await getCategories();
+  const displayedCollections = collectionGrid.map((collection) => {
+    const category = categories.find((item) => item.handle === collection.handle);
+    return {
+      ...collection,
+      title: category?.title || collection.title,
+      description: category?.description || collection.description,
+      image: category?.image?.url || collection.image,
+    };
+  });
 
   return (
     <main className="bg-brand-secondary min-h-screen pt-32 pb-40">
@@ -59,7 +70,7 @@ export default async function CollectionsPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {collectionGrid.map((collection, idx) => (
+          {displayedCollections.map((collection, idx) => (
             <Link 
               key={collection.handle}
               href={`/collections/${collection.handle}`}

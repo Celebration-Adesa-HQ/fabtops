@@ -1,8 +1,7 @@
-import { getProducts, getCollections } from '@/lib/shopify';
 import { ShopContent } from '@/components/editorial/ShopContent';
-import { notFound } from 'next/navigation';
+import { loadCatalogPageData } from '@/lib/woocommerce/catalog';
+import { notFound, redirect } from 'next/navigation';
 
-// Collection metadata & hero images
 const collectionMeta: Record<string, { subtitle: string; heroImage?: string }> = {
   tops: {
     subtitle: 'Signature Silhouettes',
@@ -34,45 +33,71 @@ interface CollectionPageProps {
   params: Promise<{
     handle: string;
   }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: CollectionPageProps) {
   const { handle } = await params;
   const collectionName = handle
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-  
+
   return {
     title: `${collectionName} Collection | FabTops Digital Flagship`,
     description: `Explore the ${collectionName} collection at FabTops. Curated silhouettes designed for the contemporary woman who lives with intention.`,
   };
 }
 
-export default async function CollectionPage({ params }: CollectionPageProps) {
+export default async function CollectionPage({ params, searchParams }: CollectionPageProps) {
   const { handle } = await params;
-  
-  // Build collection title
+  const resolvedSearchParams = await searchParams;
   const collectionName = handle
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  // Fetch products (in production, filter by collection handle)
-  const products = await getProducts({ first: 50 });
+  try {
+    const data = await loadCatalogPageData(resolvedSearchParams || {}, {
+      basePath: `/collections/${handle}`,
+      fixedCategorySlug: handle,
+      sizeAttributeTaxonomy: 'pa_size',
+    });
 
-  // Get collection-specific metadata
-  const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };
+    if (!data) notFound();
+    if (data.redirectPath && data.redirectPath !== `/collections/${handle}`) {
+      redirect(data.redirectPath);
+    }
 
-  return (
-    <main className="bg-brand-secondary min-h-screen">
-      <ShopContent 
-        products={products} 
-        title={collectionName}
-        subtitle={meta.subtitle}
-        heroImage={meta.heroImage}
-        isCollection={true}
-      />
-    </main>
-  );
+    const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };
+
+    return (
+      <main className="min-h-screen bg-brand-secondary">
+        <ShopContent
+          result={data.result}
+          filters={data.filters}
+          query={data.query}
+          basePath={`/collections/${handle}`}
+          title={collectionName}
+          subtitle={meta.subtitle}
+          heroImage={meta.heroImage}
+          isCollection
+        />
+      </main>
+    );
+  } catch (error) {
+    return (
+      <main className="min-h-screen bg-brand-secondary">
+        <ShopContent
+          query={{ page: 1, perPage: 24, search: '', orderby: 'date', order: 'desc', category: handle }}
+          basePath={`/collections/${handle}`}
+          title={collectionName}
+          subtitle={collectionMeta[handle]?.subtitle || 'Curated Collection'}
+          heroImage={collectionMeta[handle]?.heroImage}
+          isCollection
+          errorMessage={error instanceof Error ? error.message : 'Unable to load this collection right now.'}
+        />
+      </main>
+    );
+  }
 }

@@ -1,136 +1,134 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getServerAuthSession } from '@/lib/auth/session';
+import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { cartActionSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
-import { 
-  shopifyFetch, 
-  CREATE_CART_MUTATION, 
-  GET_CART_QUERY, 
-  ADD_CART_LINES_MUTATION, 
-  UPDATE_CART_LINES_MUTATION, 
-  REMOVE_CART_LINES_MUTATION,
-} from '@/lib/shopify';
+import { mapCheckoutAddressesToWooCustomerUpdate } from '@/lib/woocommerce/customer-mappers';
+import {
+  addCartItem,
+  applyCartCoupon,
+  getCart,
+  removeCartCoupon,
+  removeCartItem,
+  selectShippingRate,
+  updateCartCustomer,
+  updateCartItem,
+} from '@/lib/woocommerce/cart';
+import { updateCustomer as updateWooCustomer } from '@/lib/woocommerce/customers';
+import { StoreApiError } from '@/lib/woocommerce/store-api';
 
-const UPDATE_CART_DISCOUNT_CODES_MUTATION = `
-  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) {
-    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
-      cart {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
+const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
-export async function POST(req: Request) {
-  // CSRF Protection Check
-  if (!validateCsrf(req)) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Forbidden' 
-    }, { status: 403 });
+function normalizeCouponCode(code: string) {
+  return code.trim().toUpperCase();
+}
+
+export async function POST(request: NextRequest) {
+  if (!validateCsrf(request)) {
+    return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
+
+  const parsed = cartActionSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Invalid cart request' }, { status: 400 });
+  }
+
+  const session = await getServerAuthSession();
 
   try {
-    const body = await req.json();
-    const validation = cartActionSchema.safeParse(body);
+    const cookieStore = await cookies();
+    const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
+    const bearerToken = null;
+    const action = parsed.data;
+    let cartToken = currentToken;
+    let result;
 
-    if (!validation.success) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Invalid request payload', 
-        details: validation.error.format() 
-      }, { status: 400 });
+    if (action.action !== 'create' && action.action !== 'get' && !cartToken) {
+      const bootstrapCart = await getCart(null, bearerToken);
+      cartToken = bootstrapCart.cartToken;
     }
 
-    const { action, cartId, lines, lineIds, lineId, quantity, discountCodes } = validation.data;
-
-    let result: any;
-
-    switch (action) {
+    switch (action.action) {
       case 'create':
-        result = await shopifyFetch({
-          query: CREATE_CART_MUTATION,
-          variables: { input: { lines } },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartCreate.cart,
-          message: 'Cart created'
-        });
-
       case 'get':
-        result = await shopifyFetch({
-          query: GET_CART_QUERY,
-          variables: { cartId },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cart,
-          message: 'Cart fetched'
-        });
-
+        result = await getCart(cartToken, bearerToken);
+        break;
       case 'add':
-        result = await shopifyFetch({
-          query: ADD_CART_LINES_MUTATION,
-          variables: { cartId, lines },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesAdd.cart,
-          message: 'Items added'
-        });
-
+        result = await addCartItem(cartToken, action.productId, action.quantity, bearerToken);
+        break;
       case 'update':
-        result = await shopifyFetch({
-          query: UPDATE_CART_LINES_MUTATION,
-          variables: { cartId, lines: [{ id: lineId, quantity }] },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesUpdate.cart,
-          message: 'Cart updated'
-        });
-
+        result = await updateCartItem(cartToken, action.lineKey, action.quantity, bearerToken);
+        break;
       case 'remove':
-        result = await shopifyFetch({
-          query: REMOVE_CART_LINES_MUTATION,
-          variables: { cartId, lineIds },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartLinesRemove.cart,
-          message: 'Items removed'
-        });
-
-      case 'updateDiscount':
-        result = await shopifyFetch({
-          query: UPDATE_CART_DISCOUNT_CODES_MUTATION,
-          variables: { cartId, discountCodes },
-          cache: 'no-store',
-        });
-        return NextResponse.json({ 
-          success: true, 
-          data: result.cartDiscountCodesUpdate.cart,
-          errors: result.cartDiscountCodesUpdate.userErrors,
-          message: 'Discount updated'
-        });
-
-      default:
-        return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+        result = await removeCartItem(cartToken, action.lineKey, bearerToken);
+        break;
+      case 'applyCoupon':
+        result = await applyCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
+        break;
+      case 'removeCoupon':
+        result = await removeCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
+        break;
+      case 'updateCustomer': {
+        if (session?.user) {
+          const linkedCustomer = await ensureWooCustomerLink(session.user);
+          const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
+          await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
+        }
+        result = await updateCartCustomer(cartToken, action.billing_address, action.shipping_address, bearerToken);
+        break;
+      }
+      case 'selectShipping':
+        result = await selectShippingRate(cartToken, action.packageId, action.rateId, bearerToken);
+        break;
     }
-  } catch (error: any) {
-    console.error('Cart API Error:', error.message || error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message || 'Cart operation failed' 
-    }, { status: 500 });
+
+    const nextCartToken = result.cartToken || cartToken;
+
+    if (nextCartToken && nextCartToken !== currentToken) {
+      cookieStore.set(CART_TOKEN_COOKIE, nextCartToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+
+    const response = NextResponse.json({
+      success: true,
+      data: result.cart,
+      cartToken: nextCartToken,
+      message: 'Cart updated successfully',
+    });
+
+    if (nextCartToken) {
+      response.headers.set('Cart-Token', nextCartToken);
+    }
+
+    return response;
+  } catch (error) {
+    // WooCommerce 4xx = user-facing validation error (invalid coupon,
+    // out-of-stock, etc.). Forward the message and use 422 so the
+    // client knows it's safe to display it to the user.
+    if (error instanceof StoreApiError && error.status >= 400 && error.status < 500) {
+      return NextResponse.json(
+        { success: false, error: stripPrefix(error.message) },
+        { status: 422 },
+      );
+    }
+    // Genuine server / network failure.
+    console.error('WooCommerce cart error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Something went wrong updating your cart. Please try again.',
+    }, { status: 502 });
   }
+}
+
+/** Strip the "WooCommerce Store API error 4xx: " prefix from error messages
+ *  before forwarding them to the client. */
+function stripPrefix(message: string): string {
+  return message.replace(/^WooCommerce Store API error \d+:\s*/i, '');
 }

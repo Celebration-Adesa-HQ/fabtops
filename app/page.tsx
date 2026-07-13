@@ -4,12 +4,14 @@ import { CategoryNavigation } from '@/components/editorial/CategoryNavigation';
 import { NewCollectionShowcase } from '@/components/editorial/NewCollectionShowcase';
 import { CommunitySocialProof } from '@/components/editorial/CommunitySocialProof';
 import { SustainabilityPreview } from '@/components/editorial/SustainabilityPreview';
-import { getProducts } from '@/lib/shopify';
+import { getProducts } from '@/lib/woocommerce/products';
 import Image from 'next/image';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const products = await getProducts({ first: 6 });
+  const products = await getProducts(6);
 
   return (
     <div className="bg-brand-light">
@@ -58,19 +60,10 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-24">
-          {products.map((product: any) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
-              id={product.id}
-              handle={product.handle}
-              title={product.title}
-              amount={product.priceRange.minVariantPrice.amount}
-              currencyCode={product.priceRange.minVariantPrice.currencyCode}
-              image={product.images.edges[0]?.node.url}
-              secondaryImage={product.images.edges[1]?.node.url}
-              variantId={product.variants.edges[0]?.node.id}
-              swatches={product.options.find((opt: any) => opt.name.toLowerCase() === 'color')?.values}
-              availableForSale={product.variants.edges.some((v: any) => v.node.availableForSale)}
+              product={product}
             />
           ))}
         </div>
@@ -111,6 +104,7 @@ export default async function HomePage() {
               src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200"
               alt="Fab Babe Circle"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
             <div className="absolute inset-0 bg-brand-dark/10 backdrop-blur-[2px]" />

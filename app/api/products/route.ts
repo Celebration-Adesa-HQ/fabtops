@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProducts } from '@/lib/shopify';
+import { getProducts } from '@/lib/woocommerce/products';
 import { z } from 'zod';
 
 const productsQuerySchema = z.object({
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const { first } = validation.data;
 
   try {
-    const products = await getProducts({ first });
+    const products = await getProducts(first);
     return NextResponse.json({
       success: true,
       data: products,
@@ -38,4 +38,3 @@ export async function GET(request: Request) {
     }, { status: 500 });
   }
 }
-

@@ -1,73 +1,71 @@
-# Fabtops Headless E-Commerce
+# FabTops WooCommerce Storefront
 
-A high-performance, aesthetically stunning headless e-commerce store for **Fabtops**, built with Next.js 14, Shopify Storefront API, and Framer Motion.
+FabTops is a customer-facing Next.js storefront backed exclusively by WooCommerce. WordPress is the only administrative dashboard and source of truth for products, images, prices, stock, inventory, orders, coupons, shipping, taxes, payment gateways, and store settings.
 
-## 🚀 Features
+This repository intentionally contains no admin dashboard, product editor, inventory manager, order manager, coupon manager, customer manager, CMS, or parallel commerce database.
 
-- **Framework**: Next.js 14 (App Router) with TypeScript
-- **Styling**: Tailwind CSS with a custom Pinkish Design System
-- **Shopify Integration**: GraphQL-based Storefront API client
-- **Animations**: Fluid page transitions and micro-interactions using Framer Motion
-- **Cart System**: Client-side state management with Shopify checkout redirection
-- **Performance**: Static generation with Incremental Static Regeneration (ISR)
-- **Responsive**: Mobile-first, touch-friendly UI
+## API Responsibilities
 
-## 🛠️ Tech Stack
+- `@woocommerce/woocommerce-rest-api` is the only `wc/v3` integration path in this repo. It powers server-side product, category, variation, customer, order, sitemap, and diagnostics access.
+- WooCommerce Store API (`/wp-json/wc/store/v1`) is the shopper-facing layer for cart, checkout, catalog filter metadata, taxonomies, pay-for-order reads, and product reviews.
+- WooCommerce Consumer Key and Consumer Secret are never sent to the browser.
+- Guest cart and guest checkout remain first-class WooCommerce flows powered by WooCommerce Store API.
+- Server-side catalog and Woo resource access use WooCommerce REST API credentials only.
+- Customer login, register, reset-password, session lookup, and wishlist are backed by Better Auth with Prisma/PostgreSQL, then linked to WooCommerce customers for commerce data.
+- Newsletter signup is unavailable until a dedicated mailing provider is configured.
 
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Lucide React
-- Shopify Storefront API
+## WooCommerce Setup
 
-## 📋 Prerequisites
+1. Sign in to WordPress admin.
+2. Open `WooCommerce > Settings > Advanced > REST API`.
+3. Select `Add key`.
+4. Choose the WordPress user that owns the integration.
+5. Select `Read` permission for this storefront.
+6. Use `Read/Write` if this storefront will create or update WooCommerce customers through `wc/v3`.
+7. Generate the key and copy the Consumer Key and Consumer Secret immediately. The secret is shown only once.
+8. Ensure WordPress pretty permalinks are enabled.
+9. Ensure guest checkout is enabled.
+10. Ensure the installed Paystack extension supports WooCommerce Blocks and Store API checkout.
+11. Customer auth now runs in the Next.js app via Better Auth; the bundled WordPress auth plugin is optional legacy code unless you still depend on it elsewhere.
 
-- Node.js 18+
-- Shopify Store with Storefront API enabled
-- Shopify Storefront Access Token
+## Environment
 
-## ⚙️ Setup
+Create `.env` from `.env.example` and provide the real WordPress/WooCommerce origin. The origin may differ from the public Next.js storefront URL.
 
-1. **Clone the repository**
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-3. **Configure Environment Variables**
-   Create a `.env.local` file in the root directory:
-   ```env
-   SHOPIFY_STORE_DOMAIN=fabtops.myshopify.com
-   SHOPIFY_STOREFRONT_API_TOKEN=your_access_token_here
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
-   ```
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+```env
+WOOCOMMERCE_STORE_URL=https://your-wordpress-domain.com
+WOOCOMMERCE_CONSUMER_KEY=ck_replace_me
+WOOCOMMERCE_CONSUMER_SECRET=cs_replace_me
+WOOCOMMERCE_API_VERSION=wc/v3
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fabtops
+BETTER_AUTH_SECRET=replace_with_a_secure_random_secret
+BETTER_AUTH_URL=http://localhost:3000
+# Optional override. Defaults to https://your-wordpress-domain.com/wp-json/wc/store/v1
+# WOOCOMMERCE_STORE_API_BASE=https://your-wordpress-domain.com/wp-json/wc/store/v1
+```
 
-## 📦 Shopify Storefront API Scopes
+Never prefix WooCommerce credentials with `NEXT_PUBLIC_`, `VITE_`, or `REACT_APP_`. Restart the development server after changing environment values.
 
-Ensure your Storefront API token has the following scopes:
-- `unauthenticated_read_product_listings`
-- `unauthenticated_read_product_inventory`
-- `unauthenticated_write_checkouts`
-- `unauthenticated_read_checkouts`
+## Development
 
-## 🎨 Design System
+```bash
+npm install
+npm run dev
+```
 
-The project uses a custom pink theme defined in `tailwind.config.ts`.
-- **Primary**: Pink shades (#ff6b8a, #ff4d73, etc.)
-- **Neutral**: Gray shades for typography and backgrounds
-- **Typography**: Inter (Google Fonts)
+## Verification
 
-## 🚀 Deployment
+```bash
+npm test
+npm run lint
+npm run build
+npm run test:woocommerce
+```
 
-The project is ready to be deployed on **Vercel**:
-1. Connect your GitHub repository to Vercel.
-2. Add the environment variables from `.env.local`.
-3. Deploy!
+The connection test uses the package-backed `wc/v3` client to request `products?per_page=1&status=publish`. A successful result contains either one product or an empty array.
 
-## 📄 License
+- `401`: verify key permissions and the associated WordPress user.
+- `Consumer Key is missing`: verify that the web server forwards the `Authorization` header.
+- `404`: verify `WOOCOMMERCE_STORE_URL`, pretty permalinks, and that WooCommerce REST API is active.
 
-MIT
+All product, order, inventory, coupon, shipping, tax, payment, customer, and store-setting changes remain grounded in WooCommerce in WordPress. This storefront may read them through `wc/v3`, and it may create or update customer records only through the explicitly configured server-side integration.
