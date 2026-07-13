@@ -10,7 +10,7 @@ describe('auth session store', () => {
     vi.unstubAllGlobals();
   });
 
-  it('merges guest wishlist only after session confirmation and keeps cart user-scoped', async () => {
+  it('refreshes cart and wishlist after session confirmation without calling guest merge', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -31,28 +31,32 @@ describe('auth session store', () => {
         json: async () => ({
           success: true,
           data: {
-            merged: true,
-            cart: {
-              items: [],
-              subtotal: 0,
-              totalAmount: 0,
-              discountCodes: [],
-            },
-            wishlist: [
-              {
-                id: 'top-1',
-                variantId: '101',
-                title: 'Rose Top',
-                handle: 'rose-top',
-                price: '80.00',
-                currencyCode: 'NGN',
-                imageUrl: 'https://shop.example.com/rose.jpg',
-                imageAlt: 'Rose Top',
-              },
-            ],
+            items: [],
+            subtotal: 0,
+            totalAmount: 0,
+            discountCodes: [],
           },
         }),
       });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        success: true,
+        data: [
+          {
+            id: 'top-1',
+            variantId: '101',
+            title: 'Rose Top',
+            handle: 'rose-top',
+            price: '80.00',
+            currencyCode: 'NGN',
+            imageUrl: 'https://shop.example.com/rose.jpg',
+            imageAlt: 'Rose Top',
+          },
+        ],
+      }),
+    });
 
     vi.stubGlobal('fetch', fetchMock);
 
@@ -107,11 +111,12 @@ describe('auth session store', () => {
     expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/account/session', expect.objectContaining({
       cache: 'no-store',
     }));
-    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/commerce/merge-guest-state', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/cart', expect.objectContaining({
       method: 'POST',
     }));
-    const mergePayload = JSON.parse(fetchMock.mock.calls[1][1].body);
-    expect(mergePayload.guestCart.items).toHaveLength(1);
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/wishlist', expect.objectContaining({
+      cache: 'no-store',
+    }));
     expect(useAuthSessionStore.getState()).toMatchObject({
       authStatus: 'authenticated',
       mergeStatus: 'succeeded',
@@ -121,12 +126,12 @@ describe('auth session store', () => {
       },
     });
     expect(useCartStore.getState().items).toEqual([]);
-    expect(useCartStore.getState().guestSnapshot.items).toEqual([]);
+    expect(useCartStore.getState().guestSnapshot.items).toHaveLength(1);
     expect(useWishlistStore.getState().favorites).toHaveLength(1);
-    expect(useWishlistStore.getState().guestFavorites).toEqual([]);
+    expect(useWishlistStore.getState().guestFavorites).toHaveLength(1);
   });
 
-  it('keeps the guest cart snapshot when post-auth merge fails', async () => {
+  it('preserves the guest cart snapshot when post-auth refresh fails', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -143,31 +148,10 @@ describe('auth session store', () => {
       })
       .mockResolvedValueOnce({
         ok: false,
-        status: 400,
+        status: 502,
         json: async () => ({
           success: false,
-          error: 'Unable to merge guest commerce state',
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [],
-            subtotal: 0,
-            totalAmount: 0,
-            discountCodes: [],
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          success: true,
-          data: [],
+          error: 'Cart request failed',
         }),
       });
 
@@ -210,18 +194,155 @@ describe('auth session store', () => {
 
     await useAuthSessionStore.getState().refreshSession();
 
-    expect(useAuthSessionStore.getState().mergeStatus).toBe('failed');
+    expect(useAuthSessionStore.getState().mergeStatus).toBe('succeeded');
     expect(useCartStore.getState().guestSnapshot.items).toHaveLength(1);
   });
 
-  it('clears user-scoped state on logout without keeping account data in guest mode', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        success: true,
-      }),
+  it('loads guest cart state when no session exists instead of clearing it', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        status: 401,
+        ok: false,
+        json: async () => ({
+          success: false,
+          error: 'SESSION_EXPIRED',
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          data: {
+            items: [
+              {
+                id: 'line-1',
+                variantId: '101',
+                title: 'Rose Top',
+                handle: 'rose-top',
+                price: '80.00',
+                quantity: 1,
+                image: '/rose.jpg',
+                selectedOptions: [],
+              },
+            ],
+            subtotal: 80,
+            totalAmount: 80,
+            discountCodes: [],
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          data: [],
+        }),
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { useCartStore } = await import('../../stores/use-cart-store');
+    const { useWishlistStore } = await import('../../stores/use-wishlist-store');
+    const { useAuthSessionStore } = await import('../../stores/use-auth-session-store');
+
+    useCartStore.setState({
+      items: [],
+      isLoading: false,
+      guestSnapshot: {
+        items: [
+          {
+            id: 'guest-line-1',
+            variantId: '101',
+            title: 'Rose Top',
+            handle: 'rose-top',
+            price: '80.00',
+            quantity: 1,
+            image: '/rose.jpg',
+            selectedOptions: [],
+          },
+        ],
+      },
     });
+    useWishlistStore.setState({
+      favorites: [],
+      guestFavorites: [],
+      isAnonymousSession: false,
+      isLoading: false,
+    });
+    useAuthSessionStore.setState({
+      authStatus: 'unknown',
+      sessionUser: null,
+      isHydrating: true,
+      mergeStatus: 'idle',
+    });
+
+    const user = await useAuthSessionStore.getState().refreshSession();
+
+    expect(user).toBeNull();
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/cart', expect.objectContaining({
+      method: 'POST',
+    }));
+    expect(useAuthSessionStore.getState()).toMatchObject({
+      authStatus: 'unauthenticated',
+      sessionUser: null,
+    });
+    expect(useCartStore.getState().items).toHaveLength(1);
+  });
+
+  it('clears user-scoped state on logout without keeping account data in guest mode', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          data: {
+            items: [
+              {
+                id: 'line-1',
+                variantId: '101',
+                title: 'Rose Top',
+                handle: 'rose-top',
+                price: '80.00',
+                quantity: 2,
+                image: '/rose.jpg',
+                selectedOptions: [],
+              },
+            ],
+            subtotal: 80,
+            totalAmount: 80,
+            discountCodes: [],
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          data: [
+            {
+              id: 'guest-favorite',
+              variantId: '202',
+              title: 'Silk Dress',
+              handle: 'silk-dress',
+              price: '120.00',
+              currencyCode: 'NGN',
+              imageUrl: 'https://shop.example.com/dress.jpg',
+              imageAlt: 'Silk Dress',
+            },
+          ],
+        }),
+      });
 
     vi.stubGlobal('fetch', fetchMock);
 
@@ -302,13 +423,19 @@ describe('auth session store', () => {
       mergeStatus: 'idle',
     });
     expect(useCartStore.getState()).toMatchObject({
-      items: [],
-      subtotal: 0,
-      totalAmount: 0,
+      items: [
+        expect.objectContaining({ id: 'line-1' }),
+      ],
+      subtotal: 80,
+      totalAmount: 80,
     });
     expect(useWishlistStore.getState()).toMatchObject({
-      favorites: [],
-      guestFavorites: [],
+      favorites: [
+        expect.objectContaining({ id: 'guest-favorite' }),
+      ],
+      guestFavorites: [
+        expect.objectContaining({ id: 'guest-favorite' }),
+      ],
       isAnonymousSession: true,
     });
   });

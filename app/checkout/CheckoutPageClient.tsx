@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { CheckoutOrderSummary } from '@/components/checkout/CheckoutOrderSummary';
 import { checkoutSchema, type CheckoutSchema } from '@/lib/schemas';
 import { useCartStore } from '@/stores/use-cart-store';
+import type { CartData } from '@/stores/types';
+import { useCurrencyStore } from '@/stores/use-currency-store';
 
 const fieldClass = 'w-full border-b border-brand-dark/15 bg-transparent py-3 text-sm text-brand-dark outline-none transition-colors focus:border-brand-dark';
 
@@ -24,18 +26,24 @@ async function postJson(url: string, body: unknown) {
     err.code = result.code;
     throw err;
   }
-  return result.data;
+  return {
+    data: result.data,
+    cartToken: response.headers.get('Cart-Token') || result.cartToken || null,
+  };
 }
 
 interface CheckoutPageClientProps {
   initialValues: CheckoutSchema;
+  initialCart: CartData | null;
 }
 
-export default function CheckoutPageClient({ initialValues }: CheckoutPageClientProps) {
+export default function CheckoutPageClient({ initialValues, initialCart }: CheckoutPageClientProps) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [activeCartToken, setActiveCartToken] = useState<string | null>(null);
   const initializeCart = useCartStore((state) => state.initializeCart);
+  const syncCart = useCartStore((state) => state.syncCart);
   const items = useCartStore((state) => state.items);
   const subtotal = useCartStore((state) => state.subtotal);
   const totalAmount = useCartStore((state) => state.totalAmount);
@@ -44,40 +52,116 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
   const shippingRates = useCartStore((state) => state.shippingRates);
   const needsShipping = useCartStore((state) => state.needsShipping);
   const cartLoading = useCartStore((state) => state.isLoading);
+  const selectedCurrency = useCurrencyStore((state) => state.current.code);
   const { register, handleSubmit, formState: { errors } } = useForm<CheckoutSchema>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: initialValues,
   });
 
   useEffect(() => {
+    if (initialCart?.items?.length) {
+      syncCart(initialCart);
+      return;
+    }
+
     if (items.length === 0) {
       void initializeCart();
     }
-  }, [initializeCart, items.length]);
+  }, [initialCart, initializeCart, items.length, syncCart]);
+
+  const summaryItems = items.length > 0 ? items : initialCart?.items || [];
+  const summarySubtotal = items.length > 0 ? subtotal : initialCart?.subtotal || 0;
+  const summaryTotalAmount = items.length > 0 ? totalAmount : initialCart?.totalAmount || 0;
+  const summaryCurrencyCode = items.length > 0 ? currencyCode : initialCart?.currencyCode || 'NGN';
+  const summaryDiscountCodes = items.length > 0 ? discountCodes : initialCart?.discountCodes || [];
+  const summaryShippingRates = items.length > 0 ? shippingRates : initialCart?.shippingRates || [];
+  const summaryNeedsShipping = items.length > 0 ? needsShipping : initialCart?.needsShipping || false;
 
   const submit = async (values: CheckoutSchema, isRetry = false) => {
     setSubmitting(true);
     setError('');
     try {
-      const cart = await postJson('/api/cart', {
+      const cartResponse = await postJson('/api/cart', {
         action: 'updateCustomer',
         billing_address: values.billing_address,
         shipping_address: values.shipping_address,
       });
+      if (cartResponse.cartToken) {
+        setActiveCartToken(cartResponse.cartToken);
+      }
+
+      const cart = cartResponse.data;
       const firstPackage = cart.shippingRates?.[0];
       const selectedRate = firstPackage?.shipping_rates?.find((rate: { selected: boolean }) => rate.selected)
         || firstPackage?.shipping_rates?.[0];
+      let preparedCartToken = cartResponse.cartToken;
 
       if (cart.needsShipping && selectedRate) {
-        await postJson('/api/cart', {
+        const shippingResponse = await fetch('/api/cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(cartResponse.cartToken ? { 'Cart-Token': cartResponse.cartToken } : {}),
+          },
+          body: JSON.stringify({
           action: 'selectShipping',
           packageId: firstPackage.package_id,
           rateId: selectedRate.rate_id,
+          }),
         });
+        const shippingResult = await shippingResponse.json();
+        if (!shippingResponse.ok || !shippingResult.success) {
+          const shippingError = new Error(shippingResult.error || 'Request failed') as Error & { status?: number; code?: string };
+          shippingError.status = shippingResponse.status;
+          shippingError.code = shippingResult.code;
+          throw shippingError;
+        }
+        const nextCartToken = shippingResponse.headers.get('Cart-Token') || shippingResult.cartToken || cartResponse.cartToken || null;
+        if (nextCartToken) {
+          setActiveCartToken(nextCartToken);
+          preparedCartToken = nextCartToken;
+        }
       }
 
-      const checkout = await postJson('/api/checkout', values);
-      window.location.assign(checkout.redirectUrl || `/checkout/success?order=${checkout.orderId}`);
+      const checkoutResponse = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(activeCartToken || preparedCartToken ? { 'Cart-Token': activeCartToken || preparedCartToken } : {}),
+        },
+        body: JSON.stringify({
+          ...values,
+          selected_currency: selectedCurrency,
+          coupon_codes: cart.discountCodes?.map((coupon: { code: string }) => coupon.code) || [],
+          ...(selectedRate ? {
+            selected_shipping_rate: {
+              package_id: firstPackage.package_id,
+              rate_id: selectedRate.rate_id,
+            },
+          } : {}),
+        }),
+      });
+      const checkoutResult = await checkoutResponse.json();
+      if (!checkoutResponse.ok || !checkoutResult.success) {
+        const checkoutError = new Error(checkoutResult.error || 'Request failed') as Error & { status?: number; code?: string };
+        checkoutError.status = checkoutResponse.status;
+        checkoutError.code = checkoutResult.code;
+        throw checkoutError;
+      }
+      const checkoutCartToken = checkoutResponse.headers.get('Cart-Token') || checkoutResult.cartToken || null;
+      if (checkoutCartToken) {
+        setActiveCartToken(checkoutCartToken);
+      }
+
+      if (
+        typeof checkoutResult.authorizationUrl !== 'string' ||
+        !checkoutResult.authorizationUrl.startsWith('https://checkout.paystack.com/')
+      ) {
+        throw new Error('Invalid Paystack authorization URL');
+      }
+
+      window.location.assign(checkoutResult.authorizationUrl);
+      return;
     } catch (caught) {
       const err = caught as Error & { status?: number; code?: string };
       const message = err.message || 'Checkout failed';
@@ -103,7 +187,9 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
       }
 
       setError(message === 'PAYMENT_GATEWAY_UNAVAILABLE'
-        ? 'Paystack is not available through WooCommerce Store API. Enable a WooCommerce Blocks-compatible Paystack gateway.'
+        ? 'Paystack is not available for this checkout right now.'
+        : message === 'PAYSTACK_UNSUPPORTED_CURRENCY'
+          ? 'The selected currency is not available for Paystack checkout yet. Choose a supported currency and try again.'
         : message);
       setSubmitting(false);
     }
@@ -118,14 +204,14 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
         <div className="grid gap-14 lg:grid-cols-[1fr_320px]">
           <div className="lg:order-2">
             <CheckoutOrderSummary
-            items={items}
-            subtotal={subtotal}
-            totalAmount={totalAmount}
-            currencyCode={currencyCode}
-            discountCodes={discountCodes}
-            shippingRates={shippingRates}
-            needsShipping={needsShipping}
-            isLoading={cartLoading}
+            items={summaryItems}
+            subtotal={summarySubtotal}
+            totalAmount={summaryTotalAmount}
+            currencyCode={summaryCurrencyCode}
+            discountCodes={summaryDiscountCodes}
+            shippingRates={summaryShippingRates}
+            needsShipping={summaryNeedsShipping}
+            isLoading={cartLoading && summaryItems.length === 0}
             />
           </div>
           <form onSubmit={handleSubmit((values) => submit(values))} className="space-y-12 lg:order-1">
@@ -171,7 +257,7 @@ export default function CheckoutPageClient({ initialValues }: CheckoutPageClient
         <div className="mt-10 rounded-[1.5rem] border border-brand-dark/8 bg-white/55 p-5 lg:max-w-[calc(100%-352px)]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Payment Interrupted?</p>
           <p className="mt-3 text-sm leading-7 text-brand-dark/60">
-            If your gateway redirects you out before payment completes, use the order recovery flow to reload the unpaid Woo order and continue.
+            Recovery is still available for legacy Woo-hosted unpaid orders. Direct Paystack checkout now stays on FabTops during the normal flow.
           </p>
           <Link
             href="/checkout/recover"

@@ -36,9 +36,6 @@ export async function POST(request: NextRequest) {
   }
 
   const session = await getServerAuthSession();
-  if (!session) {
-    return NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
-  }
 
   try {
     const cookieStore = await cookies();
@@ -74,9 +71,11 @@ export async function POST(request: NextRequest) {
         result = await removeCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
         break;
       case 'updateCustomer': {
-        const linkedCustomer = await ensureWooCustomerLink(session.user);
-        const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
-        await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
+        if (session?.user) {
+          const linkedCustomer = await ensureWooCustomerLink(session.user);
+          const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
+          await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
+        }
         result = await updateCartCustomer(cartToken, action.billing_address, action.shipping_address, bearerToken);
         break;
       }
@@ -97,11 +96,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: result.cart,
+      cartToken: nextCartToken,
       message: 'Cart updated successfully',
     });
+
+    if (nextCartToken) {
+      response.headers.set('Cart-Token', nextCartToken);
+    }
+
+    return response;
   } catch (error) {
     // WooCommerce 4xx = user-facing validation error (invalid coupon,
     // out-of-stock, etc.). Forward the message and use 422 so the

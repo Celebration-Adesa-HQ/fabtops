@@ -34,6 +34,18 @@ interface WooRequestOptions {
   next?: NextFetchRequestConfig;
 }
 
+export class WooRestApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number,
+    public readonly responseBody?: unknown,
+    public readonly code?: string,
+  ) {
+    super(message);
+    this.name = 'WooRestApiError';
+  }
+}
+
 function normalizeMethod(method?: string): Lowercase<WooMethod> {
   const normalized = (method || 'GET').toUpperCase();
   switch (normalized) {
@@ -93,9 +105,12 @@ export async function wooRequest<T>(
       const code = (error as { code: string }).code;
       const networkCodes = ['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ECONNABORTED'];
       if (networkCodes.includes(code)) {
-        throw new Error(
+        throw new WooRestApiError(
           `WooCommerce REST API unreachable (${code}) [${method.toUpperCase()} ${path}]. ` +
           `Check your WOOCOMMERCE_URL environment variable and server connectivity.`,
+          undefined,
+          undefined,
+          code,
         );
       }
     }
@@ -110,7 +125,11 @@ export async function wooRequest<T>(
         : null;
 
     if (detail) {
-      throw new Error(`WooCommerce REST ${detail.status}: ${detail.data?.message || detail.statusText || 'Request failed'} [${method.toUpperCase()} ${path}]`);
+      throw new WooRestApiError(
+        `WooCommerce REST ${detail.status}: ${detail.data?.message || detail.statusText || 'Request failed'} [${method.toUpperCase()} ${path}]`,
+        detail.status,
+        detail.data,
+      );
     }
 
     throw error;

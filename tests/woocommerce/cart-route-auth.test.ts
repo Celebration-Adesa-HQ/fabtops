@@ -109,8 +109,17 @@ describe('cart route customer auth bridge', () => {
     });
   });
 
-  it('rejects unauthenticated cart access', async () => {
+  it('allows guest cart reads without requiring a session', async () => {
     getServerAuthSession.mockResolvedValue(null);
+    getCart.mockResolvedValue({
+      cart: {
+        items: [],
+        subtotal: 0,
+        totalAmount: 0,
+        discountCodes: [],
+      },
+      cartToken: 'cart-token-1',
+    });
 
     const { POST } = await import('../../app/api/cart/route');
     const request = new NextRequest('https://fabtops.test/api/cart', {
@@ -122,12 +131,65 @@ describe('cart route customer auth bridge', () => {
     const response = await POST(request);
     const body = await response.json();
 
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(200);
     expect(body).toMatchObject({
-      success: false,
-      error: 'SESSION_EXPIRED',
+      success: true,
     });
-    expect(getCart).not.toHaveBeenCalled();
+    expect(getCart).toHaveBeenCalledWith('cart-token-1', null);
+  });
+
+  it('updates guest checkout addresses without attempting a Woo profile sync', async () => {
+    getServerAuthSession.mockResolvedValue(null);
+    updateCartCustomer.mockResolvedValue({
+      cart: {
+        items: [],
+        subtotal: 0,
+        totalAmount: 0,
+        discountCodes: [],
+      },
+      cartToken: 'cart-token-1',
+    });
+
+    const { POST } = await import('../../app/api/cart/route');
+    const request = new NextRequest('https://fabtops.test/api/cart', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        action: 'updateCustomer',
+        billing_address: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          state: 'LA',
+          postcode: '100001',
+          country: 'NG',
+          email: 'ada@example.com',
+          phone: '+2348000000000',
+        },
+        shipping_address: {
+          first_name: 'Ada',
+          last_name: 'Okafor',
+          address_1: '1 Marina Road',
+          city: 'Lagos',
+          state: 'LA',
+          postcode: '100001',
+          country: 'NG',
+        },
+      }),
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(ensureWooCustomerLink).not.toHaveBeenCalled();
+    expect(updateWooCustomer).not.toHaveBeenCalled();
+    expect(updateCartCustomer).toHaveBeenCalledWith(
+      'cart-token-1',
+      expect.objectContaining({ first_name: 'Ada' }),
+      expect.objectContaining({ first_name: 'Ada' }),
+      null,
+    );
   });
 
   it('loads the authenticated cart without sending customer addresses to the base cart endpoint', async () => {

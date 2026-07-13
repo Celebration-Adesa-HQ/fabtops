@@ -8,6 +8,7 @@ export class StoreApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly responseBody?: unknown,
   ) {
     super(message);
     this.name = 'StoreApiError';
@@ -70,13 +71,14 @@ export async function storeApiRequest<T>(path: string, options: StoreApiRequestO
 
   if (!response.ok) {
     let detail = response.statusText;
+    let body: unknown;
     try {
-      const body = await response.json() as { message?: string };
-      detail = body.message || detail;
+      body = await response.json() as { message?: string };
+      detail = (body as { message?: string }).message || detail;
     } catch {
       // Keep the status text when WooCommerce does not return JSON.
     }
-    throw new StoreApiError(response.status, `WooCommerce Store API error ${response.status}: ${detail}`);
+    throw new StoreApiError(response.status, `WooCommerce Store API error ${response.status}: ${detail}`, body);
   }
 
   return {

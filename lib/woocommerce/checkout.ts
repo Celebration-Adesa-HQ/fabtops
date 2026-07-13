@@ -13,9 +13,12 @@ interface StoreApiCheckoutResponse {
 }
 
 interface StoreApiCheckoutDraftResponse {
-  order_id: number;
+  order_id?: number;
+  orderId?: number;
+  id?: number;
   status: string;
-  order_key: string;
+  order_key?: string;
+  orderKey?: string;
   customer_note?: string;
   payment_method?: string;
   billing_address?: {
@@ -48,6 +51,11 @@ interface StoreApiCheckoutDraftResponse {
   __experimentalCart?: unknown;
 }
 
+interface NormalizedStoreApiCheckoutDraftResponse extends Omit<StoreApiCheckoutDraftResponse, 'order_id' | 'order_key'> {
+  order_id: number;
+  order_key: string;
+}
+
 export interface SafeCheckoutResult {
   orderId: number;
   status: string;
@@ -77,6 +85,23 @@ export function normalizeCheckoutResult(response: StoreApiCheckoutResponse): Saf
   };
 }
 
+function normalizeCheckoutDraftResponse(
+  response: StoreApiCheckoutDraftResponse,
+): NormalizedStoreApiCheckoutDraftResponse {
+  const orderId = response.order_id ?? response.orderId ?? response.id;
+  const orderKey = response.order_key ?? response.orderKey ?? '';
+
+  if (!orderId || !Number.isFinite(orderId)) {
+    throw new Error('CHECKOUT_DRAFT_ORDER_ID_MISSING');
+  }
+
+  return {
+    ...response,
+    order_id: orderId,
+    order_key: orderKey,
+  };
+}
+
 export async function getCheckoutDraft(cartToken: string, bearerToken?: string | null) {
   const result = await storeApiRequest<StoreApiCheckoutDraftResponse>('/checkout', {
     cartToken,
@@ -85,7 +110,7 @@ export async function getCheckoutDraft(cartToken: string, bearerToken?: string |
   });
 
   return {
-    checkout: result.data,
+    checkout: normalizeCheckoutDraftResponse(result.data),
     cartToken: result.cartToken,
   };
 }
@@ -105,7 +130,7 @@ export async function updateCheckout(
   });
 
   return {
-    checkout: result.data,
+    checkout: normalizeCheckoutDraftResponse(result.data),
     cartToken: result.cartToken,
   };
 }

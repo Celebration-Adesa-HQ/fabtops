@@ -87,6 +87,12 @@ export const checkoutSchema = z.object({
   }),
   shipping_address: checkoutAddressSchema,
   payment_method: z.string().trim().min(1).max(100),
+  selected_currency: z.string().trim().length(3).optional(),
+  selected_shipping_rate: z.object({
+    package_id: z.number().int().min(0),
+    rate_id: z.string().trim().min(1).max(200),
+  }).optional(),
+  coupon_codes: z.array(z.string().trim().min(1).max(100)).optional(),
   payment_data: z.array(z.object({
     key: z.string().min(1).max(100),
     value: z.string().max(500),
@@ -95,6 +101,12 @@ export const checkoutSchema = z.object({
 });
 
 export type CheckoutSchema = z.infer<typeof checkoutSchema>;
+
+export const checkoutVerificationSchema = z.object({
+  reference: z.string().trim().min(1).max(200),
+});
+
+export type CheckoutVerificationSchema = z.infer<typeof checkoutVerificationSchema>;
 
 export const productReviewMutationSchema = z.object({
   productId: z.string().trim().min(1),

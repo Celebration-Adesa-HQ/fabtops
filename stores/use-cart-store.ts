@@ -39,15 +39,6 @@ interface CartState {
   totalItems: () => number;
 }
 
-function redirectToLogin() {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  const target = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-  window.location.assign(`/login?redirect=${encodeURIComponent(target || '/shop')}`);
-}
-
 async function fetchCartApi(body: Record<string, unknown>) {
   const response = await fetch('/api/cart', {
     method: 'POST',
@@ -142,10 +133,6 @@ export const useCartStore = create<CartState>()(
           set({ isCartOpen: true });
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
-          if (message === 'SESSION_EXPIRED') {
-            redirectToLogin();
-            return;
-          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -170,11 +157,6 @@ export const useCartStore = create<CartState>()(
         try {
           get().syncCart(await fetchCartApi({ action: 'remove', lineKey }));
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Cart request failed';
-          if (message === 'SESSION_EXPIRED') {
-            redirectToLogin();
-            return;
-          }
           console.error('WooCommerce cart operation failed:', error);
         } finally {
           set({ isLoading: false });
@@ -189,10 +171,6 @@ export const useCartStore = create<CartState>()(
           get().syncCart(await fetchCartApi({ action: 'update', lineKey, quantity }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
-          if (message === 'SESSION_EXPIRED') {
-            redirectToLogin();
-            return;
-          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -236,10 +214,6 @@ export const useCartStore = create<CartState>()(
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
-          if (message === 'SESSION_EXPIRED') {
-            redirectToLogin();
-            return null;
-          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -284,10 +258,6 @@ export const useCartStore = create<CartState>()(
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
-          if (message === 'SESSION_EXPIRED') {
-            redirectToLogin();
-            return null;
-          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {

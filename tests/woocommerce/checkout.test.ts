@@ -91,6 +91,29 @@ describe('WooCommerce checkout', () => {
     }));
   });
 
+  it('normalizes a checkout draft when Woo returns camelCase order fields', async () => {
+    storeApiRequest.mockResolvedValueOnce({
+      data: {
+        orderId: 147,
+        status: 'checkout-draft',
+        orderKey: 'wc_order_ALT123',
+      },
+      cartToken: 'cart-token-2',
+      pagination: {},
+    });
+
+    await expect(getCheckoutDraft('cart-token-1')).resolves.toEqual({
+      checkout: {
+        orderId: 147,
+        status: 'checkout-draft',
+        orderKey: 'wc_order_ALT123',
+        order_id: 147,
+        order_key: 'wc_order_ALT123',
+      },
+      cartToken: 'cart-token-2',
+    });
+  });
+
   it('persists checkout payment method through the checkout update endpoint', async () => {
     storeApiRequest.mockResolvedValueOnce({
       data: {
