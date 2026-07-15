@@ -115,6 +115,12 @@ export function ProductView({
     setActionError('');
     try {
       await addToCart(cartTargetId, quantity);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push(`/login?redirect=/product/${product.handle}`);
+        return;
+      }
+      setActionError(error instanceof Error ? error.message : 'Unable to add to bag');
     } finally {
       setIsAddingToCart(false);
     }

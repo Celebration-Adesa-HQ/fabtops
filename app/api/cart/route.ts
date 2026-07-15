@@ -5,6 +5,11 @@ import { getServerAuthSession } from '@/lib/auth/session';
 import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { cartActionSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
+import {
+  clearScopedCartCookies,
+  getScopedCartToken,
+  setScopedCartCookies,
+} from '@/lib/woocommerce/cart-session';
 import { mapCheckoutAddressesToWooCustomerUpdate } from '@/lib/woocommerce/customer-mappers';
 import {
   addCartItem,
@@ -18,8 +23,6 @@ import {
 } from '@/lib/woocommerce/cart';
 import { updateCustomer as updateWooCustomer } from '@/lib/woocommerce/customers';
 import { StoreApiError } from '@/lib/woocommerce/store-api';
-
-const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
 function normalizeCouponCode(code: string) {
   return code.trim().toUpperCase();
@@ -36,10 +39,15 @@ export async function POST(request: NextRequest) {
   }
 
   const session = await getServerAuthSession();
+  if (!session) {
+    const response = NextResponse.json({ success: false, error: 'SESSION_EXPIRED' }, { status: 401 });
+    clearScopedCartCookies(response.cookies);
+    return response;
+  }
 
   try {
     const cookieStore = await cookies();
-    const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
+    const { cartToken: currentToken } = getScopedCartToken(cookieStore, session.user);
     const bearerToken = null;
     const action = parsed.data;
     let cartToken = currentToken;
@@ -71,11 +79,9 @@ export async function POST(request: NextRequest) {
         result = await removeCartCoupon(cartToken, normalizeCouponCode(action.code), bearerToken);
         break;
       case 'updateCustomer': {
-        if (session?.user) {
-          const linkedCustomer = await ensureWooCustomerLink(session.user);
-          const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
-          await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
-        }
+        const linkedCustomer = await ensureWooCustomerLink(session.user);
+        const nextCustomerState = mapCheckoutAddressesToWooCustomerUpdate(action.billing_address, action.shipping_address);
+        await updateWooCustomer(linkedCustomer.wooCustomerId, nextCustomerState);
         result = await updateCartCustomer(cartToken, action.billing_address, action.shipping_address, bearerToken);
         break;
       }
@@ -87,13 +93,7 @@ export async function POST(request: NextRequest) {
     const nextCartToken = result.cartToken || cartToken;
 
     if (nextCartToken && nextCartToken !== currentToken) {
-      cookieStore.set(CART_TOKEN_COOKIE, nextCartToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7,
-      });
+      setScopedCartCookies(cookieStore, nextCartToken, session.user);
     }
 
     const response = NextResponse.json({

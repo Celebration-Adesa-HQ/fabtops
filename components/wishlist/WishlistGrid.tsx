@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCurrency } from '@/lib/currency-context';
 import { useCart } from '@/components/cart/CartProvider';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -16,12 +17,21 @@ interface WishlistGridProps {
 }
 
 export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) {
+  const router = useRouter();
   const { formatPrice } = useCurrency();
   const { addToCart } = useCart();
 
   const handleAddToCart = async (e: React.MouseEvent, variantId: string) => {
     e.preventDefault();
-    await addToCart(variantId);
+    try {
+      await addToCart(variantId);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push('/login?redirect=/wishlist');
+        return;
+      }
+      throw error;
+    }
     confetti({ 
       particleCount: 100, 
       spread: 70, 

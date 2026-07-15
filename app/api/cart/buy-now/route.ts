@@ -5,13 +5,12 @@ import { z } from 'zod';
 import { getServerAuthSession } from '@/lib/auth/session';
 import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
 import { validateCsrf } from '@/lib/security';
+import { getScopedCartToken, setScopedCartCookies } from '@/lib/woocommerce/cart-session';
 import {
   mapWooCustomerToStoreApiBillingAddress,
   mapWooCustomerToStoreApiShippingAddress,
 } from '@/lib/woocommerce/customer-mappers';
 import { addCartItem, updateCartCustomer } from '@/lib/woocommerce/cart';
-
-const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
 const buyNowSchema = z.object({
   productId: z.number().int().positive(),
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const cookieStore = await cookies();
-    const currentToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
+    const { cartToken: currentToken } = getScopedCartToken(cookieStore, session.user);
     const { productId, quantity } = parsed.data;
     const bearerToken = null;
     const linkedCustomer = await ensureWooCustomerLink(session.user);
@@ -63,13 +62,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (cartToken && cartToken !== currentToken) {
-      cookieStore.set(CART_TOKEN_COOKIE, cartToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7,
-      });
+      setScopedCartCookies(cookieStore, cartToken, session.user);
     }
 
     return NextResponse.json({

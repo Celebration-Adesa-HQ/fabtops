@@ -90,6 +90,15 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       </main>
     );
   } catch (error) {
+    const errorDigest =
+      typeof error === 'object' && error !== null && 'digest' in error
+        ? String((error as { digest?: unknown }).digest || '')
+        : '';
+
+    if (errorDigest === 'NEXT_HTTP_ERROR_FALLBACK;404') {
+      notFound();
+    }
+
     const heroImage = collectionMeta[handle]?.heroPlacementId
       ? getEditorialImage(collectionMeta[handle].heroPlacementId as EditorialPlacementId)
       : null;

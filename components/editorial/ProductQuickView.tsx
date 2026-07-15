@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, ShoppingBag, X } from 'lucide-react';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -37,6 +38,7 @@ export function ProductQuickView({
   presentation,
   initialColor = '',
 }: ProductQuickViewProps) {
+  const router = useRouter();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [selectedImage, setSelectedImage] = React.useState(0);
@@ -132,6 +134,11 @@ export function ProductQuickView({
       await addToCart(currentVariant?.id || product.id, quantity);
       onClose();
     } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        onClose();
+        router.push(`/login?redirect=/product/${product.handle}`);
+        return;
+      }
       setActionError(error instanceof Error ? error.message : 'Unable to add to bag');
     } finally {
       setIsAdding(false);

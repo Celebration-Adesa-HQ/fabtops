@@ -50,6 +50,7 @@ describe('cart route customer auth bridge', () => {
     vi.clearAllMocks();
     cookieStore.get.mockImplementation((name: string) => {
       if (name === 'woocommerce_cart_token') return { value: 'cart-token-1' };
+      if (name === 'fabtops_cart_owner') return { value: '18' };
       return undefined;
     });
     getServerAuthSession.mockResolvedValue({
@@ -109,17 +110,8 @@ describe('cart route customer auth bridge', () => {
     });
   });
 
-  it('allows guest cart reads without requiring a session', async () => {
+  it('rejects unauthenticated cart access and clears scoped cart cookies', async () => {
     getServerAuthSession.mockResolvedValue(null);
-    getCart.mockResolvedValue({
-      cart: {
-        items: [],
-        subtotal: 0,
-        totalAmount: 0,
-        discountCodes: [],
-      },
-      cartToken: 'cart-token-1',
-    });
 
     const { POST } = await import('../../app/api/cart/route');
     const request = new NextRequest('https://fabtops.test/api/cart', {
@@ -131,65 +123,14 @@ describe('cart route customer auth bridge', () => {
     const response = await POST(request);
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body).toMatchObject({
-      success: true,
+    expect(response.status).toBe(401);
+    expect(body).toEqual({
+      success: false,
+      error: 'SESSION_EXPIRED',
     });
-    expect(getCart).toHaveBeenCalledWith('cart-token-1', null);
-  });
-
-  it('updates guest checkout addresses without attempting a Woo profile sync', async () => {
-    getServerAuthSession.mockResolvedValue(null);
-    updateCartCustomer.mockResolvedValue({
-      cart: {
-        items: [],
-        subtotal: 0,
-        totalAmount: 0,
-        discountCodes: [],
-      },
-      cartToken: 'cart-token-1',
-    });
-
-    const { POST } = await import('../../app/api/cart/route');
-    const request = new NextRequest('https://fabtops.test/api/cart', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        action: 'updateCustomer',
-        billing_address: {
-          first_name: 'Ada',
-          last_name: 'Okafor',
-          address_1: '1 Marina Road',
-          city: 'Lagos',
-          state: 'LA',
-          postcode: '100001',
-          country: 'NG',
-          email: 'ada@example.com',
-          phone: '+2348000000000',
-        },
-        shipping_address: {
-          first_name: 'Ada',
-          last_name: 'Okafor',
-          address_1: '1 Marina Road',
-          city: 'Lagos',
-          state: 'LA',
-          postcode: '100001',
-          country: 'NG',
-        },
-      }),
-    });
-
-    const response = await POST(request);
-
-    expect(response.status).toBe(200);
-    expect(ensureWooCustomerLink).not.toHaveBeenCalled();
-    expect(updateWooCustomer).not.toHaveBeenCalled();
-    expect(updateCartCustomer).toHaveBeenCalledWith(
-      'cart-token-1',
-      expect.objectContaining({ first_name: 'Ada' }),
-      expect.objectContaining({ first_name: 'Ada' }),
-      null,
-    );
+    expect(getCart).not.toHaveBeenCalled();
+    expect(response.headers.get('set-cookie')).toContain('woocommerce_cart_token=');
+    expect(response.headers.get('set-cookie')).toContain('fabtops_cart_owner=');
   });
 
   it('loads the authenticated cart without sending customer addresses to the base cart endpoint', async () => {
@@ -222,10 +163,60 @@ describe('cart route customer auth bridge', () => {
       'cart-token-2',
       expect.objectContaining({ httpOnly: true }),
     );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'fabtops_cart_owner',
+      '18',
+      expect.objectContaining({ httpOnly: true }),
+    );
   });
 
-  it('bootstraps a cart token before customer updates when the cart cookie is missing', async () => {
-    cookieStore.get.mockImplementation(() => undefined);
+  it('starts a fresh cart when the stored token belongs to a different authenticated customer', async () => {
+    cookieStore.get.mockImplementation((name: string) => {
+      if (name === 'woocommerce_cart_token') return { value: 'other-user-cart-token' };
+      if (name === 'fabtops_cart_owner') return { value: '92' };
+      return undefined;
+    });
+
+    getCart.mockResolvedValue({
+      cart: {
+        items: [],
+        subtotal: 0,
+        totalAmount: 0,
+        discountCodes: [],
+      },
+      cartToken: 'fresh-cart-token',
+    });
+
+    const { POST } = await import('../../app/api/cart/route');
+    const request = new NextRequest('https://fabtops.test/api/cart', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'get' }),
+    });
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(getCart).toHaveBeenCalledWith(null, null);
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'woocommerce_cart_token',
+      'fresh-cart-token',
+      expect.objectContaining({ httpOnly: true }),
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'fabtops_cart_owner',
+      '18',
+      expect.objectContaining({ httpOnly: true }),
+    );
+  });
+
+  it('bootstraps a cart token before customer updates when the scoped cookie is missing', async () => {
+    cookieStore.get.mockImplementation((name: string) => {
+      if (name === 'fabtops_cart_owner') return { value: '18' };
+      return undefined;
+    });
     getCart.mockResolvedValueOnce({
       cart: {
         items: [],
@@ -289,6 +280,11 @@ describe('cart route customer auth bridge', () => {
     expect(cookieStore.set).toHaveBeenCalledWith(
       'woocommerce_cart_token',
       'bootstrapped-cart-token',
+      expect.objectContaining({ httpOnly: true }),
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'fabtops_cart_owner',
+      '18',
       expect.objectContaining({ httpOnly: true }),
     );
   });

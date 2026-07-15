@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag, Search, User, Menu, Heart } from "lucide-react";
 import {
   motion,
@@ -12,17 +13,21 @@ import {
 } from "framer-motion";
 import { useCart } from "@/components/cart/CartProvider";
 import { useFavorites } from "@/lib/favorites-context";
+import { useAuthSessionStore } from "@/stores/use-auth-session-store";
 import { SearchModal } from "./SearchModal";
 import { MobileMenu } from "./MobileMenu";
 import { CurrencySelector } from "./CurrencySelector";
 import { FabBabeCircleModal } from "./FabBabeCircleModal";
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const { scrollY } = useScroll();
   const { totalItems, setIsCartOpen } = useCart();
   const { count: favoritesCount } = useFavorites();
+  const authStatus = useAuthSessionStore((state) => state.authStatus);
 
   const headerBg = useTransform(
     scrollY,
@@ -43,6 +48,15 @@ export function Header() {
   );
 
   const headerPadding = useTransform(scrollY, [0, 50], ["1rem", "1rem"]);
+
+  function openCart() {
+    if (authStatus !== "authenticated") {
+      router.push(`/login?redirect=${encodeURIComponent(pathname || "/cart")}`);
+      return;
+    }
+
+    setIsCartOpen(true);
+  }
 
   return (
     <>
@@ -195,7 +209,7 @@ export function Header() {
             </Link>
 
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={openCart}
               className="relative hover:text-brand-primary transition-colors p-1.5 sm:p-2 group shrink-0"
               style={{ color: "inherit" }}
             >

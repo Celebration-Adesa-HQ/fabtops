@@ -9,13 +9,14 @@ import {
   buildAggregateQuery,
   buildStoreApiProductQueryFromShopQuery,
   getPaginatedStoreProducts,
+  getStoreProductCategories,
   getStoreProductAttributeTerms,
   getStoreProductAttributes,
-  getStoreProductCategories,
   getStorefrontFilters,
   type StoreApiProductAttribute,
   type StoreApiProductAttributeTerm,
 } from './storefront';
+import { getCategories } from './products';
 
 export interface CatalogPageData {
   query: NormalizedShopQuery;
@@ -44,10 +45,22 @@ export async function loadCatalogPageData(
   rawSearchParams: Record<string, string | string[] | undefined>,
   constraints: ShopQueryConstraints,
 ): Promise<CatalogPageData | null> {
-  const [categories, attributes] = await Promise.all([
+  const [storeCategories, restCategories, attributes] = await Promise.all([
     getStoreProductCategories(),
+    getCategories(),
     getStoreProductAttributes(),
   ]);
+  const categories = Array.from(
+    new Map(
+      [...storeCategories, ...restCategories.map((category) => ({
+        id: Number(category.id),
+        name: category.title,
+        slug: category.handle,
+        description: category.description,
+        image: category.image ? { src: category.image.url, alt: category.image.altText } : null,
+      }))].map((category) => [category.slug, category]),
+    ).values(),
+  );
 
   const fixedCategory = constraints.fixedCategorySlug
     ? categories.find((category) => category.slug === constraints.fixedCategorySlug)

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Plus, ShoppingBag, Star } from 'lucide-react';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -45,6 +46,8 @@ const colorMap: Record<string, string> = {
 };
 
 export function ProductCard({ product, className }: ProductCardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [isAdding, setIsAdding] = React.useState(false);
@@ -96,6 +99,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
     setIsAdding(true);
     try {
       await addToCart(product.id, 1);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push(`/login?redirect=${encodeURIComponent(pathname || productHref)}`);
+      }
     } finally {
       setIsAdding(false);
     }
