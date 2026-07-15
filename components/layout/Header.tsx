@@ -15,6 +15,7 @@ import { useFavorites } from "@/lib/favorites-context";
 import { SearchModal } from "./SearchModal";
 import { MobileMenu } from "./MobileMenu";
 import { CurrencySelector } from "./CurrencySelector";
+import { FabBabeCircleModal } from "./FabBabeCircleModal";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -230,6 +231,7 @@ export function Header() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
       />
+      <FabBabeCircleModal blocked={isSearchOpen || isMenuOpen} />
 
       <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>

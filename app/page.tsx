@@ -4,6 +4,7 @@ import { CategoryNavigation } from '@/components/editorial/CategoryNavigation';
 import { NewCollectionShowcase } from '@/components/editorial/NewCollectionShowcase';
 import { CommunitySocialProof } from '@/components/editorial/CommunitySocialProof';
 import { SustainabilityPreview } from '@/components/editorial/SustainabilityPreview';
+import { FabBabeCircleLanding } from '@/components/editorial/FabBabeCircleLanding';
 import { getEditorialImage } from '@/lib/content/editorial-images';
 import { getProducts } from '@/lib/woocommerce/products';
 import Image from 'next/image';
@@ -115,6 +116,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <FabBabeCircleLanding />
 
       {/* 7. Community/social proof */}
       <CommunitySocialProof />
