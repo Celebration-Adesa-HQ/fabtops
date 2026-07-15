@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCurrency } from '@/lib/currency-context';
 import { fromMinorUnits } from '@/lib/woocommerce/store-api';
+import { getEditorialImage } from '@/lib/content/editorial-images';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const TRENDING_CATEGORIES = [
   { name: 'Evening Luxe', handle: 'dresses' },
   { name: 'The Archive', handle: 'archive' }
 ];
+const featuredSearchImage = getEditorialImage('search-modal.featured-highlight');
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = React.useState('');
@@ -232,10 +234,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         className="group relative block aspect-[16/9] overflow-hidden bg-brand-dark/5 rounded-2xl"
                       >
                         <Image
-                          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop"
-                          alt="Featured Search"
+                          src={featuredSearchImage.src}
+                          alt={featuredSearchImage.alt}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-[1.5s]"
+                          style={{ objectPosition: featuredSearchImage.objectPosition }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/60 to-transparent flex flex-col justify-end p-8">
                           <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/60 mb-2">Editor's Choice</p>

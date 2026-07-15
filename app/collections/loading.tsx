@@ -8,11 +8,13 @@ export default function CollectionsLoading() {
           <div className="h-20 w-1/2 bg-brand-dark/5 rounded-2xl animate-pulse" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="space-y-6">
-              <div className="aspect-[16/9] w-full bg-brand-dark/5 rounded-[2rem] animate-pulse" />
-              <div className="h-8 w-2/3 bg-brand-dark/5 rounded-xl animate-pulse" />
+        <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 md:gap-x-7 md:gap-y-14 xl:grid-cols-4 2xl:grid-cols-5">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="space-y-4">
+              <div className="aspect-[4/5] w-full bg-brand-dark/5 animate-pulse" />
+              <div className="h-3 w-1/3 bg-brand-dark/5 rounded-full animate-pulse" />
+              <div className="h-5 w-4/5 bg-brand-dark/5 rounded-full animate-pulse" />
+              <div className="h-4 w-2/5 bg-brand-dark/5 rounded-full animate-pulse" />
             </div>
           ))}
         </div>

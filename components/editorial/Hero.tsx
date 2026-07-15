@@ -4,6 +4,9 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const heroImage = getEditorialImage('home.hero');
 
 export function Hero() {
   return (
@@ -11,12 +14,13 @@ export function Hero() {
       {/* Background Image/Video */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
-          alt="Fabtops Heritage Hero"
+          src={heroImage.src}
+          alt={heroImage.alt}
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover"
+          style={{ objectPosition: heroImage.objectPosition }}
         />
         {/* Soft gradient overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/20 via-transparent to-brand-dark/40" />

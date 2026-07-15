@@ -1,4 +1,5 @@
 import { getCategories } from '@/lib/woocommerce/products';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
@@ -15,31 +16,37 @@ const collectionGrid = [
     handle: 'tops',
     title: 'Signature Tops',
     description: 'Elevated silhouettes for the modern, evolving woman.',
-    image: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=1200&auto=format&fit=crop',
+    placementId: 'collections.grid.tops',
     span: 'md:col-span-2'
   },
   {
     handle: 'sets',
     title: 'Coordinated Sets',
     description: 'Effortless elegance in every pairing.',
-    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1200&auto=format&fit=crop',
+    placementId: 'collections.grid.sets',
     span: 'md:col-span-1'
   },
   {
     handle: 'dresses',
     title: 'Heritage Dresses',
     description: 'Timeless pieces for your most memorable moments.',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop',
+    placementId: 'collections.grid.dresses',
     span: 'md:col-span-1'
   },
   {
     handle: 'accessories',
     title: 'Luxe Accents',
     description: 'The finishing touches to your FabTops vision.',
-    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1200&auto=format&fit=crop',
+    placementId: 'collections.grid.accessories',
     span: 'md:col-span-2'
   }
-];
+] as const satisfies Array<{
+  handle: string;
+  title: string;
+  description: string;
+  placementId: EditorialPlacementId;
+  span: string;
+}>;
 
 export default async function CollectionsPage() {
   const categories = await getCategories();
@@ -49,7 +56,6 @@ export default async function CollectionsPage() {
       ...collection,
       title: category?.title || collection.title,
       description: category?.description || collection.description,
-      image: category?.image?.url || collection.image,
     };
   });
 
@@ -70,17 +76,20 @@ export default async function CollectionsPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {displayedCollections.map((collection, idx) => (
+          {displayedCollections.map((collection, idx) => {
+            const image = getEditorialImage(collection.placementId);
+            return (
             <Link 
               key={collection.handle}
               href={`/collections/${collection.handle}`}
               className={`group relative overflow-hidden bg-white ${collection.span} aspect-[16/10] md:aspect-auto md:min-h-[600px]`}
             >
               <Image
-                src={collection.image}
-                alt={collection.title}
+                src={image.src}
+                alt={image.alt}
                 fill
                 className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-110"
+                style={{ objectPosition: image.objectPosition }}
                 priority={idx < 2}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
@@ -99,7 +108,8 @@ export default async function CollectionsPage() {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         {/* Brand Statement Section */}

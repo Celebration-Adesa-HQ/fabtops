@@ -225,6 +225,7 @@ export interface ProductQueryContext {
   categoryId?: number;
   sizeAttribute?: Pick<StoreApiProductAttribute, 'id' | 'taxonomy'> | null;
   sizeTermId?: number | null;
+  priceMinorUnit?: number;
 }
 
 const STOCK_STATUS_OPTIONS: StorefrontFilterOption[] = [
@@ -236,6 +237,10 @@ const STOCK_STATUS_OPTIONS: StorefrontFilterOption[] = [
 function fromMinor(value: string, minorUnit: number) {
   if (minorUnit === 0) return Number(value || 0);
   return Number(value || 0) / (10 ** minorUnit);
+}
+
+function toMinor(value: number, minorUnit: number) {
+  return Math.round(value * (10 ** minorUnit));
 }
 
 export function buildStorefrontFilters({
@@ -308,13 +313,14 @@ export function buildStoreApiProductQueryFromShopQuery(
   query: NormalizedShopQuery,
   context: ProductQueryContext = {},
 ): StoreApiProductQuery {
+  const priceMinorUnit = context.priceMinorUnit ?? 2;
   const result: StoreApiProductQuery = {
     page: query.page,
     per_page: query.perPage,
     ...(query.search ? { search: query.search } : {}),
     ...(context.categoryId ? { category: String(context.categoryId) } : {}),
-    ...(query.minPrice !== undefined ? { min_price: String(query.minPrice) } : {}),
-    ...(query.maxPrice !== undefined ? { max_price: String(query.maxPrice) } : {}),
+    ...(query.minPrice !== undefined ? { min_price: String(toMinor(query.minPrice, priceMinorUnit)) } : {}),
+    ...(query.maxPrice !== undefined ? { max_price: String(toMinor(query.maxPrice, priceMinorUnit)) } : {}),
     ...(query.stockStatus ? { stock_status: query.stockStatus } : {}),
     ...(query.orderby ? { orderby: query.orderby } : {}),
     ...(query.order ? { order: query.order } : {}),
@@ -333,9 +339,16 @@ export function buildAggregateQuery(
   context: ProductQueryContext = {},
   excludeDimension: 'size' | 'stock' | 'price' | 'none' = 'none',
 ): StorefrontCollectionQuery {
+  const priceMinorUnit = context.priceMinorUnit ?? 2;
   const result: StorefrontCollectionQuery = {
     ...(context.categoryId ? { category: String(context.categoryId) } : {}),
     ...(query.search ? { search: query.search } : {}),
+    ...(excludeDimension !== 'price' && query.minPrice !== undefined
+      ? { min_price: String(toMinor(query.minPrice, priceMinorUnit)) }
+      : {}),
+    ...(excludeDimension !== 'price' && query.maxPrice !== undefined
+      ? { max_price: String(toMinor(query.maxPrice, priceMinorUnit)) }
+      : {}),
     ...(excludeDimension !== 'stock' && query.stockStatus ? { stock_status: query.stockStatus } : {}),
     calculate_price_range: true,
     calculate_rating_counts: true,

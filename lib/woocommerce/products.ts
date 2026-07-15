@@ -136,31 +136,54 @@ export async function getProductsByIds(ids: Array<string | number>): Promise<Sto
   return products.map((product) => adaptRestProduct(product));
 }
 
-export async function getRelatedProductsForProduct(product: StorefrontProduct, fallbackLimit = 4) {
-  const preferredIds = [
-    ...product.upsellProductIds,
-    ...product.relatedProductIds,
-    ...product.crossSellProductIds,
-  ];
+function dedupeProducts(products: StorefrontProduct[]) {
+  return products.filter((item, index, list) => list.findIndex((candidate) => candidate.id === item.id) === index);
+}
 
-  const dedupedPreferredIds = Array.from(new Set(preferredIds.filter((id) => id !== product.id)));
-  const preferredProducts = await getProductsByIds(dedupedPreferredIds);
-  const preferred = preferredProducts.filter((item) => item.id !== product.id);
+export async function getEditorialRecommendationsForProduct(product: StorefrontProduct, perGroup = 4) {
+  const completeTheLookIds = Array.from(
+    new Set(
+      [...product.crossSellProductIds, ...product.upsellProductIds].filter((id) => id !== product.id),
+    ),
+  );
 
-  if (preferred.length >= fallbackLimit) {
-    return preferred.slice(0, fallbackLimit);
+  const completeTheLook = dedupeProducts(await getProductsByIds(completeTheLookIds))
+    .filter((item) => item.id !== product.id)
+    .slice(0, perGroup);
+
+  const blockedIds = new Set([product.id, ...completeTheLook.map((item) => item.id)]);
+  const relatedIds = Array.from(
+    new Set(product.relatedProductIds.filter((id) => !blockedIds.has(id))),
+  );
+
+  const preferredRelated = dedupeProducts(await getProductsByIds(relatedIds))
+    .filter((item) => !blockedIds.has(item.id));
+
+  if (preferredRelated.length >= perGroup) {
+    return {
+      completeTheLook,
+      related: preferredRelated.slice(0, perGroup),
+    };
   }
 
   const fallbackCategoryId = product.categories[0]?.id;
-  if (!fallbackCategoryId) return preferred.slice(0, fallbackLimit);
+  const fallbackProducts = fallbackCategoryId
+    ? await getProducts(perGroup + 4, fallbackCategoryId)
+    : [];
 
-  const fallbackProducts = await getProducts(fallbackLimit + 4, fallbackCategoryId);
-  const merged = [...preferred, ...fallbackProducts].filter((item, index, list) => (
-    item.id !== product.id &&
-    list.findIndex((candidate) => candidate.id === item.id) === index
+  const related = dedupeProducts([...preferredRelated, ...fallbackProducts]).filter((item) => (
+    !blockedIds.has(item.id)
   ));
 
-  return merged.slice(0, fallbackLimit);
+  return {
+    completeTheLook,
+    related: related.slice(0, perGroup),
+  };
+}
+
+export async function getRelatedProductsForProduct(product: StorefrontProduct, fallbackLimit = 4) {
+  const recommendations = await getEditorialRecommendationsForProduct(product, fallbackLimit);
+  return [...recommendations.completeTheLook, ...recommendations.related].slice(0, fallbackLimit);
 }
 
 export async function getProductSlugs(): Promise<string[]> {

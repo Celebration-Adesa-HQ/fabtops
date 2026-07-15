@@ -20,10 +20,10 @@ export default function ShopLoading() {
         </div>
 
         {/* Product Grid Skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="space-y-6">
-              <div className="aspect-editorial bg-brand-dark/5 rounded-3xl animate-pulse overflow-hidden relative">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 md:gap-x-7 md:gap-y-14 xl:grid-cols-4 2xl:grid-cols-5">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="space-y-4">
+              <div className="aspect-[4/5] bg-brand-dark/5 animate-pulse overflow-hidden relative">
                 {/* Shimmer effect */}
                 <motion.div
                   initial={{ x: '-100%' }}
@@ -32,9 +32,10 @@ export default function ShopLoading() {
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent w-full"
                 />
               </div>
-              <div className="space-y-3">
-                <div className="h-4 w-3/4 bg-brand-dark/5 rounded-full animate-pulse" />
-                <div className="h-4 w-1/4 bg-brand-dark/5 rounded-full animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-3 w-1/3 bg-brand-dark/5 rounded-full animate-pulse" />
+                <div className="h-5 w-4/5 bg-brand-dark/5 rounded-full animate-pulse" />
+                <div className="h-4 w-2/5 bg-brand-dark/5 rounded-full animate-pulse" />
               </div>
             </div>
           ))}

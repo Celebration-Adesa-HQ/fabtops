@@ -15,8 +15,8 @@ describe('shop storefront query builders', () => {
         category: 'dresses',
         size: 'uk-10',
         search: 'midi',
-        minPrice: 100000,
-        maxPrice: 250000,
+        minPrice: 1000,
+        maxPrice: 2500,
         stockStatus: 'instock',
         orderby: 'price',
         order: 'asc',
@@ -52,8 +52,8 @@ describe('shop storefront query builders', () => {
         category: 'dresses',
         size: 'uk-10',
         search: 'midi',
-        minPrice: 100000,
-        maxPrice: 250000,
+        minPrice: 1000,
+        maxPrice: 2500,
         stockStatus: 'instock',
         orderby: 'price',
         order: 'asc',
@@ -69,6 +69,8 @@ describe('shop storefront query builders', () => {
     expect(query).toMatchObject({
       category: '9',
       search: 'midi',
+      min_price: '100000',
+      max_price: '250000',
       stock_status: 'instock',
       calculate_price_range: true,
       calculate_rating_counts: true,
@@ -76,8 +78,6 @@ describe('shop storefront query builders', () => {
       'calculate_attribute_counts[0][taxonomy]': 'pa_size',
     });
     expect(query).not.toHaveProperty('attributes[0][attribute]');
-    expect(query).not.toHaveProperty('min_price');
-    expect(query).not.toHaveProperty('max_price');
   });
 });
 

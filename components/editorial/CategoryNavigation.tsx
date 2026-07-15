@@ -3,34 +3,35 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 
 const categories = [
   {
     name: 'Tops',
     href: '/shop/tops',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800',
+    placementId: 'home.category.tops',
   },
   {
     name: 'Sets',
     href: '/shop/sets',
-    image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=800',
+    placementId: 'home.category.sets',
   },
   {
     name: 'Dresses',
     href: '/shop/dresses',
-    image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=800',
+    placementId: 'home.category.dresses',
   },
   {
     name: 'Accessories',
     href: '/shop/accessories',
-    image: 'https://images.unsplash.com/photo-1512633017083-67231aba710d?q=80&w=800',
+    placementId: 'home.category.accessories',
   },
   {
     name: 'Archive',
     href: '/archive',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=800',
+    placementId: 'home.category.archive',
   },
-];
+] as const satisfies Array<{ name: string; href: string; placementId: EditorialPlacementId }>;
 
 export function CategoryNavigation() {
   return (
@@ -46,7 +47,9 @@ export function CategoryNavigation() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
-          {categories.map((category, index) => (
+          {categories.map((category, index) => {
+            const image = getEditorialImage(category.placementId);
+            return (
             <motion.div
               key={category.name}
               initial={{ opacity: 0, y: 20 }}
@@ -57,11 +60,12 @@ export function CategoryNavigation() {
               <Link href={category.href} className="group block space-y-4 text-center">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl md:rounded-3xl shadow-sm group-hover:shadow-xl transition-all duration-700">
                   <Image
-                    src={category.image}
-                    alt={category.name}
+                    src={image.src}
+                    alt={image.alt}
                     fill
                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    style={{ objectPosition: image.objectPosition }}
                   />
                   <div className="absolute inset-0 bg-brand-dark/0 group-hover:bg-brand-dark/20 transition-colors duration-500" />
                   
@@ -77,7 +81,8 @@ export function CategoryNavigation() {
                 </h3>
               </Link>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

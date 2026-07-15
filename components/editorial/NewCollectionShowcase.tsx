@@ -4,6 +4,10 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const primaryImage = getEditorialImage('home.new-collection.primary');
+const detailImage = getEditorialImage('home.new-collection.detail');
 
 export function NewCollectionShowcase() {
   return (
@@ -20,11 +24,12 @@ export function NewCollectionShowcase() {
               className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl z-10"
             >
               <Image
-                src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=1200"
-                alt="New Collection"
+                src={primaryImage.src}
+                alt={primaryImage.alt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
+                style={{ objectPosition: primaryImage.objectPosition }}
               />
             </motion.div>
             
@@ -37,11 +42,12 @@ export function NewCollectionShowcase() {
               className="absolute -bottom-12 -left-12 w-2/3 aspect-[3/4] rounded-[2rem] overflow-hidden shadow-xl border-8 border-white z-20 hidden md:block"
             >
               <Image
-                src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800"
-                alt="Detail"
+                src={detailImage.src}
+                alt={detailImage.alt}
                 fill
                 sizes="(max-width: 1024px) 66vw, 33vw"
                 className="object-cover"
+                style={{ objectPosition: detailImage.objectPosition }}
               />
             </motion.div>
             

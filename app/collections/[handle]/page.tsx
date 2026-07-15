@@ -1,31 +1,32 @@
 import { ShopContent } from '@/components/editorial/ShopContent';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 import { loadCatalogPageData } from '@/lib/woocommerce/catalog';
 import { notFound, redirect } from 'next/navigation';
 
-const collectionMeta: Record<string, { subtitle: string; heroImage?: string }> = {
+const collectionMeta: Record<string, { subtitle: string; heroPlacementId?: EditorialPlacementId }> = {
   tops: {
     subtitle: 'Signature Silhouettes',
-    heroImage: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.tops',
   },
   sets: {
     subtitle: 'Coordinated Elegance',
-    heroImage: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.sets',
   },
   dresses: {
     subtitle: 'Statement Pieces',
-    heroImage: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.dresses',
   },
   accessories: {
     subtitle: 'Luxe Finishing Touches',
-    heroImage: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.accessories',
   },
   archive: {
     subtitle: 'Heritage Vault',
-    heroImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.archive',
   },
   'new-arrivals': {
     subtitle: 'Just Dropped',
-    heroImage: 'https://images.unsplash.com/photo-1590736962031-6ec32a39a2d8?q=80&w=2000&auto=format&fit=crop',
+    heroPlacementId: 'collections.hero.new-arrivals',
   },
 };
 
@@ -70,6 +71,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
     }
 
     const meta = collectionMeta[handle] || { subtitle: 'Curated Collection' };
+    const heroImage = meta.heroPlacementId ? getEditorialImage(meta.heroPlacementId) : null;
 
     return (
       <main className="min-h-screen bg-brand-secondary">
@@ -80,12 +82,18 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           basePath={`/collections/${handle}`}
           title={collectionName}
           subtitle={meta.subtitle}
-          heroImage={meta.heroImage}
+          heroImage={heroImage?.src}
+          heroImageAlt={heroImage?.alt}
+          heroImageObjectPosition={heroImage?.objectPosition}
           isCollection
         />
       </main>
     );
   } catch (error) {
+    const heroImage = collectionMeta[handle]?.heroPlacementId
+      ? getEditorialImage(collectionMeta[handle].heroPlacementId as EditorialPlacementId)
+      : null;
+
     return (
       <main className="min-h-screen bg-brand-secondary">
         <ShopContent
@@ -93,7 +101,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           basePath={`/collections/${handle}`}
           title={collectionName}
           subtitle={collectionMeta[handle]?.subtitle || 'Curated Collection'}
-          heroImage={collectionMeta[handle]?.heroImage}
+          heroImage={heroImage?.src}
+          heroImageAlt={heroImage?.alt}
+          heroImageObjectPosition={heroImage?.objectPosition}
           isCollection
           errorMessage={error instanceof Error ? error.message : 'Unable to load this collection right now.'}
         />
