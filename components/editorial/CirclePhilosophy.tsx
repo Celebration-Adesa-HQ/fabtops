@@ -2,6 +2,9 @@
 
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import Image from 'next/image';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const circlePhilosophyImage = getEditorialImage('circle.philosophy');
 
 export function CirclePhilosophy() {
   return (
@@ -25,10 +28,11 @@ export function CirclePhilosophy() {
             </div>
             <div className="flex-1 relative aspect-square w-full rounded-[4rem] overflow-hidden shadow-2xl shadow-brand-dark/20 animate-pulse hover:animate-none">
               <Image 
-                src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200"
-                alt="Philosophy"
+                src={circlePhilosophyImage.src}
+                alt={circlePhilosophyImage.alt}
                 fill
                 className="object-cover"
+                style={{ objectPosition: circlePhilosophyImage.objectPosition }}
               />
               <div className="absolute inset-0 bg-brand-dark/10 backdrop-blur-[1px]" />
             </div>

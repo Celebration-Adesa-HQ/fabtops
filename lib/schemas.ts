@@ -170,3 +170,11 @@ export const newsletterSchema = z.object({
 
 export type NewsletterSchema = z.infer<typeof newsletterSchema>;
 
+export const newsletterSourceValues = ['fab-babe-modal', 'fab-babe-home', 'fab-babe-footer'] as const;
+
+export const newsletterRequestSchema = newsletterSchema.extend({
+  source: z.enum(newsletterSourceValues).default('fab-babe-footer'),
+});
+
+export type NewsletterRequestSchema = z.infer<typeof newsletterRequestSchema>;
+

@@ -1,7 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const aboutHeroImage = getEditorialImage('about.hero');
 
 export default function AboutPage() {
   return (
@@ -18,10 +20,11 @@ export default function AboutPage() {
         </div>
         <div className="aspect-editorial relative bg-neutral-100 overflow-hidden">
           <Image 
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1920&auto=format&fit=crop" 
-            alt="Editorial model"
+            src={aboutHeroImage.src}
+            alt={aboutHeroImage.alt}
             fill
             className="object-cover"
+            style={{ objectPosition: aboutHeroImage.objectPosition }}
           />
         </div>
       </section>

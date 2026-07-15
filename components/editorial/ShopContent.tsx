@@ -32,6 +32,8 @@ interface ShopContentProps {
   title?: string;
   subtitle?: string;
   heroImage?: string;
+  heroImageAlt?: string;
+  heroImageObjectPosition?: string;
   isCollection?: boolean;
   errorMessage?: string | null;
 }
@@ -57,6 +59,8 @@ export function ShopContent({
   title = 'All Silhouettes',
   subtitle = 'Meticulously crafted silhouettes for the modern, evolving woman.',
   heroImage,
+  heroImageAlt,
+  heroImageObjectPosition,
   isCollection = false,
   errorMessage,
 }: ShopContentProps) {
@@ -150,7 +154,13 @@ export function ShopContent({
       <div className="mx-auto max-w-[1400px]">
         {heroImage && (
           <div className="relative mb-20 h-[40vh] w-full overflow-hidden">
-            <Image src={heroImage} alt={title} fill className="object-cover" />
+            <Image
+              src={heroImage}
+              alt={heroImageAlt || title}
+              fill
+              className="object-cover"
+              style={heroImageObjectPosition ? { objectPosition: heroImageObjectPosition } : undefined}
+            />
             <div className="absolute inset-0 bg-brand-dark/20" />
             <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
               <div className="space-y-4">
@@ -269,90 +279,92 @@ export function ShopContent({
         </header>
 
         <div className="flex flex-col gap-12 lg:flex-row lg:gap-20">
-          <aside className="sticky top-40 hidden h-fit w-72 shrink-0 space-y-12 lg:block">
-            <div className="space-y-4">
+          <aside className="sticky top-40 hidden h-[calc(100vh-11rem)] w-72 shrink-0 overflow-hidden lg:block">
+            <div className="h-full space-y-12 overflow-y-auto pr-4">
+              <div className="space-y-4">
               <span className="text-[9px] font-black uppercase tracking-[0.5em] text-brand-primary md:text-[10px] md:tracking-[0.6em]">
                 Refine Your Selection
               </span>
               <div className="h-px w-full bg-brand-dark/5" />
-            </div>
-
-            {!isCollection && !!filters?.categories.length && (
-              <div className="space-y-8">
-                <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
-                  Category
-                  {query.category && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
-                </h3>
-                <ul className="space-y-4">
-                  {filters.categories.map((option) => (
-                    <li key={option.value}>
-                      {renderFilterButton('category', option, filterIsActive(query.category, option.value), () =>
-                        navigate({ category: filterIsActive(query.category, option.value) ? undefined : option.value }))}
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )}
 
-            {!!filters?.sizes.length && (
-              <div className="space-y-8">
-                <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
-                  Size
-                  {query.size && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
-                </h3>
-                <ul className="space-y-4">
-                  {filters.sizes.map((option) => (
-                    <li key={option.value}>
-                      {renderFilterButton('size', option, filterIsActive(query.size, option.value), () =>
-                        navigate({ size: filterIsActive(query.size, option.value) ? undefined : option.value }))}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="space-y-8">
-              <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
-                Stock
-                {query.stockStatus && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
-              </h3>
-              <ul className="space-y-4">
-                {filters?.stockStatuses.map((option) => (
-                  <li key={option.value}>
-                    {renderFilterButton('stock', option, filterIsActive(query.stockStatus, option.value), () =>
-                      navigate({ stockStatus: filterIsActive(query.stockStatus, option.value) ? undefined : option.value as NormalizedShopQuery['stockStatus'] }))}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-5 rounded-[2rem] border border-brand-dark/5 bg-brand-dark/5 p-8">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">Price Range</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  value={draftMinPrice}
-                  onChange={(event) => setDraftMinPrice(event.target.value)}
-                  placeholder="Min"
-                  className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
-                />
-                <input
-                  value={draftMaxPrice}
-                  onChange={(event) => setDraftMaxPrice(event.target.value)}
-                  placeholder="Max"
-                  className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
-                />
-              </div>
-              {filters?.priceRange && (
-                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">
-                  Range {fromMinorUnits(String(Math.round(filters.priceRange.min * 100)), filters.priceRange.minorUnit)} to {fromMinorUnits(String(Math.round(filters.priceRange.max * 100)), filters.priceRange.minorUnit)} {filters.priceRange.currencyCode}
-                </p>
+              {!isCollection && !!filters?.categories.length && (
+                <div className="space-y-8">
+                  <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                    Category
+                    {query.category && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
+                  </h3>
+                  <ul className="space-y-4">
+                    {filters.categories.map((option) => (
+                      <li key={option.value}>
+                        {renderFilterButton('category', option, filterIsActive(query.category, option.value), () =>
+                          navigate({ category: filterIsActive(query.category, option.value) ? undefined : option.value }))}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
-              <button
-                onClick={applyDraftPrice}
-                className="w-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-brand-primary"
-              >
-                Apply Price
-              </button>
+
+              {!!filters?.sizes.length && (
+                <div className="space-y-8">
+                  <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                    Size
+                    {query.size && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
+                  </h3>
+                  <ul className="space-y-4">
+                    {filters.sizes.map((option) => (
+                      <li key={option.value}>
+                        {renderFilterButton('size', option, filterIsActive(query.size, option.value), () =>
+                          navigate({ size: filterIsActive(query.size, option.value) ? undefined : option.value }))}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="space-y-8">
+                <h3 className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">
+                  Stock
+                  {query.stockStatus && <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />}
+                </h3>
+                <ul className="space-y-4">
+                  {filters?.stockStatuses.map((option) => (
+                    <li key={option.value}>
+                      {renderFilterButton('stock', option, filterIsActive(query.stockStatus, option.value), () =>
+                        navigate({ stockStatus: filterIsActive(query.stockStatus, option.value) ? undefined : option.value as NormalizedShopQuery['stockStatus'] }))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-5 rounded-[2rem] border border-brand-dark/5 bg-brand-dark/5 p-8">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark">Price Range</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    value={draftMinPrice}
+                    onChange={(event) => setDraftMinPrice(event.target.value)}
+                    placeholder="Min"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                  />
+                  <input
+                    value={draftMaxPrice}
+                    onChange={(event) => setDraftMaxPrice(event.target.value)}
+                    placeholder="Max"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                  />
+                </div>
+                {filters?.priceRange && (
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">
+                    Range {fromMinorUnits(String(Math.round(filters.priceRange.min * 100)), filters.priceRange.minorUnit)} to {fromMinorUnits(String(Math.round(filters.priceRange.max * 100)), filters.priceRange.minorUnit)} {filters.priceRange.currencyCode}
+                  </p>
+                )}
+                <button
+                  onClick={applyDraftPrice}
+                  className="w-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-brand-primary"
+                >
+                  Apply Price
+                </button>
+              </div>
             </div>
           </aside>
 
@@ -366,14 +378,14 @@ export function ShopContent({
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className={cn('grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3', isPending && 'opacity-70')}>
+                <div className={cn('grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 md:gap-x-7 md:gap-y-14 xl:grid-cols-4 2xl:grid-cols-5', isPending && 'opacity-70')}>
                   {products.map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: (index % 3) * 0.08 }}
+                      transition={{ delay: (index % 4) * 0.06 }}
                     >
                       <ProductCard product={product} />
                     </motion.div>

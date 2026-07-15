@@ -3,8 +3,23 @@
 import Image from 'next/image';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { Leaf, ShieldCheck, Zap, Heart } from 'lucide-react';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 
 export default function SustainabilityPage() {
+  const sustainabilityHeroImage = getEditorialImage('sustainability.hero');
+  const storySections = [
+    {
+      title: "Conscious Packaging",
+      desc: "We have moved away from single-use plastics. Every FabTops order arrives in FSC-certified boxes and biodegradable mailers, ensuring that your premium experience doesn't come at a cost to the Earth.",
+      placementId: 'sustainability.story.packaging',
+    },
+    {
+      title: "Ethical Sourcing",
+      desc: "Our vision extends beyond fashion to women empowerment. We partner exclusively with women-led ateliers that prioritize ethical considerations, providing sustainable livelihoods for master artisans.",
+      placementId: 'sustainability.story.ethical',
+    }
+  ] as const satisfies Array<{ title: string; desc: string; placementId: EditorialPlacementId }>;
+
   return (
     <div className="bg-white min-h-screen">
       {/* Editorial Header */}
@@ -24,10 +39,11 @@ export default function SustainabilityPage() {
       <section className="px-6 md:px-12 mb-32">
         <div className="max-w-7xl mx-auto h-[60vh] relative overflow-hidden rounded-[3rem] shadow-2xl shadow-pink-100/50">
           <Image 
-            src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2000" 
-            alt="Sustainable Craftsmanship" 
+            src={sustainabilityHeroImage.src}
+            alt={sustainabilityHeroImage.alt}
             fill 
             className="object-cover" 
+            style={{ objectPosition: sustainabilityHeroImage.objectPosition }}
           />
           <div className="absolute inset-0 bg-pink-950/10" />
         </div>
@@ -61,18 +77,9 @@ export default function SustainabilityPage() {
       <section className="py-32 px-6 md:px-12">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 gap-32">
-            {[
-              {
-                title: "Conscious Packaging",
-                desc: "We have moved away from single-use plastics. Every FabTops order arrives in FSC-certified boxes and biodegradable mailers, ensuring that your premium experience doesn't come at a cost to the Earth.",
-                image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=1200"
-              },
-              {
-                title: "Ethical Sourcing",
-                desc: "Our vision extends beyond fashion to women empowerment. We partner exclusively with women-led ateliers that prioritize ethical considerations, providing sustainable livelihoods for master artisans.",
-                image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=1200"
-              }
-            ].map((section, i) => (
+            {storySections.map((section, i) => {
+              const image = getEditorialImage(section.placementId);
+              return (
               <ScrollReveal key={section.title} delay={i * 0.2}>
                 <div className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-20 items-center`}>
                   <div className="w-full md:w-1/2">
@@ -80,12 +87,19 @@ export default function SustainabilityPage() {
                     <p className="text-lg text-gray-500 font-light leading-relaxed">{section.desc}</p>
                   </div>
                   <div className="w-full md:w-1/2 aspect-square relative rounded-[3rem] overflow-hidden">
-                    <Image src={section.image} alt={section.title} fill className="object-cover" />
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      className="object-cover"
+                      style={{ objectPosition: image.objectPosition }}
+                    />
                     <div className="absolute inset-0 bg-pink-900/10" />
                   </div>
                 </div>
               </ScrollReveal>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

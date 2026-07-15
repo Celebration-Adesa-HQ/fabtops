@@ -3,6 +3,9 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const sustainabilityPreviewImage = getEditorialImage('home.sustainability-preview');
 
 export function SustainabilityPreview() {
   return (
@@ -60,10 +63,11 @@ export function SustainabilityPreview() {
 
           <div className="order-1 lg:order-2 relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl">
             <Image
-              src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200"
-              alt="Sustainability"
+              src={sustainabilityPreviewImage.src}
+              alt={sustainabilityPreviewImage.alt}
               fill
               className="object-cover"
+              style={{ objectPosition: sustainabilityPreviewImage.objectPosition }}
             />
             <div className="absolute inset-0 bg-brand-dark/5 backdrop-blur-[1px]" />
           </div>

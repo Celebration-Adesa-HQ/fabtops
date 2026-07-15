@@ -4,16 +4,17 @@ import Image from 'next/image';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ArrowRight, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 
 export default function ArchivePage() {
   const archiveItems = [
-    { title: "The Heritage Set", collection: "Roots 2024", image: "https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=800" },
-    { title: "Bespoke Lace Gown", collection: "Private Drop", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800" },
-    { title: "Aso Oke Corset", collection: "Origins", image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800" },
-    { title: "Floral Silk Wrap", collection: "Resort 24", image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800" },
-    { title: "Crimson Silk Set", collection: "Luxe 2024", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800" },
-    { title: "Midnight Velvet", collection: "Winter Drop", image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800" },
-  ];
+    { title: "The Heritage Set", collection: "Roots 2024", placementId: 'archive.item.1' },
+    { title: "Bespoke Lace Gown", collection: "Private Drop", placementId: 'archive.item.2' },
+    { title: "Aso Oke Corset", collection: "Origins", placementId: 'archive.item.3' },
+    { title: "Floral Silk Wrap", collection: "Resort 24", placementId: 'archive.item.4' },
+    { title: "Crimson Silk Set", collection: "Luxe 2024", placementId: 'archive.item.5' },
+    { title: "Midnight Velvet", collection: "Winter Drop", placementId: 'archive.item.6' },
+  ] as const satisfies Array<{ title: string; collection: string; placementId: EditorialPlacementId }>;
 
   return (
     <div className="bg-brand-secondary min-h-screen">
@@ -40,15 +41,18 @@ export default function ArchivePage() {
       {/* Archive Grid */}
       <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
-          {archiveItems.map((item, i) => (
+          {archiveItems.map((item, i) => {
+            const image = getEditorialImage(item.placementId);
+            return (
             <ScrollReveal key={item.title} delay={i * 0.1}>
               <div className="group flex flex-col grayscale hover:grayscale-0 transition-all duration-1000">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-[3rem] bg-brand-dark/5 border border-brand-dark/5 shadow-2xl shadow-brand-dark/5">
                   <Image 
-                    src={item.image} 
-                    alt={item.title} 
+                    src={image.src}
+                    alt={image.alt}
                     fill 
                     className="object-cover transition-transform duration-[2s] group-hover:scale-110" 
+                    style={{ objectPosition: image.objectPosition }}
                   />
                   <div className="absolute inset-0 bg-brand-dark/20 group-hover:bg-transparent transition-colors" />
                   
@@ -67,7 +71,8 @@ export default function ArchivePage() {
                 </div>
               </div>
             </ScrollReveal>
-          ))}
+            );
+          })}
         </div>
       </section>
 

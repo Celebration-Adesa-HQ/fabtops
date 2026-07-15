@@ -1,5 +1,6 @@
 import type {
   StorefrontAvailability,
+  StorefrontCardBadge,
   StorefrontImage,
   StorefrontMoney,
   StorefrontProduct,
@@ -80,6 +81,46 @@ function variantTitle(options: Array<{ name: string; value: string }>) {
   return options.length ? options.map((option) => option.value).join(' / ') : 'Default Title';
 }
 
+function cardBadge(input: {
+  inStock: boolean;
+  regularPrice: string | undefined;
+  salePrice: string | undefined;
+  tags: string[];
+}): StorefrontCardBadge | undefined {
+  if (!input.inStock) return { key: 'sold_out', label: 'Sold Out' };
+
+  const regular = Number.parseFloat(input.regularPrice || '0');
+  const sale = Number.parseFloat(input.salePrice || '0');
+  if (sale > 0 && regular > sale) {
+    return { key: 'sale', label: 'Sale' };
+  }
+
+  const normalizedTags = input.tags.map((tag) => tag.trim().toLowerCase());
+  if (normalizedTags.includes('limited')) return { key: 'limited', label: 'Limited' };
+  if (normalizedTags.includes('bestseller') || normalizedTags.includes('best-seller')) {
+    return { key: 'bestseller', label: 'Bestseller' };
+  }
+  if (normalizedTags.includes('new') || normalizedTags.includes('new-arrivals') || normalizedTags.includes('new arrival')) {
+    return { key: 'new', label: 'New' };
+  }
+
+  return undefined;
+}
+
+function swatchImages(
+  variations: WooRestVariation[],
+  fallbackAlt: string,
+) {
+  const entries = variations.flatMap((variation) => {
+    const colorOption = variation.attributes.find((attribute) => attribute.name?.toLowerCase() === 'color' || attribute.slug === 'pa_color');
+    if (!colorOption?.option || !variation.image?.src) return [];
+    return [[colorOption.option, storefrontImage(variation.image, fallbackAlt)]] as const;
+  });
+
+  const mapped = Object.fromEntries(entries.filter((entry) => entry[1])) as Record<string, StorefrontImage>;
+  return Object.keys(mapped).length ? mapped : undefined;
+}
+
 function normalizeAttributeLabel(value: string | undefined) {
   return (value || '').replace(/^pa_/, '').replace(/[-_]+/g, ' ').trim();
 }
@@ -137,8 +178,10 @@ function baseProduct(input: {
   productType: string;
   tags: string[];
   brands: string[];
+  collectionLabel?: string;
   averageRating: number;
   reviewCount: number;
+  reviewSummary?: { averageRating: number; reviewCount: number; verifiedReviewCount?: number };
   gallery: StorefrontImage[];
   price: StorefrontMoney;
   regularPrice: StorefrontMoney | null;
@@ -146,6 +189,8 @@ function baseProduct(input: {
   priceRange: { min: StorefrontMoney; max: StorefrontMoney };
   hasOptions: boolean;
   availability: StorefrontAvailability;
+  cardBadge?: StorefrontCardBadge;
+  cardMedia?: { swatchImages?: Record<string, StorefrontImage> };
   options: Array<{ id: string; name: string; values: string[] }>;
   categories: Array<{ id: string; handle: string; title: string }>;
   variationIds: string[];
@@ -166,8 +211,10 @@ function baseProduct(input: {
     productType: input.productType,
     tags: input.tags,
     brands: input.brands,
+    collectionLabel: input.collectionLabel,
     averageRating: input.averageRating,
     reviewCount: input.reviewCount,
+    reviewSummary: input.reviewSummary,
     featuredImage: input.gallery[0] || fallbackImage(input.name),
     gallery: input.gallery,
     price: input.price,
@@ -176,6 +223,8 @@ function baseProduct(input: {
     priceRange: input.priceRange,
     hasOptions: input.hasOptions,
     availability: input.availability,
+    cardBadge: input.cardBadge,
+    cardMedia: input.cardMedia,
     options: input.options,
     categories: input.categories,
     variationIds: input.variationIds,
@@ -205,8 +254,13 @@ export function adaptStoreProduct(product: WooStoreProduct): StorefrontProduct {
     productType: product.categories[0]?.name || '',
     tags: product.tags.map((tag) => tag.name),
     brands: product.brands.map((brand) => brand.name),
+    collectionLabel: product.categories[0]?.name || '',
     averageRating: Number(product.average_rating || 0),
     reviewCount: product.review_count || 0,
+    reviewSummary: {
+      averageRating: Number(product.average_rating || 0),
+      reviewCount: product.review_count || 0,
+    },
     gallery,
     price,
     regularPrice,
@@ -214,6 +268,12 @@ export function adaptStoreProduct(product: WooStoreProduct): StorefrontProduct {
     priceRange: { min: minMoney, max: maxMoney },
     hasOptions: product.has_options,
     availability: productAvailability,
+    cardBadge: cardBadge({
+      inStock: product.is_in_stock,
+      regularPrice: product.prices.regular_price,
+      salePrice: product.prices.sale_price,
+      tags: product.tags.map((tag) => tag.name),
+    }),
     options: product.attributes.map((attribute) => ({
       id: String(attribute.id),
       name: attribute.name,
@@ -225,6 +285,9 @@ export function adaptStoreProduct(product: WooStoreProduct): StorefrontProduct {
       title: category.name,
     })),
     variationIds: product.variations.map((variation) => String(variation.id)),
+    cardMedia: {
+      swatchImages: undefined,
+    },
   });
 }
 
@@ -271,8 +334,13 @@ export function adaptRestProduct(product: WooRestProduct, variations: WooRestVar
     productType: product.categories[0]?.name || '',
     tags: product.tags.map((tag) => tag.name),
     brands: (product.brands || []).map((brand) => brand.name),
+    collectionLabel: product.categories[0]?.name || '',
     averageRating: Number(product.average_rating || 0),
     reviewCount: 0,
+    reviewSummary: {
+      averageRating: Number(product.average_rating || 0),
+      reviewCount: 0,
+    },
     gallery,
     price: defaultPrice,
     regularPrice: defaultRegularPrice,
@@ -287,6 +355,15 @@ export function adaptRestProduct(product: WooRestProduct, variations: WooRestVar
       product.purchasable,
       product.stock_status === 'onbackorder',
     ),
+    cardBadge: cardBadge({
+      inStock: product.stock_status !== 'outofstock',
+      regularPrice: product.regular_price,
+      salePrice: product.sale_price,
+      tags: product.tags.map((tag) => tag.name),
+    }),
+    cardMedia: {
+      swatchImages: swatchImages(variations, product.name),
+    },
     options: product.attributes
       .filter((attribute) => attribute.variation)
       .map((attribute) => ({

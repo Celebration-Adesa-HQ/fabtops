@@ -1,19 +1,22 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Star, Globe, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { getEditorialImage } from '@/lib/content/editorial-images';
+
+const circleHeroImage = getEditorialImage('circle.hero');
 
 export function CircleHero() {
   return (
     <section className="relative h-[95vh] flex items-center justify-center overflow-hidden z-10">
       <div className="absolute inset-0">
         <Image 
-          src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000"
-          alt="Fab Babe Circle"
+          src={circleHeroImage.src}
+          alt={circleHeroImage.alt}
           fill
           className="object-cover opacity-80 scale-105"
+          style={{ objectPosition: circleHeroImage.objectPosition }}
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-secondary/10 via-transparent to-brand-secondary" />

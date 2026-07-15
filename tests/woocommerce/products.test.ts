@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getCategories, getProductBySlug, getProducts } from '../../lib/woocommerce/products';
+import {
+  getCategories,
+  getEditorialRecommendationsForProduct,
+  getProductBySlug,
+  getProducts,
+} from '../../lib/woocommerce/products';
 import type { RestProduct } from '../../lib/woocommerce/types';
 import { liveVariableProduct, liveVariableVariations } from './fixtures/live-rest-product';
 
@@ -112,5 +117,60 @@ describe('WooCommerce product helpers', () => {
         image: { url: 'https://shop.example.com/tops.jpg', altText: 'Tops' },
       },
     ]);
+  });
+
+  it('splits editorial recommendation groups without duplicating products', async () => {
+    const product = {
+      id: '42',
+      handle: 'rose-top',
+      title: 'Rose Top',
+      description: '',
+      descriptionHtml: '',
+      shortDescription: '',
+      shortDescriptionHtml: '',
+      sku: '',
+      productType: 'Tops',
+      tags: [],
+      brands: [],
+      averageRating: 0,
+      reviewCount: 0,
+      featuredImage: null,
+      gallery: [],
+      price: { amountMinor: '125000', currencyCode: 'NGN', minorUnit: 2 },
+      regularPrice: null,
+      salePrice: null,
+      priceRange: {
+        min: { amountMinor: '125000', currencyCode: 'NGN', minorUnit: 2 },
+        max: { amountMinor: '125000', currencyCode: 'NGN', minorUnit: 2 },
+      },
+      hasOptions: false,
+      availability: {
+        inStock: true,
+        purchasable: true,
+        onBackorder: false,
+        stockStatus: 'instock' as const,
+      },
+      options: [],
+      categories: [{ id: '3', handle: 'tops', title: 'Tops' }],
+      variationIds: [],
+      relatedProductIds: ['100', '101', '102'],
+      upsellProductIds: ['101'],
+      crossSellProductIds: ['103'],
+    };
+
+    wooRequest
+      .mockResolvedValueOnce([
+        { ...restProduct, id: 103, slug: 'matching-skirt', name: 'Matching Skirt' },
+        { ...restProduct, id: 101, slug: 'structured-blazer', name: 'Structured Blazer' },
+      ])
+      .mockResolvedValueOnce([
+        { ...restProduct, id: 100, slug: 'silk-pants', name: 'Silk Pants' },
+        { ...restProduct, id: 102, slug: 'evening-heels', name: 'Evening Heels' },
+      ]);
+
+    const recommendations = await getEditorialRecommendationsForProduct(product, 2);
+
+    expect(recommendations.completeTheLook.map((item) => item.id)).toEqual(['103', '101']);
+    expect(recommendations.related.map((item) => item.id)).toEqual(['100', '102']);
   });
 });

@@ -4,11 +4,15 @@ import { CategoryNavigation } from '@/components/editorial/CategoryNavigation';
 import { NewCollectionShowcase } from '@/components/editorial/NewCollectionShowcase';
 import { CommunitySocialProof } from '@/components/editorial/CommunitySocialProof';
 import { SustainabilityPreview } from '@/components/editorial/SustainabilityPreview';
+import { FabBabeCircleLanding } from '@/components/editorial/FabBabeCircleLanding';
+import { getEditorialImage } from '@/lib/content/editorial-images';
 import { getProducts } from '@/lib/woocommerce/products';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+
+const homeCircleBannerImage = getEditorialImage('home.circle-banner');
 
 export default async function HomePage() {
   const products = await getProducts(6);
@@ -101,16 +105,19 @@ export default async function HomePage() {
           </div>
           <div className="flex-1 relative aspect-[4/5] w-full rounded-[3rem] overflow-hidden shadow-2xl">
             <Image 
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200"
-              alt="Fab Babe Circle"
+              src={homeCircleBannerImage.src}
+              alt={homeCircleBannerImage.alt}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
+              style={{ objectPosition: homeCircleBannerImage.objectPosition }}
             />
             <div className="absolute inset-0 bg-brand-dark/10 backdrop-blur-[2px]" />
           </div>
         </div>
       </section>
+
+      <FabBabeCircleLanding />
 
       {/* 7. Community/social proof */}
       <CommunitySocialProof />

@@ -216,6 +216,21 @@ export interface StorefrontOption {
   values: string[];
 }
 
+export interface StorefrontReviewSummary {
+  averageRating: number;
+  reviewCount: number;
+  verifiedReviewCount?: number;
+}
+
+export interface StorefrontCardBadge {
+  label: 'New' | 'Bestseller' | 'Limited' | 'Sale' | 'Sold Out';
+  key: 'new' | 'bestseller' | 'limited' | 'sale' | 'sold_out';
+}
+
+export interface StorefrontCardMedia {
+  swatchImages?: Record<string, StorefrontImage>;
+}
+
 export interface StorefrontVariation {
   id: string;
   title: string;
@@ -239,8 +254,10 @@ export interface StorefrontProduct {
   productType: string;
   tags: string[];
   brands: string[];
+  collectionLabel?: string;
   averageRating: number;
   reviewCount: number;
+  reviewSummary?: StorefrontReviewSummary;
   featuredImage: StorefrontImage | null;
   gallery: StorefrontImage[];
   price: StorefrontMoney;
@@ -249,6 +266,8 @@ export interface StorefrontProduct {
   priceRange: StorefrontPriceRange;
   hasOptions: boolean;
   availability: StorefrontAvailability;
+  cardBadge?: StorefrontCardBadge;
+  cardMedia?: StorefrontCardMedia;
   options: StorefrontOption[];
   categories: Array<{ id: string; handle: string; title: string }>;
   variationIds: string[];

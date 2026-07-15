@@ -2,27 +2,33 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { getEditorialImage, type EditorialPlacementId } from '@/lib/content/editorial-images';
 
 const testimonials = [
   {
     quote: "The fit is absolutely incredible. It feels like it was tailored just for me.",
     author: "Amara O.",
     handle: "@amara_fits",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=400",
+    placementId: 'home.community.amara',
   },
   {
     quote: "Finally, a brand that understands the balance between comfort and high-fashion.",
     author: "Zainab S.",
     handle: "@z_style_diaries",
-    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=400",
+    placementId: 'home.community.zainab',
   },
   {
     quote: "FabTops is my go-to for every occasion. The quality is unmatched.",
     author: "Blessing E.",
     handle: "@bless_ed",
-    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=400",
+    placementId: 'home.community.blessing',
   }
-];
+] as const satisfies Array<{
+  quote: string;
+  author: string;
+  handle: string;
+  placementId: EditorialPlacementId;
+}>;
 
 export function CommunitySocialProof() {
   return (
@@ -38,7 +44,9 @@ export function CommunitySocialProof() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {testimonials.map((item, index) => (
+          {testimonials.map((item, index) => {
+            const image = getEditorialImage(item.placementId);
+            return (
             <motion.div
               key={item.author}
               initial={{ opacity: 0, y: 30 }}
@@ -50,10 +58,11 @@ export function CommunitySocialProof() {
               <div className="space-y-8">
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
                   <Image
-                    src={item.image}
-                    alt={item.author}
+                    src={image.src}
+                    alt={image.alt}
                     fill
                     className="object-cover"
+                    style={{ objectPosition: image.objectPosition }}
                   />
                 </div>
                 <p className="text-brand-dark/80 italic text-xl leading-relaxed font-serif">
@@ -72,7 +81,8 @@ export function CommunitySocialProof() {
                 </div>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
