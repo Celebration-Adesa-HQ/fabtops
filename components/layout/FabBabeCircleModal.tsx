@@ -95,7 +95,7 @@ export function FabBabeCircleModal({ blocked = false }: FabBabeCircleModalProps)
             <button
               type="button"
               onClick={closeModal}
-              className="absolute right-5 top-5 z-10 rounded-full border border-brand-dark/10 bg-white/90 p-2 text-brand-dark transition hover:border-brand-primary hover:text-brand-primary"
+              className="absolute right-5 top-5 z-10 rounded-full border border-brand-dark/10 bg-white/90 p-2 text-brand-dark transition hover:border-brand-accent hover:text-brand-dark"
               aria-label="Close Fab Babe Circle welcome modal"
             >
               <X size={18} />
@@ -103,20 +103,20 @@ export function FabBabeCircleModal({ blocked = false }: FabBabeCircleModalProps)
 
             <div className="grid gap-0 md:grid-cols-[1.15fr,0.85fr]">
               <div className="bg-brand-dark px-6 py-8 text-brand-light md:px-10 md:py-12">
-                <p className="text-[10px] font-black uppercase tracking-[0.45em] text-brand-primary">Fab Babe Circle</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.45em] text-brand-accent">Fab Babe Circle</p>
                 <h2
                   id="fab-babe-circle-title"
                   className="mt-4 text-4xl font-heading uppercase tracking-tight md:text-5xl"
                 >
                   Join the Circle
                 </h2>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-brand-light/75">
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-brand-light/95">
                   Be first inside the FabTops community for early access, inspiration, and rewards curated for our closest circle.
                 </p>
 
                 <ul className="mt-8 space-y-3">
                   {BENEFITS.map((benefit) => (
-                    <li key={benefit} className="flex items-start gap-3 text-sm text-brand-light/85">
+                    <li key={benefit} className="flex items-start gap-3 text-sm text-brand-light/95">
                       <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-primary" />
                       <span>{benefit}</span>
                     </li>
@@ -126,7 +126,7 @@ export function FabBabeCircleModal({ blocked = false }: FabBabeCircleModalProps)
 
               <div className="px-6 py-8 md:px-8 md:py-12">
                 <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/45">Welcome Offer</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/75">Welcome Offer</p>
                   <h3 className="text-2xl font-heading uppercase tracking-tight text-brand-dark">Your front-row pass starts here.</h3>
                 </div>
 

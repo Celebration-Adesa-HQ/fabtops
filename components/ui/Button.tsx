@@ -14,8 +14,8 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, ...props }, ref) => {
     const variants = {
-      primary: 'bg-brand-dark text-white hover:bg-brand-dark/90',
-      secondary: 'bg-brand-primary text-brand-dark hover:bg-brand-primary/90',
+      primary: 'bg-brand-dark text-brand-light hover:bg-brand-dark/90',
+      secondary: 'bg-brand-primary text-brand-dark hover:bg-brand-primary/90 hover:text-brand-dark',
       outline: 'border border-brand-dark bg-transparent text-brand-dark hover:bg-brand-dark hover:text-white',
       ghost: 'bg-transparent text-brand-dark hover:bg-brand-light',
     };

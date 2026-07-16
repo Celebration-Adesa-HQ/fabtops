@@ -115,6 +115,12 @@ export function ProductView({
     setActionError('');
     try {
       await addToCart(cartTargetId, quantity);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push(`/login?redirect=/product/${product.handle}`);
+        return;
+      }
+      setActionError(error instanceof Error ? error.message : 'Unable to add to bag');
     } finally {
       setIsAddingToCart(false);
     }
@@ -317,7 +323,7 @@ export function ProductView({
         <div className="mx-auto flex max-w-xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-brand-dark">{product.title}</p>
-            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark/55">
+            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark/80">
               {currentPriceLabel}
             </p>
           </div>

@@ -60,18 +60,22 @@ export default async function CollectionsPage() {
   });
 
   return (
-    <main className="bg-brand-secondary min-h-screen pt-32 pb-40">
+    <main className="bg-brand-light min-h-screen pt-32 pb-40">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12">
         <header className="mb-24 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-px w-8 bg-brand-primary" />
-            <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-brand-primary">The Showroom</span>
+            <div className="h-px w-8 text-brand-dark" />
+            <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-brand-purple">
+              The Showroom
+            </span>
           </div>
           <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl uppercase tracking-tighter text-brand-dark leading-[0.85]">
-            Our <span className="italic opacity-50">Vault</span>
+            Our <span className="italic text-brand-purple">Vault</span>
           </h1>
-          <p className="text-brand-dark/60 text-sm md:text-base max-w-xl leading-relaxed uppercase tracking-widest text-[11px] font-bold">
-            Explore our meticulously curated collections, where every piece tells a story of confidence, craftsmanship, and contemporary heritage.
+          <p className="text-brand-dark/85 text-sm md:text-base max-w-xl leading-relaxed uppercase tracking-widest text-[11px] font-bold">
+            Explore our meticulously curated collections, where every piece
+            tells a story of confidence, craftsmanship, and contemporary
+            heritage.
           </p>
         </header>
 
@@ -79,35 +83,35 @@ export default async function CollectionsPage() {
           {displayedCollections.map((collection, idx) => {
             const image = getEditorialImage(collection.placementId);
             return (
-            <Link 
-              key={collection.handle}
-              href={`/collections/${collection.handle}`}
-              className={`group relative overflow-hidden bg-white ${collection.span} aspect-[16/10] md:aspect-auto md:min-h-[600px]`}
-            >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-110"
-                style={{ objectPosition: image.objectPosition }}
-                priority={idx < 2}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
-              
-              <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end text-white">
-                <div className="space-y-4 translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-out">
-                  <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-tighter leading-none">
-                    {collection.title}
-                  </h2>
-                  <p className="text-white/70 text-xs md:text-sm max-w-xs uppercase tracking-widest leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
-                    {collection.description}
-                  </p>
-                  <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-primary group-hover:gap-6 transition-all duration-500 pt-4">
-                    Explore Collection <ArrowRight size={14} />
+              <Link
+                key={collection.handle}
+                href={`/collections/${collection.handle}`}
+                className={`group relative overflow-hidden bg-white ${collection.span} aspect-[16/10] md:aspect-auto md:min-h-[600px]`}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-110"
+                  style={{ objectPosition: image.objectPosition }}
+                  priority={idx < 2}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
+
+                <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end text-white">
+                  <div className="space-y-4 translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-out">
+                    <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-tighter leading-none">
+                      {collection.title}
+                    </h2>
+                    <p className="text-white/95 text-xs md:text-sm max-w-xs uppercase tracking-widest leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
+                      {collection.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark group-hover:gap-6 transition-all duration-500 pt-4">
+                      Explore Collection <ArrowRight size={14} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
             );
           })}
         </div>
@@ -115,15 +119,19 @@ export default async function CollectionsPage() {
         {/* Brand Statement Section */}
         <section className="mt-40 py-40 border-t border-brand-dark/5 text-center">
           <div className="max-w-4xl mx-auto space-y-12">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-brand-primary">The Vision</span>
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-brand-purple">
+              The Vision
+            </span>
             <h3 className="font-heading text-4xl md:text-6xl lg:text-7xl uppercase tracking-tight text-brand-dark leading-[1.1]">
-              "Designed for the woman who lives <br /> 
-              <span className="italic text-brand-primary/60 font-light lowercase">with intention and style."</span>
+              "Designed for the woman who lives <br />
+              <span className="italic text-brand-purple font-light lowercase">
+                with intention and style."
+              </span>
             </h3>
             <div className="w-12 h-px bg-brand-dark/10 mx-auto" />
-            <Link 
-              href="/shop" 
-              className="inline-block px-12 py-5 bg-brand-dark text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 shadow-2xl shadow-brand-dark/10"
+            <Link
+              href="/shop"
+              className="inline-block px-12 py-5 bg-brand-dark text-brand-light text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-dark transition-all duration-500 shadow-2xl shadow-brand-dark/10"
             >
               Shop All Silhouettes
             </Link>

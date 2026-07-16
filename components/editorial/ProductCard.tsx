@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Plus, ShoppingBag, Star } from 'lucide-react';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -45,6 +46,8 @@ const colorMap: Record<string, string> = {
 };
 
 export function ProductCard({ product, className }: ProductCardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [isAdding, setIsAdding] = React.useState(false);
@@ -96,6 +99,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
     setIsAdding(true);
     try {
       await addToCart(product.id, 1);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push(`/login?redirect=${encodeURIComponent(pathname || productHref)}`);
+      }
     } finally {
       setIsAdding(false);
     }
@@ -213,21 +220,21 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         <div className="mt-4 space-y-2 text-left">
           {product.collectionLabel ? (
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/42">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/75">
               {product.collectionLabel}
             </p>
           ) : null}
 
           <div className="flex items-start justify-between gap-3">
             <Link href={productHref} className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 font-heading text-[1.05rem] leading-[1.1] tracking-[-0.02em] text-brand-dark transition-colors duration-300 group-hover:text-brand-primary md:text-[1.15rem]">
+              <h3 className="line-clamp-2 font-heading text-[1.05rem] leading-[1.1] tracking-[-0.02em] text-brand-dark transition-colors duration-300 group-hover:text-brand-accent md:text-[1.15rem]">
                 {product.title}
               </h3>
             </Link>
 
             {showRating ? (
-              <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-dark/45">
-                <Star size={12} className="fill-brand-primary text-brand-primary" />
+              <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-dark/75">
+                <Star size={12} className="fill-brand-accent text-brand-accent" />
                 {product.reviewSummary?.averageRating.toFixed(1)} ({product.reviewSummary?.reviewCount})
               </span>
             ) : null}
@@ -239,7 +246,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             </p>
 
             {hasActualDiscount ? (
-              <span className="text-[11px] text-brand-dark/32 line-through">
+              <span className="text-[11px] text-brand-dark/90 line-through">
                 {formatPrice(toDisplayAmount(product.regularPrice), product.regularPrice.currencyCode)}
               </span>
             ) : null}
@@ -267,7 +274,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 />
               ))}
               {colorSwatches.length > 5 ? (
-                <span className="pl-1 text-[9px] font-medium text-brand-dark/42">+{colorSwatches.length - 5}</span>
+                <span className="pl-1 text-[9px] font-medium text-brand-dark/75">+{colorSwatches.length - 5}</span>
               ) : null}
             </div>
           ) : null}

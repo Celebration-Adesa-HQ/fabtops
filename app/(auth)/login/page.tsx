@@ -54,14 +54,14 @@ export default function LoginPage() {
         <form onSubmit={submit} className="mt-8 space-y-4">
           <input className={fieldClass} type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
           <input className={fieldClass} type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
-          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
+          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
         {message ? <p className="mt-4 text-sm text-red-600">{message}</p> : null}
-        <div className="mt-6 flex items-center justify-between text-sm text-brand-dark/60">
-          <Link href="/forgot-password" className="hover:text-brand-primary">Forgot password?</Link>
-          <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="hover:text-brand-primary">Create account</Link>
+        <div className="mt-6 flex items-center justify-between text-sm text-brand-dark/85">
+          <Link href="/forgot-password" className="hover:text-brand-dark">Forgot password?</Link>
+          <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="hover:text-brand-dark">Create account</Link>
         </div>
       </div>
     </div>

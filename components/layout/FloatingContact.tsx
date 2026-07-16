@@ -53,7 +53,7 @@ export function FloatingContact() {
       >
         <motion.div
           animate={isOpen ? { rotate: 90 } : { rotate: 0 }}
-          className={`${isOpen ? 'bg-white text-brand-dark' : 'bg-brand-dark text-white'} w-16 h-16 rounded-full flex items-center justify-center shadow-[0_20px_50px_rgba(59,59,68,0.3)] transition-colors duration-500`}
+          className={`${isOpen ? 'bg-white text-brand-dark' : 'bg-brand-dark text-brand-light'} w-16 h-16 rounded-full flex items-center justify-center shadow-[0_20px_50px_rgba(59,59,68,0.3)] transition-colors duration-500`}
         >
           {isOpen ? <X size={28} strokeWidth={1} /> : <MessageCircle size={28} strokeWidth={1} />}
         </motion.div>

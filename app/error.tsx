@@ -32,14 +32,14 @@ export default function Error({
           Something went <span className="italic opacity-50">Wrong</span>
         </h1>
         
-        <p className="text-brand-dark/60 mb-12 text-[11px] uppercase tracking-widest leading-loose font-bold">
+        <p className="text-brand-dark/85 mb-12 text-[11px] uppercase tracking-widest leading-loose font-bold">
           We encountered an unexpected moment in our digital atelier. Our team has been notified.
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <button
             onClick={() => reset()}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary transition-all duration-500 group shadow-xl"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-4 bg-brand-dark text-brand-light px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 group shadow-xl"
           >
             <RefreshCcw size={14} className="group-hover:rotate-180 transition-transform duration-700" />
             Try Again

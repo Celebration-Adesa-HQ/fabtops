@@ -40,7 +40,7 @@ export function FavoriteButton({ product, className, size = 'md' }: FavoriteButt
       }}
       className={cn(
         'relative rounded-full transition-colors duration-300',
-        favorited ? 'bg-brand-primary/10 text-brand-primary' : 'bg-white/80 backdrop-blur-md text-brand-dark hover:text-brand-primary shadow-sm',
+        favorited ? 'bg-brand-accent/10 text-brand-accent' : 'bg-white/80 backdrop-blur-md text-brand-dark hover:text-brand-dark shadow-sm',
         sizeClasses[size],
         className
       )}

@@ -37,7 +37,7 @@ export default function Loading() {
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="mt-6 text-[10px] uppercase tracking-[0.4em] font-bold text-brand-dark/40"
+          className="mt-6 text-[10px] uppercase tracking-[0.4em] font-bold text-brand-dark/75"
         >
           Elevating your discovery
         </motion.p>

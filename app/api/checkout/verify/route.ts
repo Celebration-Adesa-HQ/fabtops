@@ -7,6 +7,7 @@ import {
 } from '@/lib/paystack/checkout';
 import { checkoutVerificationSchema } from '@/lib/schemas';
 import { validateCsrf } from '@/lib/security';
+import { CART_OWNER_COOKIE } from '@/lib/woocommerce/cart-session';
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
@@ -31,6 +32,13 @@ function createResponse(body: Record<string, unknown>, status: number) {
 
 function expireCartCookie(response: NextResponse) {
   response.cookies.set(CART_TOKEN_COOKIE, '', {
+    httpOnly: true,
+    secure: IS_PRODUCTION,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+  response.cookies.set(CART_OWNER_COOKIE, '', {
     httpOnly: true,
     secure: IS_PRODUCTION,
     sameSite: 'lax',

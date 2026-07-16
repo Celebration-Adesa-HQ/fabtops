@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, ShoppingBag, X } from 'lucide-react';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -37,6 +38,7 @@ export function ProductQuickView({
   presentation,
   initialColor = '',
 }: ProductQuickViewProps) {
+  const router = useRouter();
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [selectedImage, setSelectedImage] = React.useState(0);
@@ -132,6 +134,11 @@ export function ProductQuickView({
       await addToCart(currentVariant?.id || product.id, quantity);
       onClose();
     } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        onClose();
+        router.push(`/login?redirect=/product/${product.handle}`);
+        return;
+      }
       setActionError(error instanceof Error ? error.message : 'Unable to add to bag');
     } finally {
       setIsAdding(false);
@@ -196,7 +203,7 @@ export function ProductQuickView({
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-3">
               {product.collectionLabel ? (
-                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-brand-dark/45">
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-brand-dark/75">
                   {product.collectionLabel}
                 </p>
               ) : null}
@@ -211,19 +218,19 @@ export function ProductQuickView({
           <div className="flex items-end gap-3">
             <span className="text-2xl font-semibold tracking-tight text-brand-dark">{priceLabel}</span>
             {regularPriceLabel && regularPriceLabel !== priceLabel ? (
-              <span className="text-sm text-brand-dark/30 line-through">{regularPriceLabel}</span>
+              <span className="text-sm text-brand-dark/90 line-through">{regularPriceLabel}</span>
             ) : null}
           </div>
 
           {product.shortDescription ? (
-            <p className="line-clamp-4 text-sm leading-relaxed text-brand-dark/65">
+            <p className="line-clamp-4 text-sm leading-relaxed text-brand-dark/85">
               {product.shortDescription}
             </p>
           ) : null}
 
           {colors.length > 0 && (
             <div className="space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Color</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Color</p>
               <div className="flex flex-wrap gap-2">
                 {colors.map((color) => {
                   const available = isVariationOptionAvailable(product.variations, 'Color', color, { Size: selectedSize });
@@ -235,7 +242,7 @@ export function ProductQuickView({
                       disabled={!available}
                       className={cn(
                         'rounded-full border px-4 py-2 text-[11px] font-semibold transition-colors',
-                        selectedColor === color ? 'border-brand-dark bg-brand-dark text-white' : 'border-brand-dark/10 bg-white text-brand-dark',
+                        selectedColor === color ? 'border-brand-dark bg-brand-dark text-brand-light' : 'border-brand-dark/10 bg-white text-brand-dark',
                         !available && 'cursor-not-allowed opacity-35',
                       )}
                     >
@@ -249,7 +256,7 @@ export function ProductQuickView({
 
           {sizes.length > 0 && (
             <div className="space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Size</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Size</p>
               <div className="flex flex-wrap gap-2">
                 {sizes.map((size) => {
                   const available = isVariationOptionAvailable(product.variations, 'Size', size, { Color: selectedColor });
@@ -261,7 +268,7 @@ export function ProductQuickView({
                       disabled={!available}
                       className={cn(
                         'rounded-full border px-4 py-2 text-[11px] font-semibold transition-colors',
-                        selectedSize === size ? 'border-brand-dark bg-brand-dark text-white' : 'border-brand-dark/10 bg-white text-brand-dark',
+                        selectedSize === size ? 'border-brand-dark bg-brand-dark text-brand-light' : 'border-brand-dark/10 bg-white text-brand-dark',
                         !available && 'cursor-not-allowed opacity-35',
                       )}
                     >
@@ -274,7 +281,7 @@ export function ProductQuickView({
           )}
 
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Quantity</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Quantity</p>
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="rounded-full border border-brand-dark/10 p-2">
                 -

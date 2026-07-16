@@ -16,22 +16,22 @@ export function CircleCta() {
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-4 mb-10">
                 <div className="w-12 h-px bg-brand-dark/20" />
-                <span className="text-[10px] uppercase tracking-[0.6em] text-brand-dark/40 font-black">Digital Flagship Access</span>
+                <span className="text-[10px] uppercase tracking-[0.6em] text-brand-dark/75 font-black">Digital Flagship Access</span>
                 <div className="w-12 h-px bg-brand-dark/20" />
               </div>
               
               <h2 className="text-5xl md:text-7xl font-heading text-brand-dark mb-10 leading-[0.85] tracking-tighter uppercase">
-                Secure Your <br /><span className="italic opacity-80">Spot</span>
+                Secure Your <br /><span className="italic opacity-95">Spot</span>
               </h2>
               
-              <p className="text-sm md:text-base text-brand-dark/60 font-medium mb-16 max-w-xl mx-auto leading-relaxed uppercase tracking-widest text-[11px]">
+              <p className="text-sm md:text-base text-brand-dark/85 font-medium mb-16 max-w-xl mx-auto leading-relaxed uppercase tracking-widest text-[11px]">
                 Customer membership accounts are being connected securely through WordPress. You can continue exploring every current collection as a guest.
               </p>
               
               <div className="max-w-md mx-auto space-y-6">
                 <Link 
                   href="/shop"
-                  className="w-full py-8 bg-brand-dark text-white rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
+                  className="w-full py-8 bg-brand-dark text-brand-light rounded-full text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group flex items-center justify-center gap-6 active:scale-95"
                 >
                   Explore the Collection <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                 </Link>
@@ -40,11 +40,11 @@ export function CircleCta() {
               <div className="mt-16 pt-10 border-t border-brand-dark/5 flex items-center justify-center gap-8">
                 <div className="flex items-center gap-2">
                   <ShieldCheck size={14} className="text-brand-dark" />
-                  <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/40">Secure Protocol</span>
+                  <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/75">Secure Protocol</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Gem size={14} className="text-brand-dark" />
-                  <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/40">Verified Heritage</span>
+                  <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/75">Verified Heritage</span>
                 </div>
               </div>
             </div>

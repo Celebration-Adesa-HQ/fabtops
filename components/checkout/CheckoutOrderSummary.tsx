@@ -50,14 +50,14 @@ export function CheckoutOrderSummary({
           className="flex w-full items-center justify-between border border-brand-dark/10 bg-white/70 px-5 py-4 text-left"
         >
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">View order summary</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">View order summary</p>
             <p className="mt-2 text-lg font-heading uppercase tracking-tight text-brand-dark">
               {formatPrice(totalAmount, currencyCode)}
             </p>
           </div>
           <ChevronDown
             size={18}
-            className={`text-brand-dark/60 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+            className={`text-brand-dark/85 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
           />
         </button>
         {isOpen ? (
@@ -133,23 +133,23 @@ function SummaryContent({
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4 border-b border-brand-dark/10 pb-6">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/50">Order summary</p>
-          <p className="mt-3 text-sm leading-7 text-brand-dark/60">
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/80">Order summary</p>
+          <p className="mt-3 text-sm leading-7 text-brand-dark/85">
             Review the items in this payment session, then return to the bag for quantity changes.
           </p>
         </div>
         <Link
           href="/cart"
-          className="shrink-0 text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary"
+          className="shrink-0 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark"
         >
           Edit cart
         </Link>
       </div>
 
       {isLoading ? (
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Refreshing order summary…</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/75">Refreshing order summary…</p>
       ) : items.length === 0 ? (
-        <p className="text-sm leading-7 text-brand-dark/60">
+        <p className="text-sm leading-7 text-brand-dark/85">
           Your bag is currently empty. Return to the cart to choose the pieces you want to check out.
         </p>
       ) : (
@@ -170,11 +170,11 @@ function SummaryContent({
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.12em] text-brand-dark">{item.title}</p>
                     {item.selectedOptions.length > 0 ? (
-                      <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-brand-dark/45">
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-brand-dark/75">
                         {formatOptions(item.selectedOptions)}
                       </p>
                     ) : null}
-                    <p className="mt-3 text-[10px] font-black uppercase tracking-[0.24em] text-brand-dark/45">
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-[0.24em] text-brand-dark/75">
                       Qty {item.quantity}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function SummaryContent({
           <SummaryRow
             label={`Discount (${discountCodes.map((coupon) => coupon.code).join(', ')})`}
             value={`-${formatPrice(totalSavings, currencyCode)}`}
-            valueClassName="text-brand-primary"
+            valueClassName="text-brand-dark"
           />
         ) : null}
         <SummaryRow
@@ -218,7 +218,7 @@ function SummaryContent({
 function SummaryRow({
   label,
   value,
-  labelClassName = 'text-brand-dark/50',
+  labelClassName = 'text-brand-dark/80',
   valueClassName = 'text-brand-dark',
 }: {
   label: string;

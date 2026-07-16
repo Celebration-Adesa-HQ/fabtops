@@ -16,12 +16,12 @@ export function UnauthenticatedCart() {
           <ShoppingBag size={40} strokeWidth={1} />
         </div>
         <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Sign in to Shop</h1>
-        <p className="text-brand-dark/60 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
+        <p className="text-brand-dark/85 mb-12 text-sm uppercase tracking-widest leading-relaxed font-bold">
           Please log in to your account to access your bag and continue your premium discovery.
         </p>
         <Link
           href="/login"
-          className="inline-flex items-center gap-4 bg-brand-dark text-white px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 group shadow-2xl shadow-brand-dark/10 rounded-xl"
+          className="inline-flex items-center gap-4 bg-brand-dark text-brand-light px-10 py-6 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 group shadow-2xl shadow-brand-dark/10 rounded-xl"
         >
           Sign In Now
           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

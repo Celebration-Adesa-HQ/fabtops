@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { accountAddressesSchema } from '@/lib/schemas';
 import { getServerAuthSession } from '@/lib/auth/session';
 import { ensureWooCustomerLink } from '@/lib/auth/woo-customer';
+import { getScopedCartToken } from '@/lib/woocommerce/cart-session';
 import {
   mapAccountAddressToWooAddress,
   mapWooCustomerToAccountAddresses,
@@ -12,8 +13,6 @@ import {
 } from '@/lib/woocommerce/customer-mappers';
 import { updateCartCustomer } from '@/lib/woocommerce/cart';
 import { updateCustomer } from '@/lib/woocommerce/customers';
-
-const CART_TOKEN_COOKIE = 'woocommerce_cart_token';
 
 export async function GET() {
   const session = await getServerAuthSession();
@@ -51,7 +50,7 @@ export async function PUT(request: NextRequest) {
       shipping: mapAccountAddressToWooAddress(parsed.data.shipping),
     });
     const cookieStore = await cookies();
-    const cartToken = cookieStore.get(CART_TOKEN_COOKIE)?.value || null;
+    const { cartToken } = getScopedCartToken(cookieStore, session.user);
 
     if (cartToken) {
       const billingAddress = mapWooCustomerToStoreApiBillingAddress(customer, session.user);

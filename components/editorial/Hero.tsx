@@ -70,7 +70,7 @@ export function Hero() {
 
       {/* Decorative side text */}
       <div className="absolute left-12 bottom-12 hidden lg:block z-20">
-        <p className="text-white/40 text-[10px] uppercase tracking-[0.5em] [writing-mode:vertical-lr] rotate-180">
+        <p className="text-white/80 text-[10px] uppercase tracking-[0.5em] [writing-mode:vertical-lr] rotate-180">
           Crafted in Lagos, Nigeria
         </p>
       </div>
@@ -86,7 +86,7 @@ export function Hero() {
            <div className="w-2 h-2 rounded-full bg-white/20" />
            <div className="w-2 h-2 rounded-full bg-white/20" />
         </div>
-        <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">Scroll</span>
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/90 font-bold">Scroll</span>
       </motion.div>
     </section>
   );

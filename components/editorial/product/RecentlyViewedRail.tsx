@@ -48,7 +48,7 @@ export function RecentlyViewedRail({ product }: { product: StorefrontProduct }) 
   return (
     <section className="space-y-8">
       <div className="space-y-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Recently viewed</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Recently viewed</p>
         <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
           Return to pieces you considered earlier.
         </h2>
@@ -72,7 +72,7 @@ export function RecentlyViewedRail({ product }: { product: StorefrontProduct }) 
             </div>
             <div className="space-y-3 p-4">
               <h3 className="font-heading text-2xl tracking-tight text-brand-dark">{item.title}</h3>
-              <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark/55">
+              <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark/80">
                 {formatPrice(fromMinorUnits(item.amountMinor, item.minorUnit), item.currencyCode)}
               </p>
             </div>

@@ -23,7 +23,7 @@ export function CircleBenefits() {
                   <benefit.icon size={28} strokeWidth={1.5} />
                 </div>
                 <h3 className="text-2xl font-heading uppercase tracking-tighter text-brand-dark mb-6">{benefit.title}</h3>
-                <p className="text-[11px] text-brand-dark/60 font-black uppercase tracking-widest leading-relaxed">{benefit.desc}</p>
+                <p className="text-[11px] text-brand-dark/85 font-black uppercase tracking-widest leading-relaxed">{benefit.desc}</p>
               </div>
             </ScrollReveal>
           ))}

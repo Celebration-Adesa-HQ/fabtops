@@ -43,11 +43,11 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
-          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
+          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
             {isSubmitting ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
-        {message ? <p className="mt-4 text-sm text-brand-dark/70">{message}</p> : null}
+        {message ? <p className="mt-4 text-sm text-brand-dark/90">{message}</p> : null}
       </div>
     </div>
   );

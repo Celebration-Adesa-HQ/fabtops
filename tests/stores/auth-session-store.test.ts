@@ -198,7 +198,7 @@ describe('auth session store', () => {
     expect(useCartStore.getState().guestSnapshot.items).toHaveLength(1);
   });
 
-  it('loads guest cart state when no session exists instead of clearing it', async () => {
+  it('clears cart state when no authenticated session exists', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         status: 401,
@@ -206,30 +206,6 @@ describe('auth session store', () => {
         json: async () => ({
           success: false,
           error: 'SESSION_EXPIRED',
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                id: 'line-1',
-                variantId: '101',
-                title: 'Rose Top',
-                handle: 'rose-top',
-                price: '80.00',
-                quantity: 1,
-                image: '/rose.jpg',
-                selectedOptions: [],
-              },
-            ],
-            subtotal: 80,
-            totalAmount: 80,
-            discountCodes: [],
-          },
         }),
       })
       .mockResolvedValueOnce({
@@ -281,47 +257,20 @@ describe('auth session store', () => {
     const user = await useAuthSessionStore.getState().refreshSession();
 
     expect(user).toBeNull();
-    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/cart', expect.objectContaining({
-      method: 'POST',
-    }));
     expect(useAuthSessionStore.getState()).toMatchObject({
       authStatus: 'unauthenticated',
       sessionUser: null,
     });
-    expect(useCartStore.getState().items).toHaveLength(1);
+    expect(useCartStore.getState().items).toHaveLength(0);
   });
 
-  it('clears user-scoped state on logout without keeping account data in guest mode', async () => {
+  it('clears user-scoped cart state on logout while restoring guest wishlist mode', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => ({
           success: true,
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          success: true,
-          data: {
-            items: [
-              {
-                id: 'line-1',
-                variantId: '101',
-                title: 'Rose Top',
-                handle: 'rose-top',
-                price: '80.00',
-                quantity: 2,
-                image: '/rose.jpg',
-                selectedOptions: [],
-              },
-            ],
-            subtotal: 80,
-            totalAmount: 80,
-            discountCodes: [],
-          },
         }),
       })
       .mockResolvedValueOnce({
@@ -423,11 +372,9 @@ describe('auth session store', () => {
       mergeStatus: 'idle',
     });
     expect(useCartStore.getState()).toMatchObject({
-      items: [
-        expect.objectContaining({ id: 'line-1' }),
-      ],
-      subtotal: 80,
-      totalAmount: 80,
+      items: [],
+      subtotal: 0,
+      totalAmount: 0,
     });
     expect(useWishlistStore.getState()).toMatchObject({
       favorites: [

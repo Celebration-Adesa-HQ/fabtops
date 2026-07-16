@@ -39,7 +39,7 @@ export function CurrencySelector({ className, variant = 'header' }: CurrencySele
         className={cn(
           "flex items-center gap-2 group transition-all duration-300",
           variant === 'header' 
-            ? "text-[10px] uppercase tracking-widest font-black hover:text-brand-primary"
+            ? "text-[10px] uppercase tracking-widest font-black hover:text-brand-dark"
             : "text-[10px] uppercase tracking-[0.2em] font-black text-brand-light hover:text-brand-primary"
         )}
       >
@@ -64,7 +64,7 @@ export function CurrencySelector({ className, variant = 'header' }: CurrencySele
             )}
           >
             <div className="px-4 mb-4">
-              <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/40">Select Region</span>
+              <span className="text-[9px] uppercase tracking-[0.3em] font-black text-brand-dark/75">Select Region</span>
             </div>
             <div className="max-h-64 overflow-y-auto custom-scrollbar">
               {currencies.map((currency) => (
@@ -73,14 +73,14 @@ export function CurrencySelector({ className, variant = 'header' }: CurrencySele
                   onClick={() => handleSelect(currency)}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 text-[10px] uppercase tracking-widest font-bold transition-all duration-300 hover:bg-brand-primary/10",
-                    current.code === currency.code ? "text-brand-primary" : "text-brand-dark/60"
+                    current.code === currency.code ? "text-brand-dark" : "text-brand-dark/85"
                   )}
                 >
                   <span className="flex items-center gap-3">
                     <span className="text-base">{currency.flag}</span>
                     {currency.label}
                   </span>
-                  <span className="opacity-40">{currency.code}</span>
+                  <span className="opacity-75">{currency.code}</span>
                 </button>
               ))}
             </div>

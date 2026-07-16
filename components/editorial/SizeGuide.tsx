@@ -40,7 +40,7 @@ export function SizeGuide({ isOpen, onClose }: SizeGuideProps) {
               </div>
 
               <div className="space-y-8">
-                <p className="text-sm text-brand-dark/60 leading-relaxed uppercase tracking-widest font-bold">
+                <p className="text-sm text-brand-dark/85 leading-relaxed uppercase tracking-widest font-bold">
                   Find your perfect FabTops fit. Our garments are designed with a contemporary editorial silhouette.
                 </p>
 
@@ -77,26 +77,26 @@ export function SizeGuide({ isOpen, onClose }: SizeGuideProps) {
                   <h3 className="font-bold uppercase tracking-[0.2em] text-xs text-brand-dark">How to Measure</h3>
                   <div className="space-y-4">
                     <div>
-                      <p className="font-bold text-[10px] uppercase text-brand-primary mb-1">Bust</p>
-                      <p className="text-xs text-brand-dark/60 leading-relaxed">Measure around the fullest part of your chest, keeping the tape horizontal.</p>
+                      <p className="font-bold text-[10px] uppercase text-brand-accent mb-1">Bust</p>
+                      <p className="text-xs text-brand-dark/85 leading-relaxed">Measure around the fullest part of your chest, keeping the tape horizontal.</p>
                     </div>
                     <div>
-                      <p className="font-bold text-[10px] uppercase text-brand-primary mb-1">Waist</p>
-                      <p className="text-xs text-brand-dark/60 leading-relaxed">Measure around your natural waistline (narrowest part), keeping the tape horizontal.</p>
+                      <p className="font-bold text-[10px] uppercase text-brand-accent mb-1">Waist</p>
+                      <p className="text-xs text-brand-dark/85 leading-relaxed">Measure around your natural waistline (narrowest part), keeping the tape horizontal.</p>
                     </div>
                     <div>
-                      <p className="font-bold text-[10px] uppercase text-brand-primary mb-1">Hips</p>
-                      <p className="text-xs text-brand-dark/60 leading-relaxed">Measure around the fullest part of your hips, keeping the tape horizontal.</p>
+                      <p className="font-bold text-[10px] uppercase text-brand-accent mb-1">Hips</p>
+                      <p className="text-xs text-brand-dark/85 leading-relaxed">Measure around the fullest part of your hips, keeping the tape horizontal.</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-brand-primary/10 p-8 rounded-3xl">
-                  <p className="text-[10px] uppercase tracking-widest font-black text-brand-primary mb-2">Need Help?</p>
-                  <p className="text-xs text-brand-dark/60 leading-relaxed mb-6">
+                  <p className="text-[10px] uppercase tracking-widest font-black text-brand-accent mb-2">Need Help?</p>
+                  <p className="text-xs text-brand-dark/85 leading-relaxed mb-6">
                     Our concierge team is available to assist with finding your perfect fit.
                   </p>
-                  <button className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark hover:text-brand-primary transition-colors border-b border-brand-dark hover:border-brand-primary pb-1">
+                  <button className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark hover:text-brand-accent transition-colors border-b border-brand-dark hover:border-brand-accent pb-1">
                     Contact Styling Concierge
                   </button>
                 </div>

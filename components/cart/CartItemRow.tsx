@@ -66,11 +66,11 @@ export function CartItemRow({ item, updateQuantity, removeFromCart, isLoading = 
           <div className="space-y-2">
             <Link 
               href={`/product/${item.handle}`}
-              className="text-2xl md:text-3xl font-heading uppercase tracking-tight text-brand-dark hover:text-brand-primary transition-colors block leading-tight"
+              className="text-2xl md:text-3xl font-heading uppercase tracking-tight text-brand-dark hover:text-brand-dark transition-colors block leading-tight"
             >
               {item.title}
             </Link>
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/30">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/90">
               Signature Collection
             </p>
           </div>
@@ -84,7 +84,7 @@ export function CartItemRow({ item, updateQuantity, removeFromCart, isLoading = 
           <div className="flex items-center gap-8 border border-brand-dark/10 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full">
             <button
               onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-              className="text-brand-dark/40 hover:text-brand-dark transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+              className="text-brand-dark/75 hover:text-brand-dark transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
               disabled={item.quantity <= 1 || isLoading}
               aria-label="Decrease quantity"
             >
@@ -93,7 +93,7 @@ export function CartItemRow({ item, updateQuantity, removeFromCart, isLoading = 
             <span className="text-[11px] font-bold w-4 text-center">{item.quantity}</span>
             <button
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="text-brand-dark/40 hover:text-brand-dark transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+              className="text-brand-dark/75 hover:text-brand-dark transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
               disabled={isLoading}
               aria-label="Increase quantity"
             >
@@ -104,7 +104,7 @@ export function CartItemRow({ item, updateQuantity, removeFromCart, isLoading = 
           <button 
             onClick={() => removeFromCart(item.id)}
             disabled={isLoading}
-            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/40 hover:text-brand-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed group/remove"
+            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/75 hover:text-brand-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed group/remove"
             aria-label="Remove item"
           >
             <Trash2 size={14} className="group-hover/remove:scale-110 transition-transform" />

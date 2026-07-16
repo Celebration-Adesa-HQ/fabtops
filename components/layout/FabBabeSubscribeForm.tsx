@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { markFabBabeModalSubscribed } from '@/lib/circle/modal-state';
 import type { NewsletterRequestSchema } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 type CircleSubscribeSource = NewsletterRequestSchema['source'];
 type CircleSubscribeVariant = 'modal' | 'inline' | 'footer';
@@ -21,11 +22,11 @@ function variantClasses(variant: CircleSubscribeVariant) {
     return {
       form: 'flex flex-col gap-4 max-w-md',
       input:
-        'w-full bg-transparent border-b border-brand-light/20 py-3 text-xs tracking-widest text-brand-light placeholder:text-brand-light/40 focus:outline-none focus:border-brand-primary transition-colors disabled:opacity-50',
+        'w-full bg-transparent border-b border-brand-light/20 py-3 text-xs tracking-widest text-brand-light placeholder:text-brand-light/95 focus:outline-none focus:border-brand-primary transition-colors disabled:opacity-50',
       button:
         'text-[10px] uppercase tracking-[0.3em] font-bold border border-brand-light/20 px-8 py-4 hover:bg-brand-light hover:text-brand-dark transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed group relative overflow-hidden text-brand-light',
       buttonFill: 'bg-brand-light',
-      note: 'text-[9px] text-brand-light/40 uppercase tracking-widest leading-relaxed',
+      note: 'text-[9px] text-brand-light/95 uppercase tracking-widest leading-relaxed',
       success: 'text-green-300',
       error: 'text-red-300',
     };
@@ -35,11 +36,11 @@ function variantClasses(variant: CircleSubscribeVariant) {
     return {
       form: 'flex flex-col gap-4',
       input:
-        'w-full rounded-full border border-brand-dark/10 bg-white px-5 py-4 text-sm text-brand-dark placeholder:text-brand-dark/35 outline-none transition focus:border-brand-primary disabled:opacity-50',
+        'w-full rounded-full border border-brand-dark/10 bg-white px-5 py-4 text-sm text-brand-dark placeholder:text-brand-dark/90 outline-none transition focus:border-brand-primary disabled:opacity-50',
       button:
-        'w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-white transition hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40',
+        'w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40',
       buttonFill: '',
-      note: 'text-[10px] text-brand-dark/50 leading-relaxed',
+      note: 'text-[10px] text-brand-dark/80 leading-relaxed',
       success: 'text-green-600',
       error: 'text-red-600',
     };
@@ -48,11 +49,11 @@ function variantClasses(variant: CircleSubscribeVariant) {
   return {
     form: 'flex flex-col gap-5',
     input:
-      'w-full rounded-full border border-brand-dark/10 bg-white/80 px-5 py-4 text-sm text-brand-dark placeholder:text-brand-dark/35 outline-none transition focus:border-brand-primary disabled:opacity-50',
+      'w-full rounded-full border border-brand-dark/10 bg-white/80 px-5 py-4 text-sm text-brand-dark placeholder:text-brand-dark/90 outline-none transition focus:border-brand-primary disabled:opacity-50',
     button:
-      'w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-white transition hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40',
+      'w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-40',
     buttonFill: '',
-    note: 'text-[10px] text-brand-dark/55 leading-relaxed',
+    note: 'text-[10px] text-brand-dark/80 leading-relaxed',
     success: 'text-green-700',
     error: 'text-red-700',
   };
@@ -118,7 +119,7 @@ export function FabBabeSubscribeForm({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-accent"
               >
                 <Loader2 className="animate-spin" size={16} />
               </motion.div>
@@ -172,7 +173,13 @@ export function FabBabeSubscribeForm({
 
       <p className={classes.note}>
         By joining, you agree to our{' '}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-brand-primary transition-colors">
+        <Link 
+          href="/privacy" 
+          className={cn(
+            "underline underline-offset-2 transition-colors",
+            variant === 'footer' ? "hover:text-brand-primary" : "hover:text-brand-accent"
+          )}
+        >
           Privacy Policy
         </Link>
         . You can unsubscribe at any time.

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCurrency } from '@/lib/currency-context';
 import { useCart } from '@/components/cart/CartProvider';
 import { FavoriteButton } from '@/components/editorial/FavoriteButton';
@@ -16,12 +17,21 @@ interface WishlistGridProps {
 }
 
 export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) {
+  const router = useRouter();
   const { formatPrice } = useCurrency();
   const { addToCart } = useCart();
 
   const handleAddToCart = async (e: React.MouseEvent, variantId: string) => {
     e.preventDefault();
-    await addToCart(variantId);
+    try {
+      await addToCart(variantId);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+        router.push('/login?redirect=/wishlist');
+        return;
+      }
+      throw error;
+    }
     confetti({ 
       particleCount: 100, 
       spread: 70, 
@@ -34,8 +44,8 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
     <div className="min-h-screen bg-brand-light pt-24 md:pt-32 pb-40 px-5 md:px-8 lg:px-12 xl:px-24">
       <div className="max-w-[1440px] mx-auto">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/30 mb-10 md:mb-20">
-          <Link href="/" className="hover:text-brand-primary transition-colors">Home</Link>
+        <nav className="flex items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/90 mb-10 md:mb-20">
+          <Link href="/" className="hover:text-brand-dark transition-colors">Home</Link>
           <ChevronRight size={10} />
           <span className="text-brand-dark">Wishlist</span>
         </nav>
@@ -52,12 +62,12 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
           >
             <div className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="w-8 h-px bg-brand-primary" />
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary">
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-accent">
                 {customer?.firstName ? `${customer.firstName}'s Private Collection` : 'Your Private Collection'}
               </span>
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-heading text-brand-dark uppercase tracking-tighter leading-[0.85]">
-              My Wish<br /><span className="italic opacity-50">List</span>
+              My Wish<br /><span className="italic opacity-85">List</span>
             </h1>
           </motion.div>
 
@@ -69,10 +79,10 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
           >
             <div className="bg-white/70 backdrop-blur-xl border border-brand-dark/5 rounded-3xl p-6 md:p-8 flex items-center justify-between md:justify-start gap-8 shadow-2xl shadow-brand-dark/5">
               <div className="flex flex-col">
-                <span className="text-[8px] uppercase tracking-widest font-black text-brand-dark/40 mb-2">Pieces Saved</span>
+                <span className="text-[8px] uppercase tracking-widest font-black text-brand-dark/75 mb-2">Pieces Saved</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-black text-brand-dark tracking-tighter">{count}</span>
-                  <Heart size={16} className="text-brand-primary fill-brand-primary" />
+                  <Heart size={16} className="text-brand-accent fill-brand-accent" />
                 </div>
               </div>
               <div className="w-px h-12 bg-brand-dark/5" />
@@ -80,10 +90,10 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
                 href="/shop"
                 className="group flex flex-col items-end"
               >
-                <span className="text-[8px] uppercase tracking-widest font-black text-brand-primary mb-2 group-hover:translate-x-1 transition-transform">Explore More</span>
+                <span className="text-[8px] uppercase tracking-widest font-black text-brand-accent mb-2 group-hover:translate-x-1 transition-transform">Explore More</span>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-brand-dark">Digital Catalog</span>
-                  <ChevronRight size={14} className="text-brand-dark/30" />
+                  <ChevronRight size={14} className="text-brand-dark/90" />
                 </div>
               </Link>
             </div>
@@ -138,16 +148,16 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
                   {/* Product Info */}
                   <Link href={`/product/${product.handle}`} className="px-2 block text-center md:text-left">
                     <div className="flex flex-col gap-2">
-                      <span className="text-[8px] uppercase tracking-[0.5em] font-black text-brand-dark/30">Silhouettes</span>
-                      <h3 className="text-sm md:text-base font-heading uppercase tracking-widest text-brand-dark group-hover:text-brand-primary transition-colors line-clamp-1">
+                      <span className="text-[8px] uppercase tracking-[0.5em] font-black text-brand-dark/90">Silhouettes</span>
+                      <h3 className="text-sm md:text-base font-heading uppercase tracking-widest text-brand-dark group-hover:text-brand-accent transition-colors line-clamp-1">
                         {product.title}
                       </h3>
                       <div className="flex items-center gap-4 mt-2 justify-center md:justify-start">
-                        <p className="text-brand-primary font-black text-sm md:text-base tracking-tighter">
+                        <p className="text-brand-dark font-black text-sm md:text-base tracking-tighter">
                           {formatPrice(product.price, 'NGN')}
                         </p>
                         <div className="w-1.5 h-1.5 rounded-full bg-brand-primary/20" />
-                        <span className="text-[9px] uppercase tracking-widest font-black text-brand-dark/40">Available</span>
+                        <span className="text-[9px] uppercase tracking-widest font-black text-brand-dark/75">Available</span>
                       </div>
                     </div>
                   </Link>
@@ -165,7 +175,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
           className="mt-32 pt-20 border-t border-brand-dark/5 flex flex-col items-center text-center"
         >
           <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-8 relative">
-            <Sparkles size={24} className="text-brand-primary" />
+            <Sparkles size={24} className="text-brand-accent" />
             <motion.div 
               animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ repeat: Infinity, duration: 3 }}
@@ -173,12 +183,12 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
             />
           </div>
           <h4 className="text-xl md:text-2xl font-heading uppercase tracking-tighter text-brand-dark mb-6">Complete The Vision</h4>
-          <p className="text-brand-dark/60 font-light text-sm max-w-sm mb-12 leading-relaxed">
+          <p className="text-brand-dark/85 font-light text-sm max-w-sm mb-12 leading-relaxed">
             Every piece is designed to tell a story. Discover the perfect pairing in our digital showroom.
           </p>
           <Link
             href="/shop"
-            className="px-12 py-6 bg-brand-dark text-white text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all rounded-full shadow-2xl shadow-brand-dark/5"
+            className="px-12 py-6 bg-brand-dark text-brand-light text-[10px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all rounded-full shadow-2xl shadow-brand-dark/5"
           >
             Explore Catalog
           </Link>

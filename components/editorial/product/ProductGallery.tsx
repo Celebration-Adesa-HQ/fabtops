@@ -80,7 +80,7 @@ export function ProductGallery({
             <button
               type="button"
               onClick={() => setIsZoomOpen(true)}
-              className="absolute right-5 top-5 z-10 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-primary"
+              className="absolute right-5 top-5 z-10 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-dark"
               aria-label="Open zoomed gallery image"
             >
               <Expand size={16} />
@@ -91,7 +91,7 @@ export function ProductGallery({
                 <button
                   type="button"
                   onClick={() => onSelect((selectedIndex - 1 + images.length) % images.length)}
-                  className="absolute left-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-primary"
+                  className="absolute left-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-dark"
                   aria-label="Previous product image"
                 >
                   <ChevronLeft size={18} />
@@ -99,7 +99,7 @@ export function ProductGallery({
                 <button
                   type="button"
                   onClick={() => onSelect((selectedIndex + 1) % images.length)}
-                  className="absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-primary"
+                  className="absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-brand-dark shadow-sm backdrop-blur transition-colors hover:text-brand-dark"
                   aria-label="Next product image"
                 >
                   <ChevronRight size={18} />

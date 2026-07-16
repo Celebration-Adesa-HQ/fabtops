@@ -47,7 +47,7 @@ async function fetchCartApi(body: Record<string, unknown>) {
   });
   const result = await response.json().catch(() => null);
   if (!response.ok || !result?.success) {
-    throw new Error(result?.error || 'Cart request failed');
+    throw new Error(result?.error || (response.status === 401 ? 'SESSION_EXPIRED' : 'Cart request failed'));
   }
   return result.data as CartData;
 }
@@ -133,6 +133,9 @@ export const useCartStore = create<CartState>()(
           set({ isCartOpen: true });
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            throw error;
+          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -157,6 +160,9 @@ export const useCartStore = create<CartState>()(
         try {
           get().syncCart(await fetchCartApi({ action: 'remove', lineKey }));
         } catch (error) {
+          if (error instanceof Error && error.message === 'SESSION_EXPIRED') {
+            throw error;
+          }
           console.error('WooCommerce cart operation failed:', error);
         } finally {
           set({ isLoading: false });
@@ -171,6 +177,9 @@ export const useCartStore = create<CartState>()(
           get().syncCart(await fetchCartApi({ action: 'update', lineKey, quantity }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            throw error;
+          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -214,6 +223,9 @@ export const useCartStore = create<CartState>()(
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            throw error;
+          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {
@@ -258,6 +270,9 @@ export const useCartStore = create<CartState>()(
           return null;
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Cart request failed';
+          if (message === 'SESSION_EXPIRED') {
+            throw error;
+          }
           if (message !== 'Cart request failed') {
             set({
               couponFeedback: {

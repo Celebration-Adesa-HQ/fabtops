@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag, Search, User, Menu, Heart } from "lucide-react";
 import {
   motion,
@@ -12,17 +13,21 @@ import {
 } from "framer-motion";
 import { useCart } from "@/components/cart/CartProvider";
 import { useFavorites } from "@/lib/favorites-context";
+import { useAuthSessionStore } from "@/stores/use-auth-session-store";
 import { SearchModal } from "./SearchModal";
 import { MobileMenu } from "./MobileMenu";
 import { CurrencySelector } from "./CurrencySelector";
 import { FabBabeCircleModal } from "./FabBabeCircleModal";
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const { scrollY } = useScroll();
   const { totalItems, setIsCartOpen } = useCart();
   const { count: favoritesCount } = useFavorites();
+  const authStatus = useAuthSessionStore((state) => state.authStatus);
 
   const headerBg = useTransform(
     scrollY,
@@ -43,6 +48,15 @@ export function Header() {
   );
 
   const headerPadding = useTransform(scrollY, [0, 50], ["1rem", "1rem"]);
+
+  function openCart() {
+    if (authStatus !== "authenticated") {
+      router.push(`/login?redirect=${encodeURIComponent(pathname || "/cart")}`);
+      return;
+    }
+
+    setIsCartOpen(true);
+  }
 
   return (
     <>
@@ -66,7 +80,7 @@ export function Header() {
           <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="min-[1150px]:hidden p-1.5 sm:p-2 hover:text-brand-primary transition-colors shrink-0"
+              className="min-[1150px]:hidden p-1.5 sm:p-2 hover:text-brand-accent transition-colors shrink-0"
               style={{ color: "inherit" }}
             >
               <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -75,35 +89,35 @@ export function Header() {
             <nav className="hidden min-[1150px]:flex items-center gap-6 xl:gap-8 text-[11px] uppercase tracking-[0.2em] font-black">
               <Link
                 href="/shop"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-accent transition-colors"
               >
                 Shop
               </Link>
 
               <Link
                 href="/collections"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-accent transition-colors"
               >
                 Collections
               </Link>
 
               <Link
                 href="/circle"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-accent transition-colors"
               >
                 The Circle
               </Link>
 
               <Link
                 href="/about"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-accent transition-colors"
               >
                 About
               </Link>
 
               <Link
                 href="/contact"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-accent transition-colors"
               >
                 Concierge
               </Link>
@@ -149,7 +163,7 @@ export function Header() {
 
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
+              className="hover:text-brand-accent transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
             >
               <Search className="h-5 w-5" />
@@ -157,7 +171,7 @@ export function Header() {
 
             <Link
               href="/wishlist"
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 relative group shrink-0"
+              className="hover:text-brand-accent transition-colors p-1.5 sm:p-2 relative group shrink-0"
               style={{ color: "inherit" }}
               aria-label="Wishlist"
             >
@@ -187,7 +201,7 @@ export function Header() {
 
             <Link
               href="/account"
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
+              className="hover:text-brand-accent transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
               aria-label="Customer account"
             >
@@ -195,8 +209,8 @@ export function Header() {
             </Link>
 
             <button
-              onClick={() => setIsCartOpen(true)}
-              className="relative hover:text-brand-primary transition-colors p-1.5 sm:p-2 group shrink-0"
+              onClick={openCart}
+              className="relative hover:text-brand-accent transition-colors p-1.5 sm:p-2 group shrink-0"
               style={{ color: "inherit" }}
             >
               <ShoppingBag className="h-5 w-5" />
@@ -209,13 +223,13 @@ export function Header() {
                     exit={{ scale: 0 }}
                     className="
                 absolute top-0 right-0
-                bg-brand-dark text-white
+                bg-brand-dark text-brand-light
                 text-[8px] font-black
                 w-4 h-4 rounded-full
                 flex items-center justify-center
                 border-2 border-brand-light
                 shadow-sm
-                group-hover:bg-brand-primary
+                group-hover:bg-brand-dark
                 transition-colors
               "
                   >

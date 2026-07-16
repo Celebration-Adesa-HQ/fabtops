@@ -96,24 +96,24 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {/* Close Button */}
               <button 
                 onClick={onClose}
-                className="absolute top-10 right-10 p-2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+                className="absolute top-10 right-10 p-2 text-brand-dark/75 hover:text-brand-dark transition-colors"
               >
                 <X size={32} strokeWidth={1} />
               </button>
 
               {/* Search Input Area */}
               <div className="relative mb-20 group">
-                <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-brand-dark/30 group-focus-within:text-brand-dark transition-colors" size={40} strokeWidth={1} />
+                <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-brand-dark/90 group-focus-within:text-brand-dark transition-colors" size={40} strokeWidth={1} />
                 <input
                   autoFocus
                   type="text"
                   placeholder="WHAT ARE YOU LOOKING FOR?"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-brand-dark/10 py-8 pl-16 pr-24 text-2xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark focus:outline-none focus:border-brand-dark transition-all placeholder:text-brand-dark/10"
+                  className="w-full bg-transparent border-b-2 border-brand-dark/10 py-8 pl-16 pr-24 text-2xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark focus:outline-none focus:border-brand-dark transition-all placeholder:text-brand-dark/80"
                 />
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4">
-                  {isSearching && <Loader2 className="animate-spin text-brand-dark/40" size={24} />}
+                  {isSearching && <Loader2 className="animate-spin text-brand-dark/75" size={24} />}
                   <AnimatePresence>
                     {query && (
                       <motion.button
@@ -121,7 +121,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8 }}
                         onClick={() => setQuery('')}
-                        className="p-2 text-brand-dark/40 hover:text-brand-dark transition-colors"
+                        className="p-2 text-brand-dark/75 hover:text-brand-dark transition-colors"
                       >
                         <X size={24} strokeWidth={1.5} />
                       </motion.button>
@@ -157,7 +157,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </div>
                         <div className="space-y-1">
                           <h4 className="text-[10px] uppercase font-bold tracking-widest text-brand-dark line-clamp-1">{product.title}</h4>
-                          <p className="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">
+                          <p className="text-[10px] font-bold text-brand-dark/75 uppercase tracking-widest">
                             {formatPrice(fromMinorUnits(product.price.amountMinor, product.price.minorUnit), product.price.currencyCode)}
                           </p>
                         </div>
@@ -171,7 +171,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     animate={{ opacity: 1 }}
                     className="py-20 text-center"
                   >
-                    <p className="text-brand-dark/40 uppercase tracking-[0.4em] font-black italic">No silhouttes found for "{query}"</p>
+                    <p className="text-brand-dark/75 uppercase tracking-[0.4em] font-black italic">No silhouttes found for "{query}"</p>
                   </motion.div>
                 ) : (
                   /* Initial Suggestions Grid */
@@ -184,7 +184,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   >
                     {/* Recent Searches */}
                     <div className="space-y-8">
-                      <div className="flex items-center gap-3 text-brand-dark/40">
+                      <div className="flex items-center gap-3 text-brand-dark/75">
                         <Clock size={16} />
                         <span className="text-[11px] uppercase tracking-[0.3em] font-bold">Recent Discoveries</span>
                       </div>
@@ -203,7 +203,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                     {/* Trending */}
                     <div className="space-y-8">
-                      <div className="flex items-center gap-3 text-brand-dark/40">
+                      <div className="flex items-center gap-3 text-brand-dark/75">
                         <TrendingUp size={16} />
                         <span className="text-[11px] uppercase tracking-[0.3em] font-bold">Trending Now</span>
                       </div>
@@ -213,7 +213,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             key={cat.handle}
                             href={`/collections/${cat.handle}`}
                             onClick={onClose}
-                            className="group flex items-center justify-between text-lg font-bold uppercase tracking-widest text-brand-dark hover:text-brand-primary transition-colors"
+                            className="group flex items-center justify-between text-lg font-bold uppercase tracking-widest text-brand-dark hover:text-brand-accent transition-colors"
                           >
                             {cat.name}
                             <ArrowRight size={16} className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
@@ -224,7 +224,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                     {/* Featured Highlight */}
                     <div className="space-y-8">
-                      <div className="flex items-center gap-3 text-brand-dark/40">
+                      <div className="flex items-center gap-3 text-brand-dark/75">
                         <Sparkles size={16} />
                         <span className="text-[11px] uppercase tracking-[0.3em] font-bold">Curated Edit</span>
                       </div>
@@ -241,7 +241,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           style={{ objectPosition: featuredSearchImage.objectPosition }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/60 to-transparent flex flex-col justify-end p-8">
-                          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/60 mb-2">Editor's Choice</p>
+                          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-white/90 mb-2">Editor's Choice</p>
                           <h4 className="text-xl font-heading text-white uppercase tracking-tight">The Modern Heritage Collection</h4>
                         </div>
                       </Link>

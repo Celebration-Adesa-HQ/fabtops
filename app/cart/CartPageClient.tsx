@@ -37,7 +37,7 @@ export default function CartPageClient() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
           <div className="space-y-4">
-            <Link href="/shop" className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark/40 hover:text-brand-dark transition-colors">
+            <Link href="/shop" className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark/75 hover:text-brand-dark transition-colors">
               <ChevronLeft size={12} />
               Continue Shopping
             </Link>
@@ -46,7 +46,7 @@ export default function CartPageClient() {
             </h1>
           </div>
           <div className="text-right flex flex-col items-end">
-            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-brand-dark/40 mb-1">Items in Bag</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-brand-dark/75 mb-1">Items in Bag</p>
             <span className="text-3xl font-heading text-brand-dark">{items.length}</span>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function CartPageClient() {
                     <benefit.icon size={16} strokeWidth={1.5} />
                   </div>
                   <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark">{benefit.title}</h4>
-                  <p className="text-[11px] text-brand-dark/40 uppercase tracking-widest leading-loose font-bold">{benefit.desc}</p>
+                  <p className="text-[11px] text-brand-dark/75 uppercase tracking-widest leading-loose font-bold">{benefit.desc}</p>
                 </div>
               ))}
             </div>

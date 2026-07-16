@@ -43,6 +43,7 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
     });
 
     if (!user) {
+      useCartStore.getState().clearUserScopedState();
       useWishlistStore.getState().setAnonymousSession(true);
       set({
         authStatus: 'unauthenticated',
@@ -50,10 +51,7 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
         isHydrating: false,
         mergeStatus: 'idle',
       });
-      await Promise.all([
-        useCartStore.getState().initializeCart(),
-        useWishlistStore.getState().initializeWishlist(),
-      ]);
+      await useWishlistStore.getState().initializeWishlist();
       return null;
     }
 
@@ -81,15 +79,13 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   },
   async logout() {
     await fetch('/api/account/logout', { method: 'POST' }).catch(() => null);
+    useCartStore.getState().clearUserScopedState();
     useWishlistStore.getState().setAnonymousSession(true);
     set({
       authStatus: 'unauthenticated',
       sessionUser: null,
       mergeStatus: 'idle',
     });
-    await Promise.all([
-      useCartStore.getState().initializeCart(),
-      useWishlistStore.getState().initializeWishlist(),
-    ]);
+    await useWishlistStore.getState().initializeWishlist();
   },
 }));

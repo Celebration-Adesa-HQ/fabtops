@@ -15,11 +15,11 @@ export default function SizeGuidePage() {
     <div className="bg-white min-h-screen pt-40 pb-32">
       <div className="max-w-5xl mx-auto px-6">
         <ScrollReveal>
-          <span className="text-xs uppercase tracking-[0.5em] text-pink-600 font-bold mb-8 block text-center">Fit Guidance</span>
-          <h1 className="text-5xl md:text-7xl font-serif-logo text-black mb-16 text-center leading-tight">
-            The Perfect <span className="italic text-pink-600">Fit</span>
+          <span className="text-xs uppercase tracking-[0.5em] text-brand-dark font-bold mb-8 block text-center">Fit Guidance</span>
+          <h1 className="text-5xl md:text-7xl font-serif-logo text-brand-dark mb-16 text-center leading-tight">
+            The Perfect <span className="italic text-brand-dark">Fit</span>
           </h1>
-          <p className="text-lg text-gray-500 font-light max-w-2xl mx-auto text-center mb-24 leading-relaxed">
+          <p className="text-lg text-brand-dark/85 font-light max-w-2xl mx-auto text-center mb-24 leading-relaxed">
             Finding your perfect FabTops size is essential for the ultimate silhouette. If you find yourself between sizes, we generally recommend sizing up for structured pieces and staying true to size for our stretch collections.
           </p>
         </ScrollReveal>
@@ -31,19 +31,19 @@ export default function SizeGuidePage() {
               <thead className="bg-pink-50">
                 <tr>
                   {['Size', 'UK', 'US', 'Bust (in)', 'Waist (in)', 'Hips (in)'].map((head) => (
-                    <th key={head} className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-pink-900 border-b border-pink-100">{head}</th>
+                    <th key={head} className="p-8 text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark border-b border-pink-100">{head}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {sizeData.map((row) => (
                   <tr key={row.size} className="hover:bg-pink-50/30 transition-colors">
-                    <td className="p-8 text-sm font-black text-black">{row.size}</td>
-                    <td className="p-8 text-sm text-gray-500">{row.uk}</td>
-                    <td className="p-8 text-sm text-gray-500">{row.us}</td>
-                    <td className="p-8 text-sm text-gray-500">{row.bust}</td>
-                    <td className="p-8 text-sm text-gray-500">{row.waist}</td>
-                    <td className="p-8 text-sm text-gray-500">{row.hips}</td>
+                    <td className="p-8 text-sm font-black text-brand-dark">{row.size}</td>
+                    <td className="p-8 text-sm text-brand-dark/85">{row.uk}</td>
+                    <td className="p-8 text-sm text-brand-dark/85">{row.us}</td>
+                    <td className="p-8 text-sm text-brand-dark/85">{row.bust}</td>
+                    <td className="p-8 text-sm text-brand-dark/85">{row.waist}</td>
+                    <td className="p-8 text-sm text-brand-dark/85">{row.hips}</td>
                   </tr>
                 ))}
               </tbody>
@@ -60,9 +60,9 @@ export default function SizeGuidePage() {
           ].map((tip, i) => (
             <ScrollReveal key={tip.title} delay={i * 0.1}>
               <div className="text-center">
-                <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 mx-auto mb-6 text-xs font-black">{i + 1}</div>
-                <h3 className="text-sm uppercase tracking-widest font-black text-black mb-4">{tip.title}</h3>
-                <p className="text-sm text-gray-400 font-medium leading-relaxed">{tip.desc}</p>
+                <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-brand-dark mx-auto mb-6 text-xs font-black">{i + 1}</div>
+                <h3 className="text-sm uppercase tracking-widest font-black text-brand-dark mb-4">{tip.title}</h3>
+                <p className="text-sm text-brand-dark/75 font-medium leading-relaxed">{tip.desc}</p>
               </div>
             </ScrollReveal>
           ))}

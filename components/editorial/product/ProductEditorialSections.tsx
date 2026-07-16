@@ -74,13 +74,13 @@ export function ProductEditorialSections({
 
           <div className="flex flex-col justify-center gap-8 px-6 py-10 md:px-10 lg:px-14">
             <div className="space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Editorial story</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Editorial story</p>
               <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
                 Quiet luxury, directed through silhouette.
               </h2>
             </div>
 
-            <div className="grid gap-6 text-sm leading-relaxed text-brand-dark/68">
+            <div className="grid gap-6 text-sm leading-relaxed text-brand-dark/85">
               <div>
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark">Brand story</h3>
                 <p className="mt-3">{narrative.designStory}</p>
@@ -100,7 +100,7 @@ export function ProductEditorialSections({
 
       <section className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Product details</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Product details</p>
           <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
             Everything worth checking before you commit.
           </h2>
@@ -117,7 +117,7 @@ export function ProductEditorialSections({
                 <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark">
                   {section.label}
                 </span>
-                <span className="text-xl leading-none text-brand-dark/50">
+                <span className="text-xl leading-none text-brand-dark/80">
                   {activeSection === section.id ? '−' : '+'}
                 </span>
               </button>
@@ -130,7 +130,7 @@ export function ProductEditorialSections({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <p className="pt-4 text-sm leading-relaxed text-brand-dark/68">
+                    <p className="pt-4 text-sm leading-relaxed text-brand-dark/85">
                       {accordionContent[section.id]}
                     </p>
                   </motion.div>
@@ -144,7 +144,7 @@ export function ProductEditorialSections({
       {completeTheLook.length > 0 ? (
         <section className="space-y-8">
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Complete the look</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Complete the look</p>
             <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
               Styled companions with the same point of view.
             </h2>
@@ -161,7 +161,7 @@ export function ProductEditorialSections({
       {relatedProducts.length > 0 ? (
         <section className="space-y-8">
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">You may also like</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">You may also like</p>
             <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
               More from the same wardrobe language.
             </h2>
@@ -191,7 +191,7 @@ export function ProductEditorialSections({
                 <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
                   <Icon size={18} className="text-brand-primary" />
                   <h3 className="mt-4 text-sm font-semibold uppercase tracking-[0.18em]">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/70">{item.copy}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/95">{item.copy}</p>
                 </div>
               );
             })}
@@ -201,7 +201,7 @@ export function ProductEditorialSections({
 
       <section className="space-y-5">
         <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">FAQ</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">FAQ</p>
           <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
             Common questions before checkout.
           </h2>
@@ -227,7 +227,7 @@ export function ProductEditorialSections({
         ].map((item) => (
           <div key={item.q} className="rounded-[1.5rem] border border-brand-dark/8 bg-white/70 px-5 py-4">
             <h3 className="text-sm font-semibold text-brand-dark">{item.q}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-brand-dark/68">{item.a}</p>
+            <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">{item.a}</p>
           </div>
         ))}
       </section>
