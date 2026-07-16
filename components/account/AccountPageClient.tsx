@@ -135,8 +135,8 @@ function SectionButton({
       onClick={onClick}
       className={`rounded-full px-4 py-3 text-[10px] font-black uppercase tracking-[0.32em] transition ${
         active
-          ? 'bg-brand-dark text-white'
-          : 'border border-brand-dark/10 bg-white text-brand-dark hover:border-brand-primary hover:text-brand-primary'
+          ? 'bg-brand-dark text-brand-light'
+          : 'border border-brand-dark/10 bg-white text-brand-dark hover:border-brand-primary hover:text-brand-dark'
       }`}
     >
       {label}
@@ -156,49 +156,49 @@ function AddressFields({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">First Name</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">First Name</span>
         <input className={fieldClass} value={address.firstName} onChange={(event) => onChange('firstName', event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Last Name</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Last Name</span>
         <input className={fieldClass} value={address.lastName} onChange={(event) => onChange('lastName', event.target.value)} />
       </label>
       <label className="space-y-2 md:col-span-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Company</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Company</span>
         <input className={fieldClass} value={address.company} onChange={(event) => onChange('company', event.target.value)} />
       </label>
       <label className="space-y-2 md:col-span-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Address Line 1</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Address Line 1</span>
         <input className={fieldClass} value={address.address1} onChange={(event) => onChange('address1', event.target.value)} />
       </label>
       <label className="space-y-2 md:col-span-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Address Line 2</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Address Line 2</span>
         <input className={fieldClass} value={address.address2} onChange={(event) => onChange('address2', event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">City</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">City</span>
         <input className={fieldClass} value={address.city} onChange={(event) => onChange('city', event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">State</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">State</span>
         <input className={fieldClass} value={address.state} onChange={(event) => onChange('state', event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Postcode</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Postcode</span>
         <input className={fieldClass} value={address.postcode} onChange={(event) => onChange('postcode', event.target.value)} />
       </label>
       <label className="space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Country</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Country</span>
         <input className={fieldClass} value={address.country} maxLength={2} onChange={(event) => onChange('country', event.target.value.toUpperCase())} />
       </label>
       {prefix === 'billing' ? (
         <>
           <label className="space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Email</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Email</span>
             <input className={fieldClass} value={address.email || ''} onChange={(event) => onChange('email', event.target.value)} />
           </label>
           <label className="space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Phone</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Phone</span>
             <input className={fieldClass} value={address.phone || ''} onChange={(event) => onChange('phone', event.target.value)} />
           </label>
         </>
@@ -368,26 +368,26 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
               <p className="text-[10px] font-black uppercase tracking-[0.45em] text-brand-primary">Customer Account</p>
               <h1 className="mt-4 font-heading text-4xl uppercase tracking-tight text-brand-dark md:text-6xl">
                 Your FabTops
-                <span className="block text-brand-dark/55">Private Studio</span>
+                <span className="block text-brand-dark/80">Private Studio</span>
               </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-brand-dark/60">
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-brand-dark/85">
                 Profile updates, saved delivery details, order tracking, wishlist pieces, and payment recovery now flow through your private FabTops account.
               </p>
             </div>
             <div className="rounded-[2rem] border border-brand-dark/8 bg-brand-light/70 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">Signed In As</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">Signed In As</p>
               <p className="mt-3 text-xl font-semibold text-brand-dark">{profile.email}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/wishlist"
-                  className="rounded-full border border-brand-dark/10 px-4 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark transition hover:border-brand-primary hover:text-brand-primary"
+                  className="rounded-full border border-brand-dark/10 px-4 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark transition hover:border-brand-primary hover:text-brand-dark"
                 >
                   Wishlist {wishlist.length > 0 ? `(${wishlist.length})` : ''}
                 </Link>
                 <button
                   type="button"
                   onClick={signOut}
-                  className="rounded-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-white transition hover:bg-brand-primary hover:text-brand-dark"
+                  className="rounded-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark"
                 >
                   Sign Out
                 </button>
@@ -414,7 +414,7 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
           <div className={`${panelClass} flex min-h-[320px] items-center justify-center`}>
             <div className="space-y-4 text-center">
               <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-brand-primary/20 border-t-brand-primary" />
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/40">Refreshing account studio</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-dark/75">Refreshing account studio</p>
             </div>
           </div>
         ) : null}
@@ -429,20 +429,20 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
             <form onSubmit={saveProfile} className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">First Name</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">First Name</span>
                   <input className={fieldClass} value={profile.firstName} onChange={(event) => updateProfileField('firstName', event.target.value)} />
                 </label>
                 <label className="space-y-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Last Name</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Last Name</span>
                   <input className={fieldClass} value={profile.lastName} onChange={(event) => updateProfileField('lastName', event.target.value)} />
                 </label>
               </div>
               <label className="space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Email</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Email</span>
                 <input className={`${fieldClass} bg-brand-light/60`} value={profile.email} readOnly />
               </label>
               <label className="space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50">Phone</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80">Phone</span>
                 <input className={fieldClass} value={profile.phone || ''} onChange={(event) => updateProfileField('phone', event.target.value)} />
               </label>
 
@@ -450,11 +450,11 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-white transition hover:bg-brand-primary hover:text-brand-dark disabled:opacity-60"
+                  className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark disabled:opacity-60"
                 >
                   {isSavingProfile ? 'Saving...' : 'Save Profile'}
                 </button>
-                {profileMessage ? <p className="text-sm text-brand-dark/60">{profileMessage}</p> : null}
+                {profileMessage ? <p className="text-sm text-brand-dark/85">{profileMessage}</p> : null}
               </div>
             </form>
           </section>
@@ -467,7 +467,7 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-primary">Addresses</p>
                 <h2 className="mt-3 text-3xl font-heading uppercase tracking-tight text-brand-dark">Delivery Book</h2>
               </div>
-              <p className="max-w-md text-sm leading-7 text-brand-dark/60">
+              <p className="max-w-md text-sm leading-7 text-brand-dark/85">
                 Keep billing and shipping details ready so checkout can stay fast and consistent across devices.
               </p>
             </div>
@@ -475,7 +475,7 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
             <form onSubmit={saveAddresses} className="space-y-8">
               <div className="grid gap-6 xl:grid-cols-2">
                 <div className="rounded-[1.75rem] border border-brand-dark/8 bg-brand-light/45 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">Billing Address</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">Billing Address</p>
                   <div className="mt-5">
                     <AddressFields
                       prefix="billing"
@@ -485,7 +485,7 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
                   </div>
                 </div>
                 <div className="rounded-[1.75rem] border border-brand-dark/8 bg-brand-light/45 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">Shipping Address</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">Shipping Address</p>
                   <div className="mt-5">
                     <AddressFields
                       prefix="shipping"
@@ -500,11 +500,11 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
                 <button
                   type="submit"
                   disabled={isSavingAddresses}
-                  className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-white transition hover:bg-brand-primary hover:text-brand-dark disabled:opacity-60"
+                  className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark disabled:opacity-60"
                 >
                   {isSavingAddresses ? 'Saving...' : 'Save Addresses'}
                 </button>
-                {addressMessage ? <p className="text-sm text-brand-dark/60">{addressMessage}</p> : null}
+                {addressMessage ? <p className="text-sm text-brand-dark/85">{addressMessage}</p> : null}
               </div>
             </form>
           </section>
@@ -529,7 +529,7 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
 
             <div className="space-y-4">
               {orders.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-brand-dark/10 bg-brand-light/60 p-6 text-sm text-brand-dark/60">
+                <div className="rounded-[1.5rem] border border-dashed border-brand-dark/10 bg-brand-light/60 p-6 text-sm text-brand-dark/85">
                   Your account is active. Orders will appear here after checkout.
                 </div>
               ) : (
@@ -537,19 +537,19 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
                   <article key={order.id} className="rounded-[1.5rem] border border-brand-dark/8 bg-white p-5">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/40">Order #{order.number}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/75">Order #{order.number}</p>
                         <h3 className="mt-2 text-lg font-semibold capitalize text-brand-dark">{labelizeStatus(order.status)}</h3>
-                        <p className="mt-2 text-sm text-brand-dark/55">
+                        <p className="mt-2 text-sm text-brand-dark/80">
                           {order.dateCreated ? new Date(order.dateCreated).toLocaleDateString() : 'Date unavailable'}
                         </p>
                         {order.lineItems?.length ? (
-                          <p className="mt-3 text-xs uppercase tracking-[0.24em] text-brand-dark/40">
+                          <p className="mt-3 text-xs uppercase tracking-[0.24em] text-brand-dark/75">
                             {order.lineItems.length} item{order.lineItems.length === 1 ? '' : 's'}
                           </p>
                         ) : null}
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/40">Total</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/75">Total</p>
                         <p className="mt-2 text-lg font-semibold text-brand-dark">
                           {order.total.currencyCode} {order.total.amount}
                         </p>
@@ -578,31 +578,31 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-primary">Wishlist</p>
                 <h2 className="mt-3 text-3xl font-heading uppercase tracking-tight text-brand-dark">Saved Silhouettes</h2>
-                <p className="mt-5 text-sm leading-7 text-brand-dark/60">
+                <p className="mt-5 text-sm leading-7 text-brand-dark/85">
                   Your wishlist is saved directly to your private FabTops account, so only your signed-in session can load or change it.
                 </p>
                 <Link
                   href="/wishlist"
-                  className="mt-8 inline-flex rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-white transition hover:bg-brand-primary hover:text-brand-dark"
+                  className="mt-8 inline-flex rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark"
                 >
                   Open Wishlist
                 </Link>
               </div>
               <div className="rounded-[1.75rem] border border-brand-dark/8 bg-brand-light/45 p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">Saved Right Now</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">Saved Right Now</p>
                 <div className="mt-6 flex items-end gap-4">
                   <span className="text-5xl font-heading text-brand-dark">{wishlist.length}</span>
-                  <span className="pb-2 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">pieces</span>
+                  <span className="pb-2 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">pieces</span>
                 </div>
                 <div className="mt-8 space-y-3">
                   {wishlist.slice(0, 3).map((item) => (
                     <div key={item.id} className="rounded-[1.25rem] border border-brand-dark/8 bg-white px-4 py-4">
                       <p className="text-sm font-semibold text-brand-dark">{item.title}</p>
-                      <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-brand-dark/45">{item.currencyCode} {item.price}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-brand-dark/75">{item.currencyCode} {item.price}</p>
                     </div>
                   ))}
                   {wishlist.length === 0 ? (
-                    <div className="rounded-[1.25rem] border border-dashed border-brand-dark/10 bg-white/60 px-4 py-5 text-sm text-brand-dark/55">
+                    <div className="rounded-[1.25rem] border border-dashed border-brand-dark/10 bg-white/60 px-4 py-5 text-sm text-brand-dark/80">
                       No saved pieces yet. Tap the heart on a product to begin your private edit.
                     </div>
                   ) : null}
@@ -618,19 +618,19 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-brand-primary">Payment Recovery</p>
                 <h2 className="mt-3 text-3xl font-heading uppercase tracking-tight text-brand-dark">Resume an Interrupted Order</h2>
-                <p className="mt-5 text-sm leading-7 text-brand-dark/60">
+                <p className="mt-5 text-sm leading-7 text-brand-dark/85">
                   If a gateway redirected you away before payment completed, use the recovery flow to reload the Woo order and continue checkout from the same shopper session.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     href={buildRecoveryHref(pendingOrder)}
-                    className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-white transition hover:bg-brand-primary hover:text-brand-dark"
+                    className="rounded-full bg-brand-dark px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark"
                   >
                     Open Recovery Flow
                   </Link>
                   <Link
                     href="/checkout"
-                    className="rounded-full border border-brand-dark/10 px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark transition hover:border-brand-primary hover:text-brand-primary"
+                    className="rounded-full border border-brand-dark/10 px-6 py-3 text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark transition hover:border-brand-primary hover:text-brand-dark"
                   >
                     Start Fresh Checkout
                   </Link>
@@ -638,19 +638,19 @@ export function AccountPageClient({ initialUser }: AccountPageClientProps) {
               </div>
 
               <div className="rounded-[1.75rem] border border-brand-dark/8 bg-brand-light/45 p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/45">Recovery Status</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.32em] text-brand-dark/75">Recovery Status</p>
                 {pendingOrder ? (
                   <div className="mt-5 space-y-4">
                     <div className="rounded-[1.25rem] border border-brand-primary/20 bg-white px-4 py-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-brand-dark/40">Pending Order</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-brand-dark/75">Pending Order</p>
                       <p className="mt-2 text-xl font-semibold capitalize text-brand-dark">#{pendingOrder.number}</p>
-                      <p className="mt-2 text-sm text-brand-dark/60">
+                      <p className="mt-2 text-sm text-brand-dark/85">
                         Status: {labelizeStatus(pendingOrder.status)}. You can jump straight back into recovery from here.
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-[1.25rem] border border-dashed border-brand-dark/10 bg-white/60 px-4 py-5 text-sm text-brand-dark/55">
+                  <div className="mt-5 rounded-[1.25rem] border border-dashed border-brand-dark/10 bg-white/60 px-4 py-5 text-sm text-brand-dark/80">
                     No interrupted customer orders are showing right now. You can still use the recovery page if you have an order ID, key, and guest billing email.
                   </div>
                 )}

@@ -25,7 +25,7 @@ export default function ArchivePage() {
           <h1 className="text-5xl md:text-8xl font-heading text-brand-dark mb-12 uppercase tracking-tighter">
             The <br /> <span className="italic opacity-80">Archive</span>
           </h1>
-          <p className="text-sm text-brand-dark/60 font-medium max-w-2xl mx-auto leading-relaxed mb-16 uppercase tracking-widest text-[11px]">
+          <p className="text-sm text-brand-dark/85 font-medium max-w-2xl mx-auto leading-relaxed mb-16 uppercase tracking-widest text-[11px]">
             A curation of sold-out masterpieces. These pieces are currently unavailable for purchase, existing as a testament to our design legacy and your impeccable taste.
           </p>
           <div className="flex justify-center gap-12 text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark">
@@ -65,7 +65,7 @@ export default function ArchivePage() {
                   </div>
                 </div>
                 <div className="mt-8 text-center px-4">
-                  <p className="text-[10px] uppercase text-brand-dark/40 tracking-[0.4em] mb-3 font-black">{item.collection}</p>
+                  <p className="text-[10px] uppercase text-brand-dark/75 tracking-[0.4em] mb-3 font-black">{item.collection}</p>
                   <h3 className="text-xl font-heading uppercase tracking-widest text-brand-dark mb-4">{item.title}</h3>
                   <div className="w-8 h-[2px] bg-brand-dark/10 mx-auto" />
                 </div>
@@ -80,10 +80,10 @@ export default function ArchivePage() {
       <section className="py-32 px-6 md:px-12 bg-brand-light text-center">
         <ScrollReveal>
           <h2 className="text-4xl md:text-5xl font-heading text-brand-dark mb-10 leading-tight">Missed a <span className="italic opacity-80">Masterpiece?</span></h2>
-          <p className="text-sm text-brand-dark/60 font-medium max-w-2xl mx-auto mb-12 uppercase tracking-widest text-[11px]">
+          <p className="text-sm text-brand-dark/85 font-medium max-w-2xl mx-auto mb-12 uppercase tracking-widest text-[11px]">
             While these pieces are sold out, we occasionally re-release iconic silhouettes in limited quantities. Join the notify list to be the first to know.
           </p>
-          <Link href="/circle" className="inline-flex items-center gap-4 bg-brand-dark text-white px-12 py-6 text-[10px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary transition-all duration-500 shadow-2xl shadow-brand-dark/20 group">
+          <Link href="/circle" className="inline-flex items-center gap-4 bg-brand-dark text-brand-light px-12 py-6 text-[10px] uppercase tracking-[0.4em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 shadow-2xl shadow-brand-dark/20 group">
             Join the Waitlist <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
           </Link>
         </ScrollReveal>

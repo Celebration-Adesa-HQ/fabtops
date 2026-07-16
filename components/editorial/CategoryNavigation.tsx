@@ -38,7 +38,7 @@ export function CategoryNavigation() {
     <section className="py-24 luxury-padding bg-brand-light">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col mb-16 space-y-4">
-          <span className="text-[11px] uppercase tracking-[0.4em] font-bold text-brand-dark/40">
+          <span className="text-[11px] uppercase tracking-[0.4em] font-bold text-brand-dark/75">
             Browse Categories
           </span>
           <h2 className="font-heading text-4xl md:text-6xl uppercase tracking-tighter text-brand-dark">
@@ -76,7 +76,7 @@ export function CategoryNavigation() {
                     </div>
                   </div>
                 </div>
-                <h3 className="text-sm md:text-base font-bold uppercase tracking-widest text-brand-dark group-hover:text-brand-primary transition-colors">
+                <h3 className="text-sm md:text-base font-bold uppercase tracking-widest text-brand-dark group-hover:text-brand-dark transition-colors">
                   {category.name}
                 </h3>
               </Link>

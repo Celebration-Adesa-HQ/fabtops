@@ -132,7 +132,7 @@ export function ProductPurchasePanel({
               'rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.24em]',
               canPurchase
                 ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-brand-dark text-white',
+                : 'bg-brand-dark text-brand-light',
             )}
           >
             {availabilityLabel(product, currentVariant, selectedSize, selectedColor)}
@@ -141,14 +141,14 @@ export function ProductPurchasePanel({
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[11px] font-semibold text-brand-dark shadow-sm">
               <Star size={14} className="fill-brand-primary text-brand-primary" />
               <span>{averageRating.toFixed(1)}</span>
-              <span className="text-brand-dark/55">{product.reviewCount} reviews</span>
+              <span className="text-brand-dark/80">{product.reviewCount} reviews</span>
             </div>
           ) : null}
         </div>
 
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
-            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-brand-dark/45">
+            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-brand-dark/75">
               {product.categories[0]?.title || product.productType || 'FabTops'}
             </p>
             <h1 className="font-heading text-4xl uppercase leading-[0.88] tracking-[-0.04em] text-brand-dark md:text-5xl xl:text-6xl">
@@ -161,7 +161,7 @@ export function ProductPurchasePanel({
             <button
               type="button"
               onClick={handleShare}
-              className="rounded-full border border-brand-dark/10 p-3 text-brand-dark transition-colors hover:border-brand-primary hover:text-brand-primary"
+              className="rounded-full border border-brand-dark/10 p-3 text-brand-dark transition-colors hover:border-brand-primary hover:text-brand-dark"
               aria-label="Share product"
             >
               <Share2 size={16} />
@@ -175,7 +175,7 @@ export function ProductPurchasePanel({
               {currentPriceLabel}
             </span>
             {currentRegularPriceLabel && currentRegularPriceLabel !== currentPriceLabel ? (
-              <span className="pb-1 text-sm text-brand-dark/30 line-through">
+              <span className="pb-1 text-sm text-brand-dark/70 line-through">
                 {currentRegularPriceLabel}
               </span>
             ) : null}
@@ -184,23 +184,23 @@ export function ProductPurchasePanel({
         </div>
 
         {product.shortDescription ? (
-          <p className="max-w-2xl text-sm leading-relaxed text-brand-dark/68">
+          <p className="max-w-2xl text-sm leading-relaxed text-brand-dark/85">
             {product.shortDescription}
           </p>
         ) : null}
       </div>
 
-      <div className="grid gap-3 rounded-[2rem] border border-brand-dark/8 bg-white/70 p-5 text-[11px] font-medium text-brand-dark/70 md:grid-cols-3">
+      <div className="grid gap-3 rounded-[2rem] border border-brand-dark/8 bg-white/70 p-5 text-[11px] font-medium text-brand-dark/90 md:grid-cols-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">SKU</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">SKU</p>
           <p className="mt-2 text-brand-dark">{product.sku || 'Made-to-order edit'}</p>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Category</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Category</p>
           <p className="mt-2 text-brand-dark">{product.categories[0]?.title || product.productType || 'Apparel'}</p>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Account</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Account</p>
           <p className="mt-2 text-brand-dark">{currentUser ? 'Signed in for faster checkout' : 'Guest bag, member Buy Now'}</p>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function ProductPurchasePanel({
           <section className="space-y-4">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Color</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Color</p>
                 <p className="mt-2 text-sm text-brand-dark">{selectedColor || 'Select a shade'}</p>
               </div>
             </div>
@@ -227,7 +227,7 @@ export function ProductPurchasePanel({
                     className={cn(
                       'flex items-center gap-3 rounded-full border px-4 py-3 text-[11px] font-semibold transition-all',
                       selectedColor === value
-                        ? 'border-brand-dark bg-brand-dark text-white'
+                        ? 'border-brand-dark bg-brand-dark text-brand-light'
                         : 'border-brand-dark/12 bg-white text-brand-dark hover:border-brand-dark/35',
                       !available && 'cursor-not-allowed opacity-35',
                     )}
@@ -248,7 +248,7 @@ export function ProductPurchasePanel({
           <section className="space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Size</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Size</p>
                 <p className="mt-2 text-sm text-brand-dark">{selectedSize || 'Select your fit'}</p>
               </div>
 
@@ -274,7 +274,7 @@ export function ProductPurchasePanel({
                     className={cn(
                       'flex h-12 min-w-12 items-center justify-center rounded-full border px-4 text-xs font-bold uppercase tracking-[0.18em] transition-all',
                       selectedSize === value
-                        ? 'border-brand-dark bg-brand-dark text-white'
+                        ? 'border-brand-dark bg-brand-dark text-brand-light'
                         : 'border-brand-dark/12 bg-white text-brand-dark hover:border-brand-dark/35',
                       !available && 'cursor-not-allowed opacity-35 line-through',
                     )}
@@ -292,14 +292,14 @@ export function ProductPurchasePanel({
         <div className="space-y-5">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Quantity</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Quantity</p>
             </div>
 
             <div className="flex items-center rounded-full border border-brand-dark/10 bg-brand-light/40 px-2">
               <button
                 type="button"
                 onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
-                className="p-3 text-brand-dark transition-colors hover:text-brand-primary"
+                className="p-3 text-brand-dark transition-colors hover:text-brand-dark"
                 aria-label="Decrease quantity"
               >
                 <Minus size={14} />
@@ -308,7 +308,7 @@ export function ProductPurchasePanel({
               <button
                 type="button"
                 onClick={() => onQuantityChange(quantity + 1)}
-                className="p-3 text-brand-dark transition-colors hover:text-brand-primary"
+                className="p-3 text-brand-dark transition-colors hover:text-brand-dark"
                 aria-label="Increase quantity"
               >
                 <Plus size={14} />
@@ -321,7 +321,7 @@ export function ProductPurchasePanel({
               type="button"
               onClick={() => void onAddToCart()}
               disabled={!canPurchase || isAddingToCart}
-              className="w-full rounded-full bg-brand-dark px-6 py-4 text-[11px] font-bold uppercase tracking-[0.34em] text-white transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
+              className="w-full rounded-full bg-brand-dark px-6 py-4 text-[11px] font-bold uppercase tracking-[0.34em] text-brand-light transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-45"
             >
               {isAddingToCart ? 'Adding...' : canPurchase ? 'Add to Bag' : 'Unavailable'}
             </button>
@@ -340,7 +340,7 @@ export function ProductPurchasePanel({
             <p className="text-sm text-red-700">{actionError}</p>
           ) : null}
 
-          <div className="grid gap-3 rounded-[1.5rem] bg-brand-light/70 p-4 text-sm text-brand-dark/70">
+          <div className="grid gap-3 rounded-[1.5rem] bg-brand-light/70 p-4 text-sm text-brand-dark/90">
             <div className="flex items-center gap-3">
               <Truck size={16} className="text-brand-primary" />
               <span>Delivery estimates appear at checkout after shipping selection.</span>

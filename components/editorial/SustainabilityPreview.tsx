@@ -18,9 +18,9 @@ export function SustainabilityPreview() {
                 Our Impact
               </span>
               <h2 className="font-heading text-5xl md:text-7xl uppercase tracking-tighter text-brand-dark leading-none">
-                Conscious <br /> <span className="italic opacity-40">Creation</span>
+                Conscious <br /> <span className="italic opacity-85">Creation</span>
               </h2>
-              <p className="text-brand-dark/60 text-lg md:text-xl leading-relaxed max-w-md font-medium">
+              <p className="text-brand-dark/85 text-lg md:text-xl leading-relaxed max-w-md font-medium">
                 We believe in beauty that doesn't cost the earth. Every piece is crafted with purpose, using responsibly sourced materials and ethical production practices.
               </p>
             </div>
@@ -33,7 +33,7 @@ export function SustainabilityPreview() {
                   </svg>
                 </div>
                 <h3 className="font-bold uppercase tracking-widest text-sm text-brand-dark">Circular Design</h3>
-                <p className="text-sm text-brand-dark/50 leading-relaxed">
+                <p className="text-sm text-brand-dark/80 leading-relaxed">
                   Designing for longevity and recyclability. We aim to keep our garments in use for as long as possible.
                 </p>
               </div>
@@ -44,7 +44,7 @@ export function SustainabilityPreview() {
                   </svg>
                 </div>
                 <h3 className="font-bold uppercase tracking-widest text-sm text-brand-dark">Ethical Sourcing</h3>
-                <p className="text-sm text-brand-dark/50 leading-relaxed">
+                <p className="text-sm text-brand-dark/80 leading-relaxed">
                   Working only with certified partners who share our commitment to fair wages and safe working conditions.
                 </p>
               </div>
@@ -53,9 +53,9 @@ export function SustainabilityPreview() {
             <div className="pt-8">
               <Link 
                 href="/sustainability"
-                className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-primary transition-all group"
+                className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-all group"
               >
-                Our Full Commitment <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-primary group-hover:w-16 transition-all" />
+                Our Full Commitment <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-dark group-hover:w-16 transition-all" />
               </Link>
             </div>
           </div>

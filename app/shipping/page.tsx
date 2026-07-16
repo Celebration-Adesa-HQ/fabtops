@@ -93,7 +93,7 @@ export default function ShippingPage() {
               Shipping & <br />
               <span className="italic opacity-40">Returns</span>
             </h1>
-            <p className="text-sm md:text-lg text-brand-dark/60 max-w-2xl leading-relaxed uppercase tracking-widest font-medium italic">
+            <p className="text-sm md:text-lg text-brand-dark/85 max-w-2xl leading-relaxed uppercase tracking-widest font-medium italic">
               Our commitment to a seamless discovery process includes meticulous handling and transparent delivery timelines.
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function ShippingPage() {
               <ScrollReveal key={i} delay={i * 0.1}>
                 <div className="space-y-10 group">
                   <div className="space-y-4">
-                    <span className="text-[10px] uppercase tracking-widest text-brand-dark/30 font-black">Destination</span>
+                    <span className="text-[10px] uppercase tracking-widest text-brand-dark/70 font-black">Destination</span>
                     <h3 className="text-2xl font-heading uppercase tracking-tight">{region.region}</h3>
                   </div>
                   
@@ -122,7 +122,7 @@ export default function ShippingPage() {
                         </div>
                         <div className="space-y-2">
                           <p className="text-[11px] uppercase tracking-widest font-black">{method.name}</p>
-                          <p className="text-sm text-brand-dark/40 font-medium italic">{method.time}</p>
+                          <p className="text-sm text-brand-dark/75 font-medium italic">{method.time}</p>
                           <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-primary">{method.price}</p>
                         </div>
                       </div>
@@ -146,7 +146,7 @@ export default function ShippingPage() {
                     Our Return <br />
                     <span className="italic text-brand-primary">Philosophy</span>
                   </h2>
-                  <p className="text-brand-light/60 text-sm md:text-base leading-relaxed uppercase tracking-widest font-bold max-w-md">
+                  <p className="text-brand-light/90 text-sm md:text-base leading-relaxed uppercase tracking-widest font-bold max-w-md">
                     We want you to be completely satisfied with your FabTops selection. If the fit or feel isn't exactly as you envisioned, we invite you to return or exchange your piece.
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function ShippingPage() {
                     <div className="text-brand-primary font-heading text-4xl opacity-20 group-hover:opacity-100 transition-opacity duration-700">0{i + 1}</div>
                     <div className="space-y-2">
                       <h4 className="text-xs uppercase tracking-[0.3em] font-black">{step.title}</h4>
-                      <p className="text-xs text-brand-light/40 leading-relaxed uppercase tracking-widest font-bold">
+                      <p className="text-xs text-brand-light/80 leading-relaxed uppercase tracking-widest font-bold">
                         {step.description}
                       </p>
                     </div>
@@ -192,13 +192,13 @@ export default function ShippingPage() {
                <div className="relative z-10 max-w-3xl mx-auto space-y-8">
                   <ShieldCheck size={48} className="mx-auto text-brand-primary" strokeWidth={1} />
                   <h2 className="text-3xl md:text-5xl font-heading uppercase tracking-tighter">The FabTops Guarantee</h2>
-                  <p className="text-brand-dark/60 text-sm uppercase tracking-widest leading-relaxed font-bold">
+                  <p className="text-brand-dark/85 text-sm uppercase tracking-widest leading-relaxed font-bold">
                     Each garment undergoes a rigorous three-stage quality audit before being hand-packaged in our signature boutique boxes. We ensure your items reach you in pristine, runway-ready condition.
                   </p>
                   <div className="pt-8">
                     <Link 
                       href="/contact" 
-                      className="inline-flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-black text-brand-dark border-b border-brand-dark pb-2 hover:text-brand-primary hover:border-brand-primary transition-all duration-500"
+                      className="inline-flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-black text-brand-dark border-b border-brand-dark pb-2 hover:text-brand-dark hover:border-brand-primary transition-all duration-500"
                     >
                       Speak with an Advisor
                       <ArrowRight size={14} />
@@ -212,7 +212,7 @@ export default function ShippingPage() {
         {/* Legal Note */}
         <ScrollReveal>
           <div className="pt-24 border-t border-brand-dark/10 text-center">
-             <p className="text-[9px] uppercase tracking-[0.4em] text-brand-dark/30 font-black max-w-2xl mx-auto leading-relaxed">
+             <p className="text-[9px] uppercase tracking-[0.4em] text-brand-dark/70 font-black max-w-2xl mx-auto leading-relaxed">
                By placing an order, you agree to our full shipping terms and conditions. International orders may be subject to customs duties and taxes which are the responsibility of the recipient.
              </p>
           </div>

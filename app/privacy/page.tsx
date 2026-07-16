@@ -33,7 +33,7 @@ export default function PrivacyPage() {
               Privacy <br />
               <span className="italic opacity-40">Policy</span>
             </h1>
-            <p className="text-sm uppercase tracking-widest font-black text-brand-dark/40 pt-4">
+            <p className="text-sm uppercase tracking-widest font-black text-brand-dark/75 pt-4">
               Last Updated: May 2024
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
             <ScrollReveal key={i}>
               <section className="space-y-6">
                 <h2 className="text-xs uppercase tracking-[0.3em] font-black border-b border-brand-dark/10 pb-4">{section.title}</h2>
-                <p className="text-sm md:text-base text-brand-dark/60 leading-relaxed uppercase tracking-widest font-bold">
+                <p className="text-sm md:text-base text-brand-dark/85 leading-relaxed uppercase tracking-widest font-bold">
                   {section.content}
                 </p>
               </section>

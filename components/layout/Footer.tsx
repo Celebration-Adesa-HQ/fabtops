@@ -70,7 +70,7 @@ export function Footer() {
           <div className="md:col-span-5 space-y-10">
             <div className="space-y-6">
               <Image src="/logo/Fab and Luxe Combined.png" alt="FabTops" width={200} height={200} className='w-48' priority />
-              <p className="text-brand-light/60 max-w-sm text-sm leading-relaxed">
+              <p className="text-brand-light/90 max-w-sm text-sm leading-relaxed">
                 Contemporary, premium fashion rooted in confidence, femininity, and self-expression. 
                 Crafted for the modern woman who lives with intention.
               </p>
@@ -89,7 +89,7 @@ export function Footer() {
                     <li key={link.name}>
                       <Link 
                         href={link.href} 
-                        className="text-sm text-brand-light/60 hover:text-brand-primary transition-colors duration-300"
+                        className="text-sm text-brand-light/90 hover:text-brand-dark transition-colors duration-300"
                       >
                         {link.name}
                       </Link>
@@ -110,7 +110,7 @@ export function Footer() {
                   href={social.href} 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-4 text-brand-light/60 hover:text-brand-primary transition-all duration-300"
+                  className="group flex items-center gap-4 text-brand-light/90 hover:text-brand-dark transition-all duration-300"
                 >
                   <div className="transition-transform duration-500 group-hover:scale-110">
                     {social.icon}
@@ -125,7 +125,7 @@ export function Footer() {
         </div>
 
         {/* Legal Footer */}
-        <div className="mt-24 pt-10 border-t border-brand-light/10 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] uppercase tracking-[0.2em] text-brand-light/40">
+        <div className="mt-24 pt-10 border-t border-brand-light/10 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] uppercase tracking-[0.2em] text-brand-light/80">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
             <p>© 2024 FabTops Digital Flagship.</p>
             <div className="flex items-center gap-8">

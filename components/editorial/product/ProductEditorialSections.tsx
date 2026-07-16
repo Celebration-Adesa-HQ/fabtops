@@ -80,7 +80,7 @@ export function ProductEditorialSections({
               </h2>
             </div>
 
-            <div className="grid gap-6 text-sm leading-relaxed text-brand-dark/68">
+            <div className="grid gap-6 text-sm leading-relaxed text-brand-dark/85">
               <div>
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark">Brand story</h3>
                 <p className="mt-3">{narrative.designStory}</p>
@@ -117,7 +117,7 @@ export function ProductEditorialSections({
                 <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-brand-dark">
                   {section.label}
                 </span>
-                <span className="text-xl leading-none text-brand-dark/50">
+                <span className="text-xl leading-none text-brand-dark/80">
                   {activeSection === section.id ? '−' : '+'}
                 </span>
               </button>
@@ -130,7 +130,7 @@ export function ProductEditorialSections({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <p className="pt-4 text-sm leading-relaxed text-brand-dark/68">
+                    <p className="pt-4 text-sm leading-relaxed text-brand-dark/85">
                       {accordionContent[section.id]}
                     </p>
                   </motion.div>
@@ -191,7 +191,7 @@ export function ProductEditorialSections({
                 <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
                   <Icon size={18} className="text-brand-primary" />
                   <h3 className="mt-4 text-sm font-semibold uppercase tracking-[0.18em]">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/70">{item.copy}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/95">{item.copy}</p>
                 </div>
               );
             })}
@@ -227,7 +227,7 @@ export function ProductEditorialSections({
         ].map((item) => (
           <div key={item.q} className="rounded-[1.5rem] border border-brand-dark/8 bg-white/70 px-5 py-4">
             <h3 className="text-sm font-semibold text-brand-dark">{item.q}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-brand-dark/68">{item.a}</p>
+            <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">{item.a}</p>
           </div>
         ))}
       </section>

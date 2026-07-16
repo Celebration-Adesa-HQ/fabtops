@@ -49,12 +49,12 @@ export function CartDrawer() {
       <div className="flex flex-col h-[calc(100vh-180px)]">
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/20">
+            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/60">
               <ShoppingBag size={40} />
             </div>
             <div className="space-y-2">
               <p className="text-[11px] uppercase tracking-widest font-bold text-brand-dark">Your bag is empty</p>
-              <p className="text-sm text-brand-dark/40 font-light">Explore our latest silhouettes to find your next statement piece.</p>
+              <p className="text-sm text-brand-dark/75 font-light">Explore our latest silhouettes to find your next statement piece.</p>
             </div>
             <Link
               href="/shop"
@@ -99,20 +99,20 @@ export function CartDrawer() {
                           <Link 
                             href={`/product/${item.handle}`}
                             onClick={() => setIsCartOpen(false)}
-                            className="text-xs uppercase tracking-widest font-bold text-brand-dark hover:text-brand-primary transition-colors"
+                            className="text-xs uppercase tracking-widest font-bold text-brand-dark hover:text-brand-dark transition-colors"
                           >
                             {item.title}
                           </Link>
                           <button 
                             onClick={() => removeFromCart(item.id)}
                             disabled={isLoading}
-                            className="text-brand-dark/20 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="text-brand-dark/60 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             aria-label="Remove item"
                           >
                             <Trash2 size={14} />
                           </button>
                         </div>
-                        <p className="text-[10px] uppercase tracking-widest text-brand-dark/40 font-medium">
+                        <p className="text-[10px] uppercase tracking-widest text-brand-dark/75 font-medium">
                           {formatPrice(item.price, 'NGN')}
                         </p>
                       </div>
@@ -122,7 +122,7 @@ export function CartDrawer() {
                           <button 
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                             disabled={isLoading}
-                            className="p-1 hover:text-brand-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-1 hover:text-brand-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             aria-label="Decrease quantity"
                           >
                             <Minus size={12} />
@@ -131,7 +131,7 @@ export function CartDrawer() {
                           <button 
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             disabled={isLoading}
-                            className="p-1 hover:text-brand-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-1 hover:text-brand-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             aria-label="Increase quantity"
                           >
                             <Plus size={12} />
@@ -159,7 +159,7 @@ export function CartDrawer() {
                   <button 
                     type="submit"
                     disabled={isApplying || !promoCode}
-                    className="px-6 py-3 bg-brand-dark text-white text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary disabled:opacity-50 transition-all"
+                    className="px-6 py-3 bg-brand-dark text-brand-light text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary hover:text-brand-dark disabled:opacity-50 transition-all"
                   >
                     {isApplying ? '...' : 'Apply'}
                   </button>
@@ -179,9 +179,9 @@ export function CartDrawer() {
                   <div key={dc.code} className="flex items-center justify-between gap-3 bg-brand-primary/10 px-4 py-3 rounded-2xl border border-brand-primary/20">
                     <div className="flex flex-col gap-1">
                       <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
-                        {dc.code} {!dc.applicable && <span className="opacity-60">(Not Applicable)</span>}
+                        {dc.code} {!dc.applicable && <span className="opacity-85">(Not Applicable)</span>}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/60">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/85">
                         -{formatPrice(dc.discountTotal, dc.currencyCode)}
                       </span>
                     </div>
@@ -199,7 +199,7 @@ export function CartDrawer() {
             <div className="pt-8 space-y-6 border-t border-brand-dark/10 mt-auto">
               <div className="space-y-2">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Subtotal</span>
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/75">Subtotal</span>
                   <span className="text-sm font-bold text-brand-dark">{formatPrice(subtotal, currencyCode)}</span>
                 </div>
                 {discountCodes.length > 0 && (
@@ -222,12 +222,12 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              <p className="text-[10px] text-brand-dark/40 italic">Shipping and taxes calculated at checkout.</p>
+              <p className="text-[10px] text-brand-dark/75 italic">Shipping and taxes calculated at checkout.</p>
               
               <div className="space-y-3">
                 <a
                   href={checkoutUrl || '#'}
-                  className="w-full bg-brand-dark text-white text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
+                  className="w-full bg-brand-dark text-brand-light text-[11px] uppercase tracking-[0.4em] font-black py-6 flex items-center justify-center gap-3 hover:bg-brand-primary hover:text-brand-dark transition-all duration-700 shadow-2xl shadow-brand-dark/20 group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3">
                     Secure Checkout via Paystack <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

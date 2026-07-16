@@ -80,11 +80,11 @@ export function ProductReviewsPanel({
                   <Star
                     key={`summary-${index}`}
                     size={14}
-                    className={cn(index < Math.round(averageRating) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/15')}
+                    className={cn(index < Math.round(averageRating) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/50')}
                   />
                 ))}
               </div>
-              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">
                 {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
               </p>
             </div>
@@ -94,7 +94,7 @@ export function ProductReviewsPanel({
             {ratingDistribution.map((entry) => {
               const percentage = reviews.length ? (entry.count / reviews.length) * 100 : 0;
               return (
-                <div key={entry.rating} className="grid grid-cols-[28px_minmax(0,1fr)_24px] items-center gap-3 text-sm text-brand-dark/70">
+                <div key={entry.rating} className="grid grid-cols-[28px_minmax(0,1fr)_24px] items-center gap-3 text-sm text-brand-dark/90">
                   <span>{entry.rating}</span>
                   <div className="h-2 rounded-full bg-brand-light">
                     <div
@@ -114,12 +114,12 @@ export function ProductReviewsPanel({
             <div className="rounded-[1.5rem] border border-brand-dark/8 bg-brand-light/45 p-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Members only</p>
               <h3 className="mt-3 text-lg font-semibold text-brand-dark">Sign in to write a review</h3>
-              <p className="mt-3 text-sm leading-relaxed text-brand-dark/68">
+              <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">
                 Reviews are tied to your FabTops account so you can update them later.
               </p>
               <Link
                 href={`/login?redirect=/product/${productHandle}#reviews`}
-                className="mt-5 inline-flex rounded-full bg-brand-dark px-5 py-3 text-[10px] font-bold uppercase tracking-[0.28em] text-white transition-colors hover:bg-brand-primary hover:text-brand-dark"
+                className="mt-5 inline-flex rounded-full bg-brand-dark px-5 py-3 text-[10px] font-bold uppercase tracking-[0.28em] text-brand-light transition-colors hover:bg-brand-primary hover:text-brand-dark"
               >
                 Sign in
               </Link>
@@ -131,7 +131,7 @@ export function ProductReviewsPanel({
                   <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">
                     {customerReview ? 'Edit your review' : 'Write a review'}
                   </p>
-                  <p className="mt-3 text-sm leading-relaxed text-brand-dark/68">
+                  <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">
                     Share your note on fit, finish, and how the piece wears in real life.
                   </p>
                 </div>
@@ -162,7 +162,7 @@ export function ProductReviewsPanel({
                     >
                       <Star
                         size={18}
-                        className={cn(value <= draftRating ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/20')}
+                        className={cn(value <= draftRating ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/60')}
                       />
                     </button>
                   );
@@ -187,7 +187,7 @@ export function ProductReviewsPanel({
               <button
                 type="submit"
                 disabled={isReviewPending}
-                className="mt-5 rounded-full bg-brand-dark px-6 py-4 text-[10px] font-bold uppercase tracking-[0.28em] text-white transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:opacity-45"
+                className="mt-5 rounded-full bg-brand-dark px-6 py-4 text-[10px] font-bold uppercase tracking-[0.28em] text-brand-light transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:opacity-45"
               >
                 {isReviewPending ? 'Saving...' : customerReview ? 'Update review' : 'Submit review'}
               </button>
@@ -195,7 +195,7 @@ export function ProductReviewsPanel({
           )}
 
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/45">Sort reviews</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-brand-dark/75">Sort reviews</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { id: 'newest', label: 'Newest' },
@@ -209,7 +209,7 @@ export function ProductReviewsPanel({
                   className={cn(
                     'rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] transition-colors',
                     sortOrder === option.id
-                      ? 'border-brand-dark bg-brand-dark text-white'
+                      ? 'border-brand-dark bg-brand-dark text-brand-light'
                       : 'border-brand-dark/10 bg-white text-brand-dark hover:border-brand-dark/35',
                   )}
                 >
@@ -233,7 +233,7 @@ export function ProductReviewsPanel({
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/42">
+                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/75">
                         {review.formatted_date_created}
                       </p>
                     </div>
@@ -243,21 +243,21 @@ export function ProductReviewsPanel({
                         <Star
                           key={`${review.id}-${index}`}
                           size={14}
-                          className={cn(index < Number(review.rating || 0) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/15')}
+                          className={cn(index < Number(review.rating || 0) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/50')}
                         />
                       ))}
                     </div>
                   </div>
 
                   <div
-                    className="mt-4 text-sm leading-relaxed text-brand-dark/68"
+                    className="mt-4 text-sm leading-relaxed text-brand-dark/85"
                     dangerouslySetInnerHTML={{ __html: review.review }}
                   />
                 </article>
               ))}
             </div>
           ) : (
-            <div className="rounded-[1.5rem] border border-dashed border-brand-dark/12 bg-white/40 p-6 text-sm leading-relaxed text-brand-dark/60">
+            <div className="rounded-[1.5rem] border border-dashed border-brand-dark/12 bg-white/40 p-6 text-sm leading-relaxed text-brand-dark/85">
               No reviews yet. The first thoughtful fit note can help the next customer decide with more confidence.
             </div>
           )}

@@ -6,12 +6,12 @@ export function ProductBreadcrumbs({ items }: { items: ProductBreadcrumbItem[] }
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/45"
+      className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-brand-dark/75"
     >
       {items.map((item, index) => (
         <span key={`${item.label}-${index}`} className="flex items-center gap-2">
           {item.href ? (
-            <Link href={item.href} className="transition-colors hover:text-brand-primary">
+            <Link href={item.href} className="transition-colors hover:text-brand-dark">
               {item.label}
             </Link>
           ) : (

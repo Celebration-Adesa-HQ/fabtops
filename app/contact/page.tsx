@@ -34,12 +34,12 @@ export default function ContactPage() {
           <header className="max-w-4xl mb-32 space-y-8">
             <div className="flex items-center gap-3">
               <div className="h-px w-12 bg-brand-dark/20" />
-              <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-dark/40">Connect With Us</span>
+              <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-dark/75">Connect With Us</span>
             </div>
             <h1 className="text-6xl md:text-9xl font-heading text-brand-dark uppercase tracking-tighter leading-[0.85]">
               Let's <span className="italic opacity-50">Converse</span>
             </h1>
-            <p className="text-brand-dark/60 text-lg md:text-xl max-w-2xl leading-relaxed uppercase tracking-[0.05em] font-medium">
+            <p className="text-brand-dark/85 text-lg md:text-xl max-w-2xl leading-relaxed uppercase tracking-[0.05em] font-medium">
               Our concierge team is here to assist with your styling journey, order inquiries, or any brand experiences.
             </p>
           </header>
@@ -56,7 +56,7 @@ export default function ContactPage() {
                     <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-all duration-500">
                       <MapPin size={20} strokeWidth={1.5} />
                     </div>
-                    <p className="text-brand-dark/60 text-sm uppercase tracking-widest leading-loose font-bold">
+                    <p className="text-brand-dark/85 text-sm uppercase tracking-widest leading-loose font-bold">
                       12 Luxury Lane, VI <br />
                       Lagos, Nigeria <br />
                       Digital Flagship Operations
@@ -71,13 +71,13 @@ export default function ContactPage() {
                       <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-all duration-500">
                         <Mail size={20} strokeWidth={1.5} />
                       </div>
-                      <span className="text-brand-dark/60 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">concierge@fabtops.com</span>
+                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">concierge@fabtops.com</span>
                     </a>
                     <a href="tel:+234000000000" className="flex items-center gap-6 group">
                       <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-all duration-500">
                         <Phone size={20} strokeWidth={1.5} />
                       </div>
-                      <span className="text-brand-dark/60 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">+234 (0) 800 FAB TOPS</span>
+                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">+234 (0) 800 FAB TOPS</span>
                     </a>
                   </div>
                 </div>
@@ -88,7 +88,7 @@ export default function ContactPage() {
                     <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark">
                       <Clock size={20} strokeWidth={1.5} />
                     </div>
-                    <div className="text-brand-dark/60 text-sm uppercase tracking-widest leading-loose font-bold">
+                    <div className="text-brand-dark/85 text-sm uppercase tracking-widest leading-loose font-bold">
                       <p>Mon — Fri: 09:00 - 18:00 WAT</p>
                       <p>Sat: 10:00 - 14:00 WAT</p>
                     </div>
@@ -108,8 +108,8 @@ export default function ContactPage() {
                     { icon: MessageCircle, label: 'WhatsApp' }
                   ].map((social, i) => (
                     <button key={i} className="flex-1 flex items-center justify-center gap-3 py-4 bg-white/10 hover:bg-white/40 border border-brand-dark/5 transition-all rounded-xl group">
-                      <social.icon size={18} className="text-brand-dark/40 group-hover:text-brand-dark transition-colors" />
-                      <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark/40 group-hover:text-brand-dark transition-colors">{social.label}</span>
+                      <social.icon size={18} className="text-brand-dark/75 group-hover:text-brand-dark transition-colors" />
+                      <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark/75 group-hover:text-brand-dark transition-colors">{social.label}</span>
                     </button>
                   ))}
                 </div>
@@ -127,18 +127,18 @@ export default function ContactPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="py-20 text-center space-y-8"
                   >
-                    <div className="w-24 h-24 bg-brand-dark text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                    <div className="w-24 h-24 bg-brand-dark text-brand-light rounded-full flex items-center justify-center mx-auto shadow-2xl">
                       <Send size={40} />
                     </div>
                     <div className="space-y-4">
                       <h2 className="text-3xl font-heading text-brand-dark uppercase tracking-tight">Message Received</h2>
-                      <p className="text-brand-dark/60 uppercase tracking-widest text-xs font-black max-w-sm mx-auto leading-loose">
+                      <p className="text-brand-dark/85 uppercase tracking-widest text-xs font-black max-w-sm mx-auto leading-loose">
                         Our concierge will review your inquiry and respond within 24 business hours.
                       </p>
                     </div>
                     <button 
                       onClick={() => setIsSubmitted(false)}
-                      className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-primary transition-colors underline underline-offset-8"
+                      className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-colors underline underline-offset-8"
                     >
                       Send Another Inquiry
                     </button>
@@ -147,27 +147,27 @@ export default function ContactPage() {
                   <form onSubmit={handleSubmit} className="space-y-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                       <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 ml-4">Your Identity</label>
+                        <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/75 ml-4">Your Identity</label>
                         <input 
                           required
                           type="text" 
                           placeholder="FULL NAME"
-                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/20"
+                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60"
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 ml-4">Digital Reference</label>
+                        <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/75 ml-4">Digital Reference</label>
                         <input 
                           required
                           type="email" 
                           placeholder="EMAIL ADDRESS"
-                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/20"
+                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 ml-4">Inquiry Subject</label>
+                      <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/75 ml-4">Inquiry Subject</label>
                       <select className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none appearance-none cursor-pointer">
                         <option>ORDER ASSISTANCE</option>
                         <option>STYLING ADVICE</option>
@@ -178,18 +178,18 @@ export default function ContactPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/40 ml-4">Your Message</label>
+                      <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/75 ml-4">Your Message</label>
                       <textarea 
                         required
                         placeholder="HOW CAN WE ASSIST YOU?"
                         rows={6}
-                        className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-8 px-8 rounded-[2rem] text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/20 resize-none"
+                        className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-8 px-8 rounded-[2rem] text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60 resize-none"
                       />
                     </div>
 
                     <button 
                       disabled={isSubmitting}
-                      className="w-full bg-brand-dark text-white py-8 rounded-[2rem] text-[11px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary transition-all shadow-2xl shadow-brand-dark/20 flex items-center justify-center gap-4 group"
+                      className="w-full bg-brand-dark text-brand-light py-8 rounded-[2rem] text-[11px] uppercase tracking-[0.5em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all shadow-2xl shadow-brand-dark/20 flex items-center justify-center gap-4 group"
                     >
                       {isSubmitting ? (
                         <>

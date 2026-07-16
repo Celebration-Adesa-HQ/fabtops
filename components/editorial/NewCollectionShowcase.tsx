@@ -58,13 +58,13 @@ export function NewCollectionShowcase() {
           {/* Content Side */}
           <div className="space-y-12">
             <div className="space-y-6">
-              <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-primary">
+              <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-accent">
                 Limited Release
               </span>
               <h2 className="font-heading text-6xl md:text-8xl uppercase tracking-tighter text-brand-dark leading-none">
-                Serenity <br /> <span className="italic opacity-40">In Motion</span>
+                Serenity <br /> <span className="italic opacity-85">In Motion</span>
               </h2>
-              <p className="text-brand-dark/60 text-lg md:text-xl leading-relaxed max-w-md font-medium">
+              <p className="text-brand-dark/85 text-lg md:text-xl leading-relaxed max-w-md font-medium">
                 Inspired by the fluidity of water and the strength of stone. Our latest collection explores the balance of power and grace.
               </p>
             </div>
@@ -85,11 +85,11 @@ export function NewCollectionShowcase() {
             <div className="pt-12 grid grid-cols-2 gap-8 border-t border-brand-dark/5">
               <div className="space-y-2">
                 <span className="text-2xl font-heading text-brand-dark">100%</span>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Sustainably Sourced</p>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/75">Sustainably Sourced</p>
               </div>
               <div className="space-y-2">
                 <span className="text-2xl font-heading text-brand-dark">Ltd.</span>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/40">Exclusive Quantities</p>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-brand-dark/75">Exclusive Quantities</p>
               </div>
             </div>
           </div>

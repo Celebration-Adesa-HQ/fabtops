@@ -14,15 +14,15 @@ export function CirclePhilosophy() {
           <div className="flex flex-col lg:flex-row items-center gap-24">
             <div className="flex-1 space-y-12 text-left">
               <div className="w-px h-24 bg-brand-dark/20" />
-              <h3 className="text-xs uppercase tracking-[0.5em] text-brand-dark opacity-40 font-black">Legacy Philosophy</h3>
+              <h3 className="text-xs uppercase tracking-[0.5em] text-brand-dark opacity-80 font-black">Legacy Philosophy</h3>
               <div className="space-y-10">
                 <div className="space-y-6">
-                  <h4 className="text-3xl md:text-5xl font-heading text-brand-dark leading-[0.9] uppercase tracking-tighter">Private <br /><span className="italic opacity-80">Vaults</span></h4>
-                  <p className="text-[11px] text-brand-dark/60 font-black uppercase tracking-widest leading-relaxed max-w-md">Members gain exclusive access to the 'Hidden Vault'—a collection of limited prototypes and one-off pieces that never grace the public digital flagship.</p>
+                  <h4 className="text-3xl md:text-5xl font-heading text-brand-dark leading-[0.9] uppercase tracking-tighter">Private <br /><span className="italic opacity-95">Vaults</span></h4>
+                  <p className="text-[11px] text-brand-dark/85 font-black uppercase tracking-widest leading-relaxed max-w-md">Members gain exclusive access to the 'Hidden Vault'—a collection of limited prototypes and one-off pieces that never grace the public digital flagship.</p>
                 </div>
                 <div className="space-y-6">
-                  <h4 className="text-3xl md:text-5xl font-heading text-brand-dark leading-[0.9] uppercase tracking-tighter">Digital <br /><span className="italic opacity-80">Stylist</span></h4>
-                  <p className="text-[11px] text-brand-dark/60 font-black uppercase tracking-widest leading-relaxed max-w-md">Dedicated 24/7 concierge support for bespoke sizing queries, event styling, and priority fabric selection via private channels.</p>
+                  <h4 className="text-3xl md:text-5xl font-heading text-brand-dark leading-[0.9] uppercase tracking-tighter">Digital <br /><span className="italic opacity-95">Stylist</span></h4>
+                  <p className="text-[11px] text-brand-dark/85 font-black uppercase tracking-widest leading-relaxed max-w-md">Dedicated 24/7 concierge support for bespoke sizing queries, event styling, and priority fabric selection via private channels.</p>
                 </div>
               </div>
             </div>

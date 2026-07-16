@@ -198,7 +198,7 @@ export default function CheckoutPageClient({ initialValues, initialCart }: Check
   return (
     <main className="min-h-screen bg-brand-light px-6 pb-24 pt-32 md:px-12">
       <div className="mx-auto max-w-5xl">
-        <Link href="/cart" className="mb-12 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/50 hover:text-brand-dark">
+        <Link href="/cart" className="mb-12 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/80 hover:text-brand-dark">
           <ArrowLeft size={14} /> Return to bag
         </Link>
         <div className="grid gap-14 lg:grid-cols-[1fr_320px]">
@@ -248,15 +248,15 @@ export default function CheckoutPageClient({ initialValues, initialCart }: Check
             {(error || Object.keys(errors).length > 0) ? (
               <p role="alert" className="bg-red-50 p-4 text-sm text-red-700">{error || 'Please complete every required checkout field.'}</p>
             ) : null}
-            <button disabled={submitting} className="flex w-full items-center justify-center gap-3 bg-brand-dark py-6 text-[10px] font-black uppercase tracking-[0.35em] text-white transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:opacity-50">
+            <button disabled={submitting} className="flex w-full items-center justify-center gap-3 bg-brand-dark py-6 text-[10px] font-black uppercase tracking-[0.35em] text-brand-light transition-colors hover:bg-brand-primary hover:text-brand-dark disabled:opacity-50">
               {submitting ? <Loader2 size={16} className="animate-spin" /> : <LockKeyhole size={16} />}
               {isRetrying ? 'Cleaning up cart…' : submitting ? 'Preparing payment…' : 'Continue securely with Paystack'}
             </button>
           </form>
         </div>
         <div className="mt-10 rounded-[1.5rem] border border-brand-dark/8 bg-white/55 p-5 lg:max-w-[calc(100%-352px)]">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/45">Payment Interrupted?</p>
-          <p className="mt-3 text-sm leading-7 text-brand-dark/60">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/75">Payment Interrupted?</p>
+          <p className="mt-3 text-sm leading-7 text-brand-dark/85">
             Recovery is still available for legacy Woo-hosted unpaid orders. Direct Paystack checkout now stays on FabTops during the normal flow.
           </p>
           <Link

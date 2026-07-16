@@ -60,7 +60,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               />
               <button 
                 onClick={onClose}
-                className="w-12 h-12 rounded-full bg-brand-dark text-white flex items-center justify-center hover:bg-brand-primary transition-colors"
+                className="w-12 h-12 rounded-full bg-brand-dark text-brand-light flex items-center justify-center hover:bg-brand-dark transition-colors"
               >
                 <X size={20} />
               </button>
@@ -82,12 +82,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       className="group block space-y-2"
                     >
                       <div className="flex items-center justify-between">
-                        <h2 className="text-4xl md:text-5xl font-heading text-brand-dark uppercase tracking-tighter group-hover:text-brand-primary transition-colors">
+                        <h2 className="text-4xl md:text-5xl font-heading text-brand-dark uppercase tracking-tighter group-hover:text-brand-dark transition-colors">
                           {link.name}
                         </h2>
                         <ArrowRight className="text-brand-primary opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" size={24} />
                       </div>
-                      <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-dark/40">
+                      <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-dark/75">
                         {link.desc}
                       </p>
                     </Link>
@@ -108,23 +108,23 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     onClick={onClose}
                     className="flex flex-col items-center gap-3 p-6 bg-white/40 rounded-3xl hover:bg-white transition-all group"
                   >
-                    <item.icon size={20} className="text-brand-dark/40 group-hover:text-brand-primary transition-colors" />
-                    <span className="text-[9px] uppercase tracking-widest font-black text-brand-dark/40 group-hover:text-brand-dark transition-colors">{item.label}</span>
+                    <item.icon size={20} className="text-brand-dark/75 group-hover:text-brand-dark transition-colors" />
+                    <span className="text-[9px] uppercase tracking-widest font-black text-brand-dark/75 group-hover:text-brand-dark transition-colors">{item.label}</span>
                   </Link>
                 ))}
               </div>
 
               {/* Social Presence */}
               <div className="pt-12 space-y-8">
-                <h3 className="text-[10px] uppercase tracking-[0.5em] font-black text-brand-dark/20 text-center">Connected Spaces</h3>
+                <h3 className="text-[10px] uppercase tracking-[0.5em] font-black text-brand-dark/60 text-center">Connected Spaces</h3>
                 <div className="flex justify-center gap-8">
-                  <Link href="https://instagram.com/fabtops" className="text-brand-dark/40 hover:text-brand-primary transition-colors">
+                  <Link href="https://instagram.com/fabtops" className="text-brand-dark/75 hover:text-brand-dark transition-colors">
                     <InstagramIcon size={24} />
                   </Link>
-                  <Link href="https://twitter.com/fabtops" className="text-brand-dark/40 hover:text-brand-primary transition-colors">
+                  <Link href="https://twitter.com/fabtops" className="text-brand-dark/75 hover:text-brand-dark transition-colors">
                     <XIcon size={24} />
                   </Link>
-                  <Link href="https://wa.me/234000000000" className="text-brand-dark/40 hover:text-brand-primary transition-colors">
+                  <Link href="https://wa.me/234000000000" className="text-brand-dark/75 hover:text-brand-dark transition-colors">
                     <MessageCircle size={24} />
                   </Link>
                 </div>
@@ -132,7 +132,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </div>
 
             {/* Footer Philosophy */}
-            <div className="p-12 bg-brand-dark text-white/40 text-center">
+            <div className="p-12 bg-brand-dark text-brand-light/80 text-center">
               <p className="text-[9px] uppercase tracking-[0.4em] font-medium leading-loose">
                 Contemporary Craft <br />
                 Liquid Glass Rebrand — 2024

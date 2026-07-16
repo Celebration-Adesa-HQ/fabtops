@@ -66,13 +66,13 @@ export default function RegisterPage() {
           </div>
           <input className={fieldClass} type="email" placeholder="Email address" value={form.email} onChange={(event) => updateField('email', event.target.value)} />
           <input className={fieldClass} type="password" placeholder="Password" value={form.password} onChange={(event) => updateField('password', event.target.value)} />
-          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
+          <button className="w-full rounded-full bg-brand-dark px-5 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-brand-light transition hover:bg-brand-primary hover:text-brand-dark" disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create Account'}
           </button>
         </form>
         {message ? <p className="mt-4 text-sm text-red-600">{message}</p> : null}
-        <p className="mt-6 text-sm text-brand-dark/60">
-          Already have an account? <Link href={`/login?redirect=${encodeURIComponent(redirectTo)}`} className="hover:text-brand-primary">Sign in</Link>
+        <p className="mt-6 text-sm text-brand-dark/85">
+          Already have an account? <Link href={`/login?redirect=${encodeURIComponent(redirectTo)}`} className="hover:text-brand-dark">Sign in</Link>
         </p>
       </div>
     </div>

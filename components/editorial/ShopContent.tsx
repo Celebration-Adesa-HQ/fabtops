@@ -129,7 +129,7 @@ export function ShopContent({
       onClick={onClick}
       className={cn(
         'group flex w-full items-center gap-4 py-1 text-left text-xs tracking-wide transition-all duration-300',
-        active ? 'translate-x-2 font-black text-brand-dark' : 'text-brand-dark/40 hover:translate-x-1 hover:text-brand-dark',
+        active ? 'translate-x-2 font-black text-brand-dark' : 'text-brand-dark/75 hover:translate-x-1 hover:text-brand-dark',
       )}
     >
       <div
@@ -167,7 +167,7 @@ export function ShopContent({
                 <h1 className="font-heading text-5xl uppercase tracking-tighter text-brand-light leading-none md:text-8xl">
                   {title}
                 </h1>
-                <p className="mx-auto max-w-xl text-sm uppercase tracking-widest text-brand-light/80 md:text-base">
+                <p className="mx-auto max-w-xl text-sm uppercase tracking-widest text-brand-light/95 md:text-base">
                   {subtitle}
                 </p>
               </div>
@@ -182,20 +182,20 @@ export function ShopContent({
                 <h1 className="font-heading text-5xl uppercase tracking-tighter text-brand-dark leading-none md:text-7xl">
                   {title}
                 </h1>
-                <p className="max-w-md text-sm uppercase tracking-wide text-brand-dark/60">
+                <p className="max-w-md text-sm uppercase tracking-wide text-brand-dark/85">
                   {subtitle}
                 </p>
               </div>
             )}
 
             <div className="flex flex-1 flex-col gap-4 md:max-w-xl">
-              <label className="flex items-center gap-3 border border-brand-dark/10 bg-white/50 px-4 py-3 text-[11px] uppercase tracking-widest text-brand-dark/45">
+              <label className="flex items-center gap-3 border border-brand-dark/10 bg-white/50 px-4 py-3 text-[11px] uppercase tracking-widest text-brand-dark/75">
                 <Search className="h-4 w-4" />
                 <input
                   value={draftSearch}
                   onChange={(event) => setDraftSearch(event.target.value)}
                   placeholder="Search silhouettes"
-                  className="w-full bg-transparent text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/30 focus:outline-none"
+                  className="w-full bg-transparent text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/70 focus:outline-none"
                 />
               </label>
 
@@ -230,13 +230,13 @@ export function ShopContent({
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-brand-dark/10 pt-8">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/75">
               {totalResults} {totalResults === 1 ? 'Piece' : 'Pieces'} Found
             </span>
             {activeChips.length > 0 && (
               <button
                 onClick={() => navigate({ category: undefined, size: undefined, stockStatus: undefined, minPrice: undefined, maxPrice: undefined, search: '' })}
-                className="text-[10px] font-bold uppercase tracking-widest text-brand-primary hover:underline"
+                className="text-[10px] font-bold uppercase tracking-widest text-brand-accent hover:underline"
               >
                 Clear Filters
               </button>
@@ -267,8 +267,8 @@ export function ShopContent({
                   className={cn(
                     'whitespace-nowrap rounded-full border px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-500',
                     filterIsActive(query.category, category.value)
-                      ? 'border-brand-dark bg-brand-dark text-white shadow-xl shadow-brand-dark/20'
-                      : 'border-brand-dark/5 bg-white/40 text-brand-dark/40 hover:border-brand-dark/20 hover:text-brand-dark',
+                      ? 'border-brand-dark bg-brand-dark text-brand-light shadow-xl shadow-brand-dark/20'
+                      : 'border-brand-dark/5 bg-white/40 text-brand-dark/75 hover:border-brand-dark/20 hover:text-brand-dark',
                   )}
                 >
                   {category.label}
@@ -282,7 +282,7 @@ export function ShopContent({
           <aside className="sticky top-40 hidden h-[calc(100vh-11rem)] w-72 shrink-0 overflow-hidden lg:block">
             <div className="h-full space-y-12 overflow-y-auto pr-4">
               <div className="space-y-4">
-              <span className="text-[9px] font-black uppercase tracking-[0.5em] text-brand-primary md:text-[10px] md:tracking-[0.6em]">
+              <span className="text-[9px] font-black uppercase tracking-[0.5em] text-brand-accent md:text-[10px] md:tracking-[0.6em]">
                 Refine Your Selection
               </span>
               <div className="h-px w-full bg-brand-dark/5" />
@@ -344,23 +344,23 @@ export function ShopContent({
                     value={draftMinPrice}
                     onChange={(event) => setDraftMinPrice(event.target.value)}
                     placeholder="Min"
-                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/65 focus:outline-none"
                   />
                   <input
                     value={draftMaxPrice}
                     onChange={(event) => setDraftMaxPrice(event.target.value)}
                     placeholder="Max"
-                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/25 focus:outline-none"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/65 focus:outline-none"
                   />
                 </div>
                 {filters?.priceRange && (
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/75">
                     Range {fromMinorUnits(String(Math.round(filters.priceRange.min * 100)), filters.priceRange.minorUnit)} to {fromMinorUnits(String(Math.round(filters.priceRange.max * 100)), filters.priceRange.minorUnit)} {filters.priceRange.currencyCode}
                   </p>
                 )}
                 <button
                   onClick={applyDraftPrice}
-                  className="w-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-brand-primary"
+                  className="w-full bg-brand-dark px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-brand-dark"
                 >
                   Apply Price
                 </button>
@@ -371,10 +371,10 @@ export function ShopContent({
           <div className="flex-1">
             {errorMessage ? (
               <div className="space-y-4 py-32 text-center">
-                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/75">
                   We couldn&apos;t load the catalogue right now.
                 </p>
-                <p className="mx-auto max-w-xl text-sm text-brand-dark/55">{errorMessage}</p>
+                <p className="mx-auto max-w-xl text-sm text-brand-dark/80">{errorMessage}</p>
               </div>
             ) : products.length > 0 ? (
               <>
@@ -394,7 +394,7 @@ export function ShopContent({
 
                 {result && result.totalPages > 1 && (
                   <div className="mt-16 flex flex-col items-center gap-5 border-t border-brand-dark/10 pt-10">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-dark/35">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-dark/70">
                       Page {result.currentPage} of {result.totalPages}
                     </p>
                     <div className="flex items-center gap-3">
@@ -418,12 +418,12 @@ export function ShopContent({
               </>
             ) : (
               <div className="space-y-4 py-40 text-center">
-                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/40">
+                <p className="text-xs font-bold uppercase tracking-widest text-brand-dark/75">
                   No pieces match your current selection
                 </p>
                 <button
                   onClick={() => navigate({ category: undefined, size: undefined, stockStatus: undefined, minPrice: undefined, maxPrice: undefined, search: '' })}
-                  className="bg-brand-dark px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-light transition-colors hover:bg-brand-primary"
+                  className="bg-brand-dark px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-light transition-colors hover:bg-brand-dark"
                 >
                   Reset Filters
                 </button>
@@ -437,7 +437,7 @@ export function ShopContent({
         <div className="space-y-10 pb-24">
           {!isCollection && !!filters?.categories.length && (
             <div className="space-y-6">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Category</h3>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/75">Category</h3>
               <div className="flex flex-wrap gap-2">
                 {filters.categories.map((option) => (
                   <button
@@ -447,7 +447,7 @@ export function ShopContent({
                       'border px-4 py-2 text-sm transition-all',
                       filterIsActive(query.category, option.value)
                         ? 'border-brand-primary bg-brand-primary text-white'
-                        : 'border-brand-dark/10 text-brand-dark/60',
+                        : 'border-brand-dark/10 text-brand-dark/85',
                     )}
                   >
                     {option.label}
@@ -459,7 +459,7 @@ export function ShopContent({
 
           {!!filters?.sizes.length && (
             <div className="space-y-6">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Size</h3>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/75">Size</h3>
               <div className="flex flex-wrap gap-2">
                 {filters.sizes.map((option) => (
                   <button
@@ -469,7 +469,7 @@ export function ShopContent({
                       'border px-4 py-2 text-sm transition-all',
                       filterIsActive(query.size, option.value)
                         ? 'border-brand-primary bg-brand-primary text-white'
-                        : 'border-brand-dark/10 text-brand-dark/60',
+                        : 'border-brand-dark/10 text-brand-dark/85',
                     )}
                   >
                     {option.label}
@@ -480,7 +480,7 @@ export function ShopContent({
           )}
 
           <div className="space-y-6">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/40">Stock</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-dark/75">Stock</h3>
             <div className="flex flex-wrap gap-2">
               {filters?.stockStatuses.map((option) => (
                 <button
@@ -490,7 +490,7 @@ export function ShopContent({
                     'border px-4 py-2 text-sm transition-all',
                     filterIsActive(query.stockStatus, option.value)
                       ? 'border-brand-primary bg-brand-primary text-white'
-                      : 'border-brand-dark/10 text-brand-dark/60',
+                      : 'border-brand-dark/10 text-brand-dark/85',
                   )}
                 >
                   {option.label}

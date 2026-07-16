@@ -21,15 +21,15 @@ export function UnauthenticatedWishlist() {
         </div>
         <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary mb-4 md:mb-6 block text-center">Secure Access</span>
         <h1 className="text-4xl md:text-5xl font-heading text-brand-dark mb-6 leading-[0.9] uppercase tracking-tighter text-center">
-          Your Selection<br /><span className="italic opacity-50">Vault</span>
+          Your Selection<br /><span className="italic opacity-85">Vault</span>
         </h1>
-        <p className="text-brand-dark/60 font-light text-sm md:text-base leading-relaxed mb-10 md:mb-12 text-center">
+        <p className="text-brand-dark/85 font-light text-sm md:text-base leading-relaxed mb-10 md:mb-12 text-center">
           Please sign in to view your saved selection and proceed to a secure checkout experience.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/login?redirect=/wishlist"
-            className="inline-block px-10 md:px-12 py-4 md:py-5 bg-brand-dark text-white text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 shadow-xl shadow-brand-dark/5 rounded-xl"
+            className="inline-block px-10 md:px-12 py-4 md:py-5 bg-brand-dark text-brand-light text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] font-black hover:bg-brand-primary hover:text-brand-dark transition-all duration-500 shadow-xl shadow-brand-dark/5 rounded-xl"
           >
             Sign In to View
           </Link>

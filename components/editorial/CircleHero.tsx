@@ -25,13 +25,13 @@ export function CircleHero() {
       
       <div className="relative z-10 text-center px-6">
         <ScrollReveal>
-          <div className="inline-flex items-center gap-3 px-8 py-3 bg-brand-dark rounded-full text-white text-[10px] font-black uppercase tracking-[0.4em] mb-10 shadow-2xl shadow-brand-dark/20">
+          <div className="inline-flex items-center gap-3 px-8 py-3 bg-brand-dark rounded-full text-brand-light text-[10px] font-black uppercase tracking-[0.4em] mb-10 shadow-2xl shadow-brand-dark/20">
             <Star size={14} fill="currentColor" /> Exclusive Membership
           </div>
           <h1 className="text-7xl md:text-9xl font-heading leading-[0.8] mb-10 text-brand-dark tracking-tighter uppercase">
-            Fab Babe <br /> <span className="italic opacity-80">Circle</span>
+            Fab Babe <br /> <span className="italic opacity-95">Circle</span>
           </h1>
-          <p className="text-sm md:text-xl font-medium text-brand-dark/60 max-w-2xl mx-auto mb-16 leading-relaxed tracking-widest uppercase text-[11px]">
+          <p className="text-sm md:text-xl font-medium text-brand-dark/85 max-w-2xl mx-auto mb-16 leading-relaxed tracking-widest uppercase text-[11px]">
             An elite sanctuary for the intentional woman. Early access, heritage-grade drops, and a curated fashion legacy.
           </p>
           

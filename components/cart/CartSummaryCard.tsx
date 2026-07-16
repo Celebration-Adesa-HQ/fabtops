@@ -42,7 +42,7 @@ export function CartSummaryCard() {
       
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Subtotal</span>
+          <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/75">Subtotal</span>
           <span className="text-lg font-bold text-brand-dark">{formatPrice(subtotal, currencyCode)}</span>
         </div>
         
@@ -59,7 +59,7 @@ export function CartSummaryCard() {
             <button 
               type="submit"
               disabled={isApplying || !promoCode}
-              className="px-8 py-4 bg-brand-dark text-white text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary hover:text-brand-dark disabled:opacity-50 transition-all rounded-xl"
+              className="px-8 py-4 bg-brand-dark text-brand-light text-[10px] uppercase tracking-widest font-black hover:bg-brand-primary hover:text-brand-dark disabled:opacity-50 transition-all rounded-xl"
             >
               {isApplying ? '...' : 'Apply'}
             </button>
@@ -80,9 +80,9 @@ export function CartSummaryCard() {
               <div key={dc.code} className="flex items-center justify-between gap-3 bg-brand-primary/10 px-4 py-3 rounded-2xl border border-brand-primary/20">
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] uppercase tracking-widest font-black text-brand-primary">
-                    {dc.code} {!dc.applicable && <span className="opacity-60">(Invalid)</span>}
+                    {dc.code} {!dc.applicable && <span className="opacity-85">(Invalid)</span>}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/60">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-dark/85">
                     -{formatPrice(dc.discountTotal, dc.currencyCode)}
                   </span>
                 </div>
@@ -98,7 +98,7 @@ export function CartSummaryCard() {
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/40">Shipping</span>
+          <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/75">Shipping</span>
           <span className="text-[11px] uppercase tracking-[0.1em] font-bold text-brand-dark italic opacity-60">Complimentary</span>
         </div>
 
@@ -130,7 +130,7 @@ export function CartSummaryCard() {
         <a
           href={isLoading ? undefined : (checkoutUrl || '#')}
           aria-disabled={isLoading}
-          className={`w-full bg-brand-dark text-white py-6 text-[11px] uppercase tracking-[0.4em] font-black transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden rounded-xl ${
+          className={`w-full bg-brand-dark text-brand-light py-6 text-[11px] uppercase tracking-[0.4em] font-black transition-all duration-700 flex items-center justify-center gap-4 group shadow-2xl shadow-brand-dark/20 relative overflow-hidden rounded-xl ${
             isLoading
               ? 'opacity-50 cursor-not-allowed pointer-events-none'
               : 'hover:bg-brand-primary hover:text-brand-dark'
@@ -153,7 +153,7 @@ export function CartSummaryCard() {
             <div className="absolute inset-0 bg-brand-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
           )}
         </a>
-        <p className="text-[9px] text-brand-dark/30 uppercase tracking-[0.2em] text-center leading-relaxed font-black">
+        <p className="text-[9px] text-brand-dark/70 uppercase tracking-[0.2em] text-center leading-relaxed font-black">
           Shipping and taxes calculated at handoff.
         </p>
       </div>

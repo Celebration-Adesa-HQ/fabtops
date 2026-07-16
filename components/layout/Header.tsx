@@ -80,7 +80,7 @@ export function Header() {
           <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="min-[1150px]:hidden p-1.5 sm:p-2 hover:text-brand-primary transition-colors shrink-0"
+              className="min-[1150px]:hidden p-1.5 sm:p-2 hover:text-brand-dark transition-colors shrink-0"
               style={{ color: "inherit" }}
             >
               <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -89,35 +89,35 @@ export function Header() {
             <nav className="hidden min-[1150px]:flex items-center gap-6 xl:gap-8 text-[11px] uppercase tracking-[0.2em] font-black">
               <Link
                 href="/shop"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-dark transition-colors"
               >
                 Shop
               </Link>
 
               <Link
                 href="/collections"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-dark transition-colors"
               >
                 Collections
               </Link>
 
               <Link
                 href="/circle"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-dark transition-colors"
               >
                 The Circle
               </Link>
 
               <Link
                 href="/about"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-dark transition-colors"
               >
                 About
               </Link>
 
               <Link
                 href="/contact"
-                className="hover:text-brand-primary transition-colors"
+                className="hover:text-brand-dark transition-colors"
               >
                 Concierge
               </Link>
@@ -163,7 +163,7 @@ export function Header() {
 
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
+              className="hover:text-brand-dark transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
             >
               <Search className="h-5 w-5" />
@@ -171,7 +171,7 @@ export function Header() {
 
             <Link
               href="/wishlist"
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 relative group shrink-0"
+              className="hover:text-brand-dark transition-colors p-1.5 sm:p-2 relative group shrink-0"
               style={{ color: "inherit" }}
               aria-label="Wishlist"
             >
@@ -201,7 +201,7 @@ export function Header() {
 
             <Link
               href="/account"
-              className="hover:text-brand-primary transition-colors p-1.5 sm:p-2 shrink-0"
+              className="hover:text-brand-dark transition-colors p-1.5 sm:p-2 shrink-0"
               style={{ color: "inherit" }}
               aria-label="Customer account"
             >
@@ -210,7 +210,7 @@ export function Header() {
 
             <button
               onClick={openCart}
-              className="relative hover:text-brand-primary transition-colors p-1.5 sm:p-2 group shrink-0"
+              className="relative hover:text-brand-dark transition-colors p-1.5 sm:p-2 group shrink-0"
               style={{ color: "inherit" }}
             >
               <ShoppingBag className="h-5 w-5" />
@@ -223,13 +223,13 @@ export function Header() {
                     exit={{ scale: 0 }}
                     className="
                 absolute top-0 right-0
-                bg-brand-dark text-white
+                bg-brand-dark text-brand-light
                 text-[8px] font-black
                 w-4 h-4 rounded-full
                 flex items-center justify-center
                 border-2 border-brand-light
                 shadow-sm
-                group-hover:bg-brand-primary
+                group-hover:bg-brand-dark
                 transition-colors
               "
                   >

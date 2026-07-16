@@ -35,7 +35,7 @@ export function CommunitySocialProof() {
     <section className="py-32 bg-brand-light relative overflow-hidden">
       <div className="max-w-7xl mx-auto luxury-padding">
         <div className="text-center mb-24 space-y-4">
-          <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-dark/40">
+          <span className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-dark/75">
             The Community
           </span>
           <h2 className="font-heading text-4xl md:text-7xl uppercase tracking-tighter text-brand-dark">
@@ -71,7 +71,7 @@ export function CommunitySocialProof() {
                 <div className="pt-8 border-t border-brand-dark/5 flex justify-between items-center">
                   <div>
                     <p className="font-bold text-brand-dark uppercase tracking-widest text-xs">{item.author}</p>
-                    <p className="text-[10px] text-brand-dark/40 uppercase tracking-widest">{item.handle}</p>
+                    <p className="text-[10px] text-brand-dark/75 uppercase tracking-widest">{item.handle}</p>
                   </div>
                   <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
