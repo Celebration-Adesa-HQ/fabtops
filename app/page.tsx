@@ -75,7 +75,7 @@ export default async function HomePage() {
         <div className="mt-24 text-center">
           <Link 
             href="/shop"
-            className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-all group"
+            className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-accent transition-all group"
           >
             View All Products <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-dark group-hover:w-16 transition-all" />
           </Link>
@@ -98,7 +98,7 @@ export default async function HomePage() {
             </p>
             <Link 
               href="/circle"
-              className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-all group"
+              className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-accent transition-all group"
             >
               Explore Benefits <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-dark group-hover:w-16 transition-all" />
             </Link>

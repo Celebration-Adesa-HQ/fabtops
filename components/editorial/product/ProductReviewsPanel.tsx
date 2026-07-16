@@ -66,7 +66,7 @@ export function ProductReviewsPanel({
       <div className="grid gap-8 rounded-[2rem] bg-white p-6 shadow-[0_30px_80px_-60px_rgba(59,59,68,0.4)] md:grid-cols-[0.7fr_1.3fr] md:p-8">
         <div className="space-y-5">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Customer reviews</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Customer reviews</p>
             <h2 className="mt-3 font-heading text-4xl uppercase leading-[0.92] tracking-[-0.04em] text-brand-dark">
               Real fit and feel notes.
             </h2>
@@ -75,12 +75,12 @@ export function ProductReviewsPanel({
           <div className="flex items-end gap-3">
             <span className="text-5xl font-semibold tracking-tight text-brand-dark">{averageRating.toFixed(1)}</span>
             <div className="pb-2">
-              <div className="flex items-center gap-1 text-brand-primary">
+              <div className="flex items-center gap-1 text-brand-accent">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
                     key={`summary-${index}`}
                     size={14}
-                    className={cn(index < Math.round(averageRating) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/50')}
+                    className={cn(index < Math.round(averageRating) ? 'fill-brand-accent text-brand-accent' : 'text-brand-dark/80')}
                   />
                 ))}
               </div>
@@ -112,7 +112,7 @@ export function ProductReviewsPanel({
         <div className="space-y-6">
           {!canManageReview ? (
             <div className="rounded-[1.5rem] border border-brand-dark/8 bg-brand-light/45 p-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Members only</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Members only</p>
               <h3 className="mt-3 text-lg font-semibold text-brand-dark">Sign in to write a review</h3>
               <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">
                 Reviews are tied to your FabTops account so you can update them later.
@@ -128,7 +128,7 @@ export function ProductReviewsPanel({
             <form onSubmit={onSubmit} className="rounded-[1.5rem] border border-brand-dark/8 bg-brand-light/35 p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">
                     {customerReview ? 'Edit your review' : 'Write a review'}
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-brand-dark/85">
@@ -162,7 +162,7 @@ export function ProductReviewsPanel({
                     >
                       <Star
                         size={18}
-                        className={cn(value <= draftRating ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/60')}
+                        className={cn(value <= draftRating ? 'fill-brand-accent text-brand-accent' : 'text-brand-dark/85')}
                       />
                     </button>
                   );
@@ -238,12 +238,12 @@ export function ProductReviewsPanel({
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1 text-brand-primary">
+                    <div className="flex items-center gap-1 text-brand-accent">
                       {Array.from({ length: 5 }).map((_, index) => (
                         <Star
                           key={`${review.id}-${index}`}
                           size={14}
-                          className={cn(index < Number(review.rating || 0) ? 'fill-brand-primary text-brand-primary' : 'text-brand-dark/50')}
+                          className={cn(index < Number(review.rating || 0) ? 'fill-brand-accent text-brand-accent' : 'text-brand-dark/80')}
                         />
                       ))}
                     </div>

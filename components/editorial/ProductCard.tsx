@@ -227,14 +227,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
           <div className="flex items-start justify-between gap-3">
             <Link href={productHref} className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 font-heading text-[1.05rem] leading-[1.1] tracking-[-0.02em] text-brand-dark transition-colors duration-300 group-hover:text-brand-dark md:text-[1.15rem]">
+              <h3 className="line-clamp-2 font-heading text-[1.05rem] leading-[1.1] tracking-[-0.02em] text-brand-dark transition-colors duration-300 group-hover:text-brand-accent md:text-[1.15rem]">
                 {product.title}
               </h3>
             </Link>
 
             {showRating ? (
               <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-dark/75">
-                <Star size={12} className="fill-brand-primary text-brand-primary" />
+                <Star size={12} className="fill-brand-accent text-brand-accent" />
                 {product.reviewSummary?.averageRating.toFixed(1)} ({product.reviewSummary?.reviewCount})
               </span>
             ) : null}
@@ -246,7 +246,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             </p>
 
             {hasActualDiscount ? (
-              <span className="text-[11px] text-brand-dark/70 line-through">
+              <span className="text-[11px] text-brand-dark/90 line-through">
                 {formatPrice(toDisplayAmount(product.regularPrice), product.regularPrice.currencyCode)}
               </span>
             ) : null}

@@ -106,7 +106,7 @@ export default async function CollectionsPage() {
                     <p className="text-white/95 text-xs md:text-sm max-w-xs uppercase tracking-widest leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
                       {collection.description}
                     </p>
-                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-secondary group-hover:gap-6 transition-all duration-500 pt-4">
+                    <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.3em] font-bold text-brand-dark group-hover:gap-6 transition-all duration-500 pt-4">
                       Explore Collection <ArrowRight size={14} />
                     </div>
                   </div>

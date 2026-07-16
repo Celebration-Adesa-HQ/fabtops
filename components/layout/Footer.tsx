@@ -89,7 +89,7 @@ export function Footer() {
                     <li key={link.name}>
                       <Link 
                         href={link.href} 
-                        className="text-sm text-brand-light/90 hover:text-brand-dark transition-colors duration-300"
+                        className="text-sm text-brand-light/90 hover:text-brand-primary transition-colors duration-300"
                       >
                         {link.name}
                       </Link>
@@ -110,7 +110,7 @@ export function Footer() {
                   href={social.href} 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-4 text-brand-light/90 hover:text-brand-dark transition-all duration-300"
+                  className="group flex items-center gap-4 text-brand-light/90 hover:text-brand-primary transition-all duration-300"
                 >
                   <div className="transition-transform duration-500 group-hover:scale-110">
                     {social.icon}
@@ -125,19 +125,19 @@ export function Footer() {
         </div>
 
         {/* Legal Footer */}
-        <div className="mt-24 pt-10 border-t border-brand-light/10 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] uppercase tracking-[0.2em] text-brand-light/80">
+        <div className="mt-24 pt-10 border-t border-brand-light/10 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] uppercase tracking-[0.2em] text-brand-light/95">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
             <p>© 2024 FabTops Digital Flagship.</p>
             <div className="flex items-center gap-8">
-              <Link href="/privacy" className="hover:text-brand-light transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-brand-light transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-brand-primary transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-brand-primary transition-colors">Terms of Service</Link>
             </div>
           </div>
           
           <div className="flex items-center gap-6">
             <CurrencySelector variant="footer" />
             <div className="h-px w-8 bg-brand-light/10" />
-            <span className="hover:text-brand-light cursor-pointer transition-colors">English</span>
+            <span className="hover:text-brand-primary cursor-pointer transition-colors">English</span>
           </div>
         </div>
       </div>

@@ -103,14 +103,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
               {/* Search Input Area */}
               <div className="relative mb-20 group">
-                <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-brand-dark/70 group-focus-within:text-brand-dark transition-colors" size={40} strokeWidth={1} />
+                <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-brand-dark/90 group-focus-within:text-brand-dark transition-colors" size={40} strokeWidth={1} />
                 <input
                   autoFocus
                   type="text"
                   placeholder="WHAT ARE YOU LOOKING FOR?"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-brand-dark/10 py-8 pl-16 pr-24 text-2xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark focus:outline-none focus:border-brand-dark transition-all placeholder:text-brand-dark/50"
+                  className="w-full bg-transparent border-b-2 border-brand-dark/10 py-8 pl-16 pr-24 text-2xl md:text-5xl font-heading uppercase tracking-tighter text-brand-dark focus:outline-none focus:border-brand-dark transition-all placeholder:text-brand-dark/80"
                 />
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4">
                   {isSearching && <Loader2 className="animate-spin text-brand-dark/75" size={24} />}
@@ -213,7 +213,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             key={cat.handle}
                             href={`/collections/${cat.handle}`}
                             onClick={onClose}
-                            className="group flex items-center justify-between text-lg font-bold uppercase tracking-widest text-brand-dark hover:text-brand-dark transition-colors"
+                            className="group flex items-center justify-between text-lg font-bold uppercase tracking-widest text-brand-dark hover:text-brand-accent transition-colors"
                           >
                             {cat.name}
                             <ArrowRight size={16} className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />

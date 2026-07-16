@@ -14,12 +14,12 @@ export function UnauthenticatedWishlist() {
         className="max-w-md w-full"
       >
         <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white border border-brand-primary/10 flex items-center justify-center mx-auto mb-10 md:mb-12 relative shadow-sm">
-          <Heart size={40} className="text-brand-primary/30" strokeWidth={1.5} />
+          <Heart size={40} className="text-brand-accent/30" strokeWidth={1.5} />
           <div className="absolute -bottom-1 -right-1 w-8 h-8 md:w-10 md:h-10 bg-brand-dark rounded-full flex items-center justify-center shadow-lg">
             <Lock size={14} className="text-white" />
           </div>
         </div>
-        <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary mb-4 md:mb-6 block text-center">Secure Access</span>
+        <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-accent mb-4 md:mb-6 block text-center">Secure Access</span>
         <h1 className="text-4xl md:text-5xl font-heading text-brand-dark mb-6 leading-[0.9] uppercase tracking-tighter text-center">
           Your Selection<br /><span className="italic opacity-85">Vault</span>
         </h1>

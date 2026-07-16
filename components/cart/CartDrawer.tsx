@@ -49,7 +49,7 @@ export function CartDrawer() {
       <div className="flex flex-col h-[calc(100vh-180px)]">
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/60">
+            <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-dark/85">
               <ShoppingBag size={40} />
             </div>
             <div className="space-y-2">
@@ -106,7 +106,7 @@ export function CartDrawer() {
                           <button 
                             onClick={() => removeFromCart(item.id)}
                             disabled={isLoading}
-                            className="text-brand-dark/60 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="text-brand-dark/85 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             aria-label="Remove item"
                           >
                             <Trash2 size={14} />

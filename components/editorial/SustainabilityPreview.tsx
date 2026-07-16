@@ -53,7 +53,7 @@ export function SustainabilityPreview() {
             <div className="pt-8">
               <Link 
                 href="/sustainability"
-                className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-all group"
+                className="inline-flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-accent transition-all group"
               >
                 Our Full Commitment <div className="w-12 h-px bg-brand-dark group-hover:bg-brand-dark group-hover:w-16 transition-all" />
               </Link>

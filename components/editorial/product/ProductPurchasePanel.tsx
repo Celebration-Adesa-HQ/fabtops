@@ -124,7 +124,7 @@ export function ProductPurchasePanel({
     <div className="space-y-8">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full border border-brand-primary/20 bg-brand-primary/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-primary">
+          <span className="rounded-full border border-brand-accent/20 bg-brand-accent/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-accent">
             {product.brands[0] || 'FabTops Collection'}
           </span>
           <span
@@ -139,7 +139,7 @@ export function ProductPurchasePanel({
           </span>
           {product.reviewCount > 0 ? (
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[11px] font-semibold text-brand-dark shadow-sm">
-              <Star size={14} className="fill-brand-primary text-brand-primary" />
+              <Star size={14} className="fill-brand-accent text-brand-accent" />
               <span>{averageRating.toFixed(1)}</span>
               <span className="text-brand-dark/80">{product.reviewCount} reviews</span>
             </div>
@@ -161,7 +161,7 @@ export function ProductPurchasePanel({
             <button
               type="button"
               onClick={handleShare}
-              className="rounded-full border border-brand-dark/10 p-3 text-brand-dark transition-colors hover:border-brand-primary hover:text-brand-dark"
+              className="rounded-full border border-brand-dark/10 p-3 text-brand-dark transition-colors hover:border-brand-accent hover:text-brand-accent"
               aria-label="Share product"
             >
               <Share2 size={16} />
@@ -175,7 +175,7 @@ export function ProductPurchasePanel({
               {currentPriceLabel}
             </span>
             {currentRegularPriceLabel && currentRegularPriceLabel !== currentPriceLabel ? (
-              <span className="pb-1 text-sm text-brand-dark/70 line-through">
+              <span className="pb-1 text-sm text-brand-dark/90 line-through">
                 {currentRegularPriceLabel}
               </span>
             ) : null}
@@ -255,7 +255,7 @@ export function ProductPurchasePanel({
               <button
                 type="button"
                 onClick={onOpenSizeGuide}
-                className="inline-flex items-center gap-2 border-b border-brand-primary/20 pb-1 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-primary transition-colors hover:border-brand-primary"
+                className="inline-flex items-center gap-2 border-b border-brand-accent/30 pb-1 text-[10px] font-bold uppercase tracking-[0.24em] text-brand-accent transition-colors hover:border-brand-accent"
               >
                 <Ruler size={13} />
                 Size guide
@@ -299,7 +299,7 @@ export function ProductPurchasePanel({
               <button
                 type="button"
                 onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
-                className="p-3 text-brand-dark transition-colors hover:text-brand-dark"
+                className="p-3 text-brand-dark transition-colors hover:text-brand-accent"
                 aria-label="Decrease quantity"
               >
                 <Minus size={14} />
@@ -342,15 +342,15 @@ export function ProductPurchasePanel({
 
           <div className="grid gap-3 rounded-[1.5rem] bg-brand-light/70 p-4 text-sm text-brand-dark/90">
             <div className="flex items-center gap-3">
-              <Truck size={16} className="text-brand-primary" />
+              <Truck size={16} className="text-brand-accent" />
               <span>Delivery estimates appear at checkout after shipping selection.</span>
             </div>
             <div className="flex items-center gap-3">
-              <Sparkles size={16} className="text-brand-primary" />
+              <Sparkles size={16} className="text-brand-accent" />
               <span>Need another size? Edit quantities and lines in the cart before payment.</span>
             </div>
             <div className="flex items-center gap-3">
-              <ShieldCheck size={16} className="text-brand-primary" />
+              <ShieldCheck size={16} className="text-brand-accent" />
               <span>Secure payment, careful packing, and clear return support.</span>
             </div>
           </div>

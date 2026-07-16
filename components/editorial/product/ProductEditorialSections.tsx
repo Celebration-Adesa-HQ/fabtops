@@ -74,7 +74,7 @@ export function ProductEditorialSections({
 
           <div className="flex flex-col justify-center gap-8 px-6 py-10 md:px-10 lg:px-14">
             <div className="space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Editorial story</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Editorial story</p>
               <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
                 Quiet luxury, directed through silhouette.
               </h2>
@@ -100,7 +100,7 @@ export function ProductEditorialSections({
 
       <section className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Product details</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Product details</p>
           <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
             Everything worth checking before you commit.
           </h2>
@@ -144,7 +144,7 @@ export function ProductEditorialSections({
       {completeTheLook.length > 0 ? (
         <section className="space-y-8">
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">Complete the look</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">Complete the look</p>
             <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
               Styled companions with the same point of view.
             </h2>
@@ -161,7 +161,7 @@ export function ProductEditorialSections({
       {relatedProducts.length > 0 ? (
         <section className="space-y-8">
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">You may also like</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">You may also like</p>
             <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
               More from the same wardrobe language.
             </h2>
@@ -201,7 +201,7 @@ export function ProductEditorialSections({
 
       <section className="space-y-5">
         <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-primary">FAQ</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-brand-accent">FAQ</p>
           <h2 className="font-heading text-4xl uppercase leading-[0.9] tracking-[-0.04em] text-brand-dark md:text-5xl">
             Common questions before checkout.
           </h2>

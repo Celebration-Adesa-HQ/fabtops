@@ -140,7 +140,7 @@ function SummaryContent({
         </div>
         <Link
           href="/cart"
-          className="shrink-0 text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary"
+          className="shrink-0 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark"
         >
           Edit cart
         </Link>
@@ -194,7 +194,7 @@ function SummaryContent({
           <SummaryRow
             label={`Discount (${discountCodes.map((coupon) => coupon.code).join(', ')})`}
             value={`-${formatPrice(totalSavings, currencyCode)}`}
-            valueClassName="text-brand-primary"
+            valueClassName="text-brand-dark"
           />
         ) : null}
         <SummaryRow

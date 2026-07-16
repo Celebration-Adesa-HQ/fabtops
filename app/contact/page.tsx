@@ -71,13 +71,13 @@ export default function ContactPage() {
                       <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-all duration-500">
                         <Mail size={20} strokeWidth={1.5} />
                       </div>
-                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">concierge@fabtops.com</span>
+                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-accent transition-colors">concierge@fabtops.com</span>
                     </a>
                     <a href="tel:+234000000000" className="flex items-center gap-6 group">
                       <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-all duration-500">
                         <Phone size={20} strokeWidth={1.5} />
                       </div>
-                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-dark transition-colors">+234 (0) 800 FAB TOPS</span>
+                      <span className="text-brand-dark/85 text-sm uppercase tracking-widest font-black group-hover:text-brand-accent transition-colors">+234 (0) 800 FAB TOPS</span>
                     </a>
                   </div>
                 </div>
@@ -108,8 +108,8 @@ export default function ContactPage() {
                     { icon: MessageCircle, label: 'WhatsApp' }
                   ].map((social, i) => (
                     <button key={i} className="flex-1 flex items-center justify-center gap-3 py-4 bg-white/10 hover:bg-white/40 border border-brand-dark/5 transition-all rounded-xl group">
-                      <social.icon size={18} className="text-brand-dark/75 group-hover:text-brand-dark transition-colors" />
-                      <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark/75 group-hover:text-brand-dark transition-colors">{social.label}</span>
+                      <social.icon size={18} className="text-brand-dark/75 group-hover:text-brand-accent transition-colors" />
+                      <span className="text-[10px] uppercase tracking-widest font-black text-brand-dark/75 group-hover:text-brand-accent transition-colors">{social.label}</span>
                     </button>
                   ))}
                 </div>
@@ -138,7 +138,7 @@ export default function ContactPage() {
                     </div>
                     <button 
                       onClick={() => setIsSubmitted(false)}
-                      className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-dark transition-colors underline underline-offset-8"
+                      className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-dark hover:text-brand-accent transition-colors underline underline-offset-8"
                     >
                       Send Another Inquiry
                     </button>
@@ -152,7 +152,7 @@ export default function ContactPage() {
                           required
                           type="text" 
                           placeholder="FULL NAME"
-                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60"
+                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/85"
                         />
                       </div>
                       <div className="space-y-4">
@@ -161,7 +161,7 @@ export default function ContactPage() {
                           required
                           type="email" 
                           placeholder="EMAIL ADDRESS"
-                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60"
+                          className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-6 px-8 rounded-2xl text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/85"
                         />
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export default function ContactPage() {
                         required
                         placeholder="HOW CAN WE ASSIST YOU?"
                         rows={6}
-                        className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-8 px-8 rounded-[2rem] text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/60 resize-none"
+                        className="w-full bg-white/40 border border-transparent focus:border-brand-dark/20 focus:bg-white/60 py-8 px-8 rounded-[2rem] text-xs uppercase tracking-widest font-black text-brand-dark transition-all outline-none placeholder:text-brand-dark/85 resize-none"
                       />
                     </div>
 

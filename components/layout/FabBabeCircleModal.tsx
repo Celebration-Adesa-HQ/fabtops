@@ -103,7 +103,7 @@ export function FabBabeCircleModal({ blocked = false }: FabBabeCircleModalProps)
 
             <div className="grid gap-0 md:grid-cols-[1.15fr,0.85fr]">
               <div className="bg-brand-dark px-6 py-8 text-brand-light md:px-10 md:py-12">
-                <p className="text-[10px] font-black uppercase tracking-[0.45em] text-brand-primary">Fab Babe Circle</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.45em] text-brand-accent">Fab Babe Circle</p>
                 <h2
                   id="fab-babe-circle-title"
                   className="mt-4 text-4xl font-heading uppercase tracking-tight md:text-5xl"

@@ -129,7 +129,7 @@ export function ShopContent({
       onClick={onClick}
       className={cn(
         'group flex w-full items-center gap-4 py-1 text-left text-xs tracking-wide transition-all duration-300',
-        active ? 'translate-x-2 font-black text-brand-dark' : 'text-brand-dark/75 hover:translate-x-1 hover:text-brand-dark',
+        active ? 'translate-x-2 font-black text-brand-dark' : 'text-brand-dark/75 hover:translate-x-1 hover:text-brand-accent',
       )}
     >
       <div
@@ -195,7 +195,7 @@ export function ShopContent({
                   value={draftSearch}
                   onChange={(event) => setDraftSearch(event.target.value)}
                   placeholder="Search silhouettes"
-                  className="w-full bg-transparent text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/70 focus:outline-none"
+                  className="w-full bg-transparent text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/90 focus:outline-none"
                 />
               </label>
 
@@ -268,7 +268,7 @@ export function ShopContent({
                     'whitespace-nowrap rounded-full border px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-500',
                     filterIsActive(query.category, category.value)
                       ? 'border-brand-dark bg-brand-dark text-brand-light shadow-xl shadow-brand-dark/20'
-                      : 'border-brand-dark/5 bg-white/40 text-brand-dark/75 hover:border-brand-dark/20 hover:text-brand-dark',
+                      : 'border-brand-dark/5 bg-white/40 text-brand-dark/75 hover:border-brand-dark/20 hover:text-brand-accent',
                   )}
                 >
                   {category.label}
@@ -344,13 +344,13 @@ export function ShopContent({
                     value={draftMinPrice}
                     onChange={(event) => setDraftMinPrice(event.target.value)}
                     placeholder="Min"
-                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/65 focus:outline-none"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/85 focus:outline-none"
                   />
                   <input
                     value={draftMaxPrice}
                     onChange={(event) => setDraftMaxPrice(event.target.value)}
                     placeholder="Max"
-                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/65 focus:outline-none"
+                    className="border border-brand-dark/10 bg-white/70 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark placeholder:text-brand-dark/85 focus:outline-none"
                   />
                 </div>
                 {filters?.priceRange && (
@@ -394,7 +394,7 @@ export function ShopContent({
 
                 {result && result.totalPages > 1 && (
                   <div className="mt-16 flex flex-col items-center gap-5 border-t border-brand-dark/10 pt-10">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-dark/70">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-dark/90">
                       Page {result.currentPage} of {result.totalPages}
                     </p>
                     <div className="flex items-center gap-3">

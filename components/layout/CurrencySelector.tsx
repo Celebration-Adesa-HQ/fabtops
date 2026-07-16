@@ -40,7 +40,7 @@ export function CurrencySelector({ className, variant = 'header' }: CurrencySele
           "flex items-center gap-2 group transition-all duration-300",
           variant === 'header' 
             ? "text-[10px] uppercase tracking-widest font-black hover:text-brand-dark"
-            : "text-[10px] uppercase tracking-[0.2em] font-black text-brand-light hover:text-brand-dark"
+            : "text-[10px] uppercase tracking-[0.2em] font-black text-brand-light hover:text-brand-primary"
         )}
       >
         <span className="opacity-60 group-hover:opacity-100 transition-opacity">
@@ -73,7 +73,7 @@ export function CurrencySelector({ className, variant = 'header' }: CurrencySele
                   onClick={() => handleSelect(currency)}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 text-[10px] uppercase tracking-widest font-bold transition-all duration-300 hover:bg-brand-primary/10",
-                    current.code === currency.code ? "text-brand-primary" : "text-brand-dark/85"
+                    current.code === currency.code ? "text-brand-dark" : "text-brand-dark/85"
                   )}
                 >
                   <span className="flex items-center gap-3">

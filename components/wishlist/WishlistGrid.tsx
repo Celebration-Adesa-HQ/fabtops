@@ -44,7 +44,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
     <div className="min-h-screen bg-brand-light pt-24 md:pt-32 pb-40 px-5 md:px-8 lg:px-12 xl:px-24">
       <div className="max-w-[1440px] mx-auto">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/70 mb-10 md:mb-20">
+        <nav className="flex items-center gap-2 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-dark/90 mb-10 md:mb-20">
           <Link href="/" className="hover:text-brand-dark transition-colors">Home</Link>
           <ChevronRight size={10} />
           <span className="text-brand-dark">Wishlist</span>
@@ -62,7 +62,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
           >
             <div className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="w-8 h-px bg-brand-primary" />
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-primary">
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.6em] font-black text-brand-accent">
                 {customer?.firstName ? `${customer.firstName}'s Private Collection` : 'Your Private Collection'}
               </span>
             </div>
@@ -82,7 +82,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
                 <span className="text-[8px] uppercase tracking-widest font-black text-brand-dark/75 mb-2">Pieces Saved</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-black text-brand-dark tracking-tighter">{count}</span>
-                  <Heart size={16} className="text-brand-primary fill-brand-primary" />
+                  <Heart size={16} className="text-brand-accent fill-brand-accent" />
                 </div>
               </div>
               <div className="w-px h-12 bg-brand-dark/5" />
@@ -90,10 +90,10 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
                 href="/shop"
                 className="group flex flex-col items-end"
               >
-                <span className="text-[8px] uppercase tracking-widest font-black text-brand-primary mb-2 group-hover:translate-x-1 transition-transform">Explore More</span>
+                <span className="text-[8px] uppercase tracking-widest font-black text-brand-accent mb-2 group-hover:translate-x-1 transition-transform">Explore More</span>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-brand-dark">Digital Catalog</span>
-                  <ChevronRight size={14} className="text-brand-dark/70" />
+                  <ChevronRight size={14} className="text-brand-dark/90" />
                 </div>
               </Link>
             </div>
@@ -148,12 +148,12 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
                   {/* Product Info */}
                   <Link href={`/product/${product.handle}`} className="px-2 block text-center md:text-left">
                     <div className="flex flex-col gap-2">
-                      <span className="text-[8px] uppercase tracking-[0.5em] font-black text-brand-dark/70">Silhouettes</span>
-                      <h3 className="text-sm md:text-base font-heading uppercase tracking-widest text-brand-dark group-hover:text-brand-dark transition-colors line-clamp-1">
+                      <span className="text-[8px] uppercase tracking-[0.5em] font-black text-brand-dark/90">Silhouettes</span>
+                      <h3 className="text-sm md:text-base font-heading uppercase tracking-widest text-brand-dark group-hover:text-brand-accent transition-colors line-clamp-1">
                         {product.title}
                       </h3>
                       <div className="flex items-center gap-4 mt-2 justify-center md:justify-start">
-                        <p className="text-brand-primary font-black text-sm md:text-base tracking-tighter">
+                        <p className="text-brand-dark font-black text-sm md:text-base tracking-tighter">
                           {formatPrice(product.price, 'NGN')}
                         </p>
                         <div className="w-1.5 h-1.5 rounded-full bg-brand-primary/20" />
@@ -175,7 +175,7 @@ export function WishlistGrid({ favorites, customer, count }: WishlistGridProps) 
           className="mt-32 pt-20 border-t border-brand-dark/5 flex flex-col items-center text-center"
         >
           <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-8 relative">
-            <Sparkles size={24} className="text-brand-primary" />
+            <Sparkles size={24} className="text-brand-accent" />
             <motion.div 
               animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ repeat: Infinity, duration: 3 }}

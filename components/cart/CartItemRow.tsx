@@ -70,7 +70,7 @@ export function CartItemRow({ item, updateQuantity, removeFromCart, isLoading = 
             >
               {item.title}
             </Link>
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/70">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-dark/90">
               Signature Collection
             </p>
           </div>

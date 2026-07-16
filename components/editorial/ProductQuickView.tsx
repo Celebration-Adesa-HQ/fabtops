@@ -218,7 +218,7 @@ export function ProductQuickView({
           <div className="flex items-end gap-3">
             <span className="text-2xl font-semibold tracking-tight text-brand-dark">{priceLabel}</span>
             {regularPriceLabel && regularPriceLabel !== priceLabel ? (
-              <span className="text-sm text-brand-dark/70 line-through">{regularPriceLabel}</span>
+              <span className="text-sm text-brand-dark/90 line-through">{regularPriceLabel}</span>
             ) : null}
           </div>
 

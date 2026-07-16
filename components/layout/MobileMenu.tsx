@@ -82,10 +82,10 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       className="group block space-y-2"
                     >
                       <div className="flex items-center justify-between">
-                        <h2 className="text-4xl md:text-5xl font-heading text-brand-dark uppercase tracking-tighter group-hover:text-brand-dark transition-colors">
+                        <h2 className="text-4xl md:text-5xl font-heading text-brand-dark uppercase tracking-tighter group-hover:text-brand-accent transition-colors">
                           {link.name}
                         </h2>
-                        <ArrowRight className="text-brand-primary opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" size={24} />
+                        <ArrowRight className="text-brand-accent opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" size={24} />
                       </div>
                       <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-dark/75">
                         {link.desc}
@@ -116,7 +116,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
               {/* Social Presence */}
               <div className="pt-12 space-y-8">
-                <h3 className="text-[10px] uppercase tracking-[0.5em] font-black text-brand-dark/60 text-center">Connected Spaces</h3>
+                <h3 className="text-[10px] uppercase tracking-[0.5em] font-black text-brand-dark/85 text-center">Connected Spaces</h3>
                 <div className="flex justify-center gap-8">
                   <Link href="https://instagram.com/fabtops" className="text-brand-dark/75 hover:text-brand-dark transition-colors">
                     <InstagramIcon size={24} />
@@ -132,7 +132,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </div>
 
             {/* Footer Philosophy */}
-            <div className="p-12 bg-brand-dark text-brand-light/80 text-center">
+            <div className="p-12 bg-brand-dark text-brand-light/95 text-center">
               <p className="text-[9px] uppercase tracking-[0.4em] font-medium leading-loose">
                 Contemporary Craft <br />
                 Liquid Glass Rebrand — 2024
