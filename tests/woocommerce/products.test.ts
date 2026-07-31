@@ -173,4 +173,26 @@ describe('WooCommerce product helpers', () => {
     expect(recommendations.completeTheLook.map((item) => item.id)).toEqual(['103', '101']);
     expect(recommendations.related.map((item) => item.id)).toEqual(['100', '102']);
   });
+
+  it('falls back to copy product data when WooCommerce REST API is unreachable (ETIMEDOUT)', async () => {
+    wooRequest.mockRejectedValueOnce(
+      new Error(
+        'WooCommerce REST API unreachable (ETIMEDOUT) [GET /products]. Check your WOOCOMMERCE_URL environment variable and server connectivity.',
+      ),
+    );
+
+    const products = await getProducts(10);
+    expect(products.length).toBeGreaterThan(0);
+    expect(products[0]).toHaveProperty('handle');
+    expect(products[0]).toHaveProperty('title');
+
+    wooRequest.mockRejectedValueOnce(
+      new Error(
+        'WooCommerce REST API unreachable (ETIMEDOUT) [GET /products/categories]. Check your WOOCOMMERCE_URL environment variable and server connectivity.',
+      ),
+    );
+
+    const categories = await getCategories();
+    expect(categories.length).toBeGreaterThan(0);
+  });
 });
