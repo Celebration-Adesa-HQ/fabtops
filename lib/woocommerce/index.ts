@@ -46,11 +46,14 @@ export { buildWooRestUrl, wooRequest } from './rest-client';
 // Fallback copy data layer for WooCommerce unreachable/timeout states
 export {
   FALLBACK_CATEGORIES,
+  FALLBACK_PRODUCT_REVIEWS,
   FALLBACK_PRODUCTS,
   FALLBACK_REST_PRODUCTS,
   FALLBACK_STORE_CATEGORIES,
+  generateFallbackProductFromSlug,
   getFallbackCategories,
   getFallbackPaginatedStoreProducts,
+  getFallbackProductReviews,
   getFallbackProductById,
   getFallbackProductBySlug,
   getFallbackProducts,

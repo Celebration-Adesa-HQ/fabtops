@@ -46,6 +46,20 @@ describe('WooCommerce review helpers', () => {
     });
   });
 
+  it('returns product detail fallback reviews when the Store API is unreachable', async () => {
+    storeApiRequest.mockRejectedValue(new Error('WooCommerce Store API unreachable (ETIMEDOUT)'));
+
+    const { listProductReviews } = await import('../../lib/woocommerce/reviews');
+
+    await expect(listProductReviews('632', {
+      orderby: 'date',
+      order: 'desc',
+      per_page: 6,
+    })).resolves.toEqual(expect.arrayContaining([
+      expect.objectContaining({ product_id: 632, reviewer: 'Amara O.' }),
+    ]));
+  });
+
   it('looks up the signed-in customer review through the Woo REST API', async () => {
     wooRequest.mockResolvedValue([]);
 
@@ -61,6 +75,14 @@ describe('WooCommerce review helpers', () => {
       },
       cache: 'no-store',
     });
+  });
+
+  it('returns no owned review when Woo REST is unreachable', async () => {
+    wooRequest.mockRejectedValue(new Error('WooCommerce REST API unreachable (ETIMEDOUT)'));
+
+    const { getCustomerProductReview } = await import('../../lib/woocommerce/reviews');
+
+    await expect(getCustomerProductReview('632', 'ada@example.com')).resolves.toBeNull();
   });
 
   it('creates a review with session-derived identity fields', async () => {

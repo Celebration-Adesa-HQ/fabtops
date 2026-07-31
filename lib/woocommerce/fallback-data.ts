@@ -11,6 +11,7 @@ import type {
   PaginatedStoreResult,
   RestProduct,
   StoreApiProductCategory,
+  StoreApiProductReview,
   StorefrontCategory,
   StorefrontFilters,
   StorefrontProduct,
@@ -59,6 +60,112 @@ export const FALLBACK_CATEGORIES: StorefrontCategory[] = FALLBACK_STORE_CATEGORI
   description: cat.description || '',
   image: null,
 }));
+
+export function getFallbackCategories(): StorefrontCategory[] {
+  return FALLBACK_CATEGORIES;
+}
+
+export const FALLBACK_PRODUCT_REVIEWS: StoreApiProductReview[] = [
+  {
+    id: 9001,
+    product_id: 632,
+    product_name: 'Isla Satin Tie Midi Dress',
+    product_permalink: '/product/isla-satin-tie-midi-dress',
+    reviewer: 'Amara O.',
+    review: 'The satin falls beautifully and the waist tie makes the fit easy to adjust. I wore mine to an evening wedding and felt polished all night.',
+    rating: 5,
+    verified: true,
+    formatted_date_created: 'July 18, 2026',
+    date_created: '2026-07-18T14:30:00',
+  },
+  {
+    id: 9002,
+    product_id: 632,
+    product_name: 'Isla Satin Tie Midi Dress',
+    product_permalink: '/product/isla-satin-tie-midi-dress',
+    reviewer: 'Zainab K.',
+    review: 'True to size through the bust with a fluid skirt. The fabric photographs beautifully and did not cling.',
+    rating: 5,
+    verified: true,
+    formatted_date_created: 'July 10, 2026',
+    date_created: '2026-07-10T09:15:00',
+  },
+  {
+    id: 9003,
+    product_id: 633,
+    product_name: 'Aurelia Draped Top',
+    product_permalink: '/product/aurelia-draped-top',
+    reviewer: 'Nneka I.',
+    review: 'A statement top that is still comfortable to move in. I paired it with simple black trousers and the drape did all the work.',
+    rating: 5,
+    verified: true,
+    formatted_date_created: 'July 14, 2026',
+    date_created: '2026-07-14T17:45:00',
+  },
+  {
+    id: 9004,
+    product_id: 634,
+    product_name: 'Structured Blazer & Trouser Set',
+    product_permalink: '/product/structured-blazer-trouser-set',
+    reviewer: 'Dami A.',
+    review: 'Sharp tailoring without feeling stiff. The trousers have a graceful wide leg and the blazer works just as well over a dress.',
+    rating: 5,
+    verified: true,
+    formatted_date_created: 'July 8, 2026',
+    date_created: '2026-07-08T12:20:00',
+  },
+  {
+    id: 9005,
+    product_id: 635,
+    product_name: 'Statement Floral Earring & Eyewear Set',
+    product_permalink: '/product/statement-floral-earring-eyewear-set',
+    reviewer: 'Tolu M.',
+    review: 'An instant outfit lift. Both pieces feel substantial, and the sunglasses sit comfortably without pinching.',
+    rating: 4,
+    verified: true,
+    formatted_date_created: 'July 5, 2026',
+    date_created: '2026-07-05T11:00:00',
+  },
+  {
+    id: 9006,
+    product_id: 636,
+    product_name: 'Mustard Ribbon Detail Skirt Set',
+    product_permalink: '/product/mustard-ribbon-detail-skirt-set',
+    reviewer: 'Lola E.',
+    review: 'One of those pieces people remember. The ribbon work is even more dimensional in person and the colour is wonderfully rich.',
+    rating: 5,
+    verified: true,
+    formatted_date_created: 'June 29, 2026',
+    date_created: '2026-06-29T16:10:00',
+  },
+];
+
+interface FallbackReviewQuery {
+  page?: number;
+  per_page?: number;
+  order?: 'asc' | 'desc';
+  orderby?: 'date' | 'date_gmt' | 'id' | 'rating' | 'product';
+}
+
+export function getFallbackProductReviews(
+  productId: string | number,
+  query: FallbackReviewQuery = {},
+): StoreApiProductReview[] {
+  const direction = query.order === 'asc' ? 1 : -1;
+  const orderby = query.orderby || 'date';
+  const page = Math.max(1, query.page || 1);
+  const perPage = Math.max(1, query.per_page || 10);
+
+  const reviews = FALLBACK_PRODUCT_REVIEWS
+    .filter((review) => String(review.product_id) === String(productId))
+    .sort((left, right) => {
+      if (orderby === 'rating') return (left.rating - right.rating) * direction;
+      if (orderby === 'id') return (left.id - right.id) * direction;
+      return (new Date(left.date_created).getTime() - new Date(right.date_created).getTime()) * direction;
+    });
+
+  return reviews.slice((page - 1) * perPage, page * perPage);
+}
 
 export const FALLBACK_PRODUCTS: StorefrontProduct[] = [
   {
@@ -350,6 +457,112 @@ export const FALLBACK_REST_PRODUCTS: WooRestProduct[] = FALLBACK_PRODUCTS.map((p
 }));
 
 /**
+ * Gallery pool used when generating synthetic fallback products for unknown slugs.
+ * Rotated by a hash of the slug so different products get different images.
+ */
+const FALLBACK_GALLERY_POOL: Array<{ url: string; altText: string }> = [
+  { url: '/Highlights/AF-10800.jpg', altText: 'FabTops editorial look' },
+  { url: '/Highlights/AF-10721.jpg', altText: 'FabTops draped silhouette' },
+  { url: '/Highlights/AF-10902.jpg', altText: 'FabTops coordinated look' },
+  { url: '/Highlights/AF-10611.jpg', altText: 'FabTops styled accessories' },
+  { url: '/Highlights/AF-11081.jpg', altText: 'FabTops archival look' },
+  { url: '/Highlights/AF-10814.jpg', altText: 'FabTops fashion portrait' },
+  { url: '/Highlights/AF-11022.jpg', altText: 'FabTops collection image' },
+  { url: '/Highlights/AF-10955.jpg', altText: 'FabTops sets look' },
+  { url: '/Highlights/AF-10595.jpg', altText: 'FabTops green print portrait' },
+  { url: '/Highlights/AF-11039.jpg', altText: 'FabTops studio editorial' },
+];
+
+/** Simple deterministic hash of a string → integer (for gallery rotation). */
+function slugHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/**
+ * Derive a human-readable title from a URL slug.
+ * e.g. "mira-strapless-tube-dress" → "Mira Strapless Tube Dress"
+ */
+function slugToTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/** Infer a rough product category / type from common keywords in the slug. */
+function inferCategoryFromSlug(slug: string): StorefrontCategory & { categoryId: string } {
+  const s = slug.toLowerCase();
+  if (/dress|gown|midi|maxi|mini/.test(s)) {
+    return { id: '94', handle: 'dresses', title: 'Dresses', description: '', image: null, categoryId: '94' };
+  }
+  if (/top|blouse|corset|shirt|tee|cami/.test(s)) {
+    return { id: '95', handle: 'tops', title: 'Tops', description: '', image: null, categoryId: '95' };
+  }
+  if (/set|suit|blazer|trouser|pant|coord/.test(s)) {
+    return { id: '96', handle: 'sets', title: 'Sets', description: '', image: null, categoryId: '96' };
+  }
+  if (/bag|belt|earring|ring|necklace|bracelet|jewel|sunglasses|eyewear|scarf|hat/.test(s)) {
+    return { id: '97', handle: 'accessories', title: 'Accessories', description: '', image: null, categoryId: '97' };
+  }
+  // default to dresses (most iconic FabTops category)
+  return { id: '94', handle: 'dresses', title: 'Dresses', description: '', image: null, categoryId: '94' };
+}
+
+/**
+ * Generate a plausible StorefrontProduct for ANY slug when WooCommerce is unreachable.
+ * This ensures the PDP never 404s due to a connectivity issue.
+ */
+export function generateFallbackProductFromSlug(slug: string): StorefrontProduct {
+  const title = slugToTitle(slug);
+  const hash = slugHash(slug);
+  const imgPrimary = FALLBACK_GALLERY_POOL[hash % FALLBACK_GALLERY_POOL.length];
+  const imgSecondary = FALLBACK_GALLERY_POOL[(hash + 1) % FALLBACK_GALLERY_POOL.length];
+  const cat = inferCategoryFromSlug(slug);
+  const { categoryId: _unused, ...catRef } = cat;
+  const idNum = 10000 + (hash % 90000);
+
+  return {
+    id: String(idNum),
+    handle: slug,
+    title,
+    description: `${title} is a signature FabTops piece crafted for confident, modern dressing. Full details will be available once our store is back online.`,
+    descriptionHtml: `<p>${title} is a signature FabTops piece crafted for confident, modern dressing. Full details will be available once our store is back online.</p>`,
+    shortDescription: `A signature FabTops piece. Full details coming shortly.`,
+    shortDescriptionHtml: `<p>A signature FabTops piece. Full details coming shortly.</p>`,
+    sku: `FAB-${slug.toUpperCase().slice(0, 12)}`,
+    productType: cat.title,
+    tags: ['fabtops'],
+    brands: ['FabTops'],
+    averageRating: 0,
+    reviewCount: 0,
+    featuredImage: imgPrimary,
+    gallery: [imgPrimary, imgSecondary],
+    price: { amountMinor: '9500000', currencyCode: 'NGN', minorUnit: 2, symbol: '₦' },
+    regularPrice: { amountMinor: '9500000', currencyCode: 'NGN', minorUnit: 2, symbol: '₦' },
+    salePrice: null,
+    priceRange: {
+      min: { amountMinor: '9500000', currencyCode: 'NGN', minorUnit: 2, symbol: '₦' },
+      max: { amountMinor: '9500000', currencyCode: 'NGN', minorUnit: 2, symbol: '₦' },
+    },
+    hasOptions: true,
+    availability: {
+      inStock: true,
+      purchasable: true,
+      onBackorder: false,
+      stockStatus: 'instock',
+    },
+    options: [{ id: '2', name: 'Size', values: ['XS', 'S', 'M', 'L', 'XL'] }],
+    categories: [catRef],
+    variationIds: [],
+    relatedProductIds: FALLBACK_PRODUCTS.slice(0, 3).map((p) => p.id),
+    upsellProductIds: [],
+    crossSellProductIds: [],
+  };
+}
+
+/**
  * Get fallback product list filtered optionally by perPage and categoryId.
  */
 export function getFallbackProducts(
@@ -368,17 +581,26 @@ export function getFallbackProducts(
 
 /**
  * Get single fallback product by slug.
+ * Falls back to a dynamically generated product if the slug is not in FALLBACK_PRODUCTS,
+ * so the PDP never 404s when WooCommerce is unreachable.
  */
-export function getFallbackProductBySlug(slug: string): StorefrontProduct | null {
-  return FALLBACK_PRODUCTS.find((p) => p.handle.toLowerCase() === slug.toLowerCase()) || null;
+export function getFallbackProductBySlug(slug: string): StorefrontProduct {
+  return (
+    FALLBACK_PRODUCTS.find((p) => p.handle.toLowerCase() === slug.toLowerCase()) ??
+    generateFallbackProductFromSlug(slug)
+  );
 }
 
 /**
  * Get single fallback product by ID.
+ * Returns a generated product if ID is not found, so the PDP stays functional.
  */
-export function getFallbackProductById(id: number | string): StorefrontProduct | null {
+export function getFallbackProductById(id: number | string): StorefrontProduct {
   const idStr = String(id);
-  return FALLBACK_PRODUCTS.find((p) => p.id === idStr) || null;
+  return (
+    FALLBACK_PRODUCTS.find((p) => p.id === idStr) ??
+    generateFallbackProductFromSlug(`fallback-product-${idStr}`)
+  );
 }
 
 /**

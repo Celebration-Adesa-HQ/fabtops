@@ -1,5 +1,6 @@
 import { storeApiRequest } from './store-api';
 import { wooRequest } from './rest-client';
+import { getFallbackProductReviews, isWooUnreachableError } from './fallback-data';
 import type { StoreApiProductReview } from './storefront';
 
 interface StoreApiReviewQuery extends Record<string, string | number | boolean | undefined> {
@@ -39,32 +40,54 @@ export async function listProductReviews(
   productId: string | number,
   query: StoreApiReviewQuery = {},
 ): Promise<StoreApiProductReview[]> {
-  const result = await storeApiRequest<StoreApiProductReview[]>('/products/reviews', {
-    query: {
-      product_id: String(productId),
-      ...query,
-    },
-    cache: 'no-store',
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductReview[]>('/products/reviews', {
+      query: {
+        product_id: String(productId),
+        ...query,
+      },
+      cache: 'no-store',
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        `[fabtops] WooCommerce Store API unreachable (listProductReviews: ${productId}). Returning fallback reviews:`,
+        error instanceof Error ? error.message : error,
+      );
+      return getFallbackProductReviews(productId, query);
+    }
+    throw error;
+  }
 }
 
 export async function getCustomerProductReview(
   productId: string | number,
   reviewerEmail: string,
 ): Promise<WooRestProductReview | null> {
-  const reviews = await wooRequest<WooRestProductReview[]>('/products/reviews', {
-    query: {
-      product: String(productId),
-      reviewer_email: reviewerEmail,
-      per_page: 1,
-      status: 'all',
-    },
-    cache: 'no-store',
-  });
+  try {
+    const reviews = await wooRequest<WooRestProductReview[]>('/products/reviews', {
+      query: {
+        product: String(productId),
+        reviewer_email: reviewerEmail,
+        per_page: 1,
+        status: 'all',
+      },
+      cache: 'no-store',
+    });
 
-  return reviews[0] || null;
+    return reviews[0] || null;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        `[fabtops] WooCommerce REST API unreachable (getCustomerProductReview: ${productId}). Returning no owned review:`,
+        error instanceof Error ? error.message : error,
+      );
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function createProductReview(input: CreateProductReviewInput) {

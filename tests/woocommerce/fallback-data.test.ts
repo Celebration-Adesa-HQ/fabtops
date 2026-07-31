@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   FALLBACK_CATEGORIES,
+  FALLBACK_PRODUCT_REVIEWS,
   FALLBACK_PRODUCTS,
+  generateFallbackProductFromSlug,
   getFallbackProductById,
   getFallbackProductBySlug,
+  getFallbackProductReviews,
   getFallbackProducts,
   isWooUnreachableError,
   searchFallbackProducts,
@@ -39,12 +42,10 @@ describe('WooCommerce fallback data layer', () => {
 
   it('retrieves fallback products by slug, ID, and category', () => {
     const productBySlug = getFallbackProductBySlug('isla-satin-tie-midi-dress');
-    expect(productBySlug).not.toBeNull();
-    expect(productBySlug?.title).toBe('Isla Satin Tie Midi Dress');
+    expect(productBySlug.title).toBe('Isla Satin Tie Midi Dress');
 
     const productById = getFallbackProductById('632');
-    expect(productById).not.toBeNull();
-    expect(productById?.handle).toBe('isla-satin-tie-midi-dress');
+    expect(productById.handle).toBe('isla-satin-tie-midi-dress');
 
     const dressProducts = getFallbackProducts(10, '94');
     expect(dressProducts.length).toBeGreaterThan(0);
@@ -63,5 +64,76 @@ describe('WooCommerce fallback data layer', () => {
     expect(handles).toContain('dresses');
     expect(handles).toContain('tops');
     expect(handles).toContain('sets');
+  });
+
+  it('provides product-scoped detail-page reviews in the requested order', () => {
+    expect(FALLBACK_PRODUCT_REVIEWS.length).toBeGreaterThan(0);
+
+    const reviews = getFallbackProductReviews('632', {
+      orderby: 'date',
+      order: 'desc',
+      per_page: 1,
+    });
+
+    expect(reviews).toHaveLength(1);
+    expect(reviews[0]).toMatchObject({ product_id: 632, reviewer: 'Amara O.', verified: true });
+  });
+
+  it('generates a valid StorefrontProduct for any unknown slug (PDP never 404s)', () => {
+    const unknown = generateFallbackProductFromSlug('mira-strapless-tube-dress');
+
+    // Title derived from slug
+    expect(unknown.title).toBe('Mira Strapless Tube Dress');
+    expect(unknown.handle).toBe('mira-strapless-tube-dress');
+
+    // Category inferred as "Dresses" (slug contains "dress")
+    expect(unknown.categories[0].handle).toBe('dresses');
+
+    // Must have a valid featured image from the gallery pool
+    expect(unknown.featuredImage).not.toBeNull();
+    expect(unknown.featuredImage!.url).toMatch(/^\/Highlights\/AF-\d+\.jpg$/);
+
+    // Availability must be purchasable so Add-to-Cart renders
+    expect(unknown.availability.inStock).toBe(true);
+    expect(unknown.availability.purchasable).toBe(true);
+
+    // Size options must be present so the size selector renders
+    expect(unknown.options.length).toBeGreaterThan(0);
+    expect(unknown.options[0].name).toBe('Size');
+  });
+
+  it('getFallbackProductBySlug never returns null for any slug', () => {
+    // Known slug → real data
+    const known = getFallbackProductBySlug('aurelia-draped-top');
+    expect(known.id).toBe('633');
+
+    // Unknown slug → generated product (never null, never undefined)
+    const unknown = getFallbackProductBySlug('mira-strapless-tube-dress');
+    expect(unknown).toBeDefined();
+    expect(unknown.handle).toBe('mira-strapless-tube-dress');
+    expect(typeof unknown.title).toBe('string');
+    expect(unknown.title.length).toBeGreaterThan(0);
+  });
+
+  it('getFallbackProductById never returns null for any ID', () => {
+    // Known ID
+    const known = getFallbackProductById('632');
+    expect(known.handle).toBe('isla-satin-tie-midi-dress');
+
+    // Unknown ID → generated product
+    const unknown = getFallbackProductById('99999');
+    expect(unknown).toBeDefined();
+    expect(unknown.id).toBeDefined();
+    expect(unknown.availability.purchasable).toBe(true);
+  });
+
+  it('different slugs get different gallery images (deterministic hash rotation)', () => {
+    const p1 = generateFallbackProductFromSlug('mira-strapless-tube-dress');
+    const p2 = generateFallbackProductFromSlug('bella-wrap-gown');
+    // Same slug always produces same image (deterministic)
+    const p1Again = generateFallbackProductFromSlug('mira-strapless-tube-dress');
+    expect(p1.featuredImage!.url).toBe(p1Again.featuredImage!.url);
+    // Any slug produces a valid path
+    expect(p2.featuredImage!.url).toMatch(/^\/Highlights\/AF-\d+\.jpg$/);
   });
 });

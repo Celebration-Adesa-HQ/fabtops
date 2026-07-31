@@ -10,8 +10,21 @@ import {
 import { storeApiRequest, type StoreApiPaginationHeaders } from './store-api';
 import type {
   PaginatedStoreResult,
+  StoreApiProductCategory,
+  StoreApiProductReview,
+  StoreApiRatingCount,
+  StorefrontFilterOption,
+  StorefrontFilters,
   StorefrontProduct,
   WooStoreProduct,
+} from './types';
+export type { StoreApiPaginationHeaders } from './store-api';
+export type {
+  StoreApiProductCategory,
+  StoreApiProductReview,
+  StoreApiRatingCount,
+  StorefrontFilterOption,
+  StorefrontFilters,
 } from './types';
 import type { NormalizedShopQuery, StockStatus } from '../shop/shop-query';
 
@@ -19,11 +32,6 @@ type StorefrontQueryValue = string | number | boolean | undefined;
 
 export interface StoreApiTermCount {
   term: number;
-  count: number;
-}
-
-export interface StoreApiRatingCount {
-  rating: number;
   count: number;
 }
 
@@ -39,14 +47,6 @@ export interface StoreApiCollectionData {
   attribute_counts: StoreApiTermCount[] | null;
   rating_counts: StoreApiRatingCount[] | null;
   taxonomy_counts: StoreApiTermCount[] | null;
-}
-
-export interface StoreApiProductCategory {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  image?: { id?: number; src: string; alt?: string | null } | null;
 }
 
 export interface StoreApiProductBrand {
@@ -81,28 +81,6 @@ export interface StoreApiProductAttributeTerm {
     type: string;
     value: string;
   };
-}
-
-export interface StoreApiProductReview {
-  id: number;
-  product_id: number;
-  product_name: string;
-  product_permalink: string;
-  product_image?: {
-    id: number;
-    src: string;
-    thumbnail: string;
-    srcset: string;
-    sizes: string;
-    name: string;
-    alt: string;
-  };
-  reviewer: string;
-  review: string;
-  rating: number;
-  verified: boolean;
-  formatted_date_created: string;
-  date_created: string;
 }
 
 export interface StoreApiOrder {
@@ -159,27 +137,6 @@ export interface StoreApiOrder {
     };
     [key: string]: unknown;
   }>;
-}
-
-export interface StorefrontFilterOption {
-  label: string;
-  value: string;
-  count?: number;
-}
-
-export interface StorefrontFilters {
-  categories: StorefrontFilterOption[];
-  brands: StorefrontFilterOption[];
-  sizes: StorefrontFilterOption[];
-  tags: StorefrontFilterOption[];
-  stockStatuses: StorefrontFilterOption[];
-  priceRange: {
-    min: number;
-    max: number;
-    currencyCode: string;
-    minorUnit: number;
-  } | null;
-  ratingCounts: StoreApiRatingCount[];
 }
 
 interface BuildStorefrontFiltersInput {
