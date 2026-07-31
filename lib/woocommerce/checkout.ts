@@ -135,7 +135,15 @@ export async function updateCheckout(
   };
 }
 
-export async function submitCheckout(cartToken: string, input: CheckoutSchema, bearerToken?: string | null) {
+type CheckoutSubmissionInput = Omit<CheckoutSchema, 'payment_data'> & {
+  readonly payment_data: ReadonlyArray<CheckoutSchema['payment_data'][number]>;
+};
+
+export async function submitCheckout(
+  cartToken: string,
+  input: CheckoutSubmissionInput,
+  bearerToken?: string | null,
+) {
   const result = await storeApiRequest<StoreApiCheckoutResponse>('/checkout', {
     method: 'POST',
     cartToken,

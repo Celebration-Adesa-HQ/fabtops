@@ -4,6 +4,16 @@
  * Single-product detail and full variation data stay on wc/v3.
  */
 import { adaptRestProduct } from './adapters';
+import {
+  FALLBACK_CATEGORIES,
+  FALLBACK_PRODUCTS,
+  getFallbackCategories,
+  getFallbackProductById,
+  getFallbackProductBySlug,
+  getFallbackProducts,
+  isWooUnreachableError,
+  searchFallbackProducts,
+} from './fallback-data';
 import { wooRequest } from './rest-client';
 import type {
   StorefrontCategory,
@@ -21,34 +31,56 @@ interface RestCategory {
 }
 
 export async function getCategories(): Promise<StorefrontCategory[]> {
-  const categories = await wooRequest<RestCategory[]>('/products/categories', {
-    query: { per_page: 100, hide_empty: true },
-    next: { revalidate: 300, tags: ['woo-categories'] },
-  });
+  try {
+    const categories = await wooRequest<RestCategory[]>('/products/categories', {
+      query: { per_page: 100, hide_empty: true },
+      next: { revalidate: 300, tags: ['woo-categories'] },
+    });
 
-  return categories.map((category) => ({
-    id: String(category.id),
-    handle: category.slug,
-    title: category.name,
-    description: category.description,
-    image: category.image ? { url: category.image.src, altText: category.image.alt || category.name } : null,
-  }));
+    return categories.map((category) => ({
+      id: String(category.id),
+      handle: category.slug,
+      title: category.name,
+      description: category.description,
+      image: category.image ? { url: category.image.src, altText: category.image.alt || category.name } : null,
+    }));
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        '[fabtops] WooCommerce REST API unreachable (getCategories). Returning copy fallback category data:',
+        error instanceof Error ? error.message : error,
+      );
+      return FALLBACK_CATEGORIES;
+    }
+    throw error;
+  }
 }
 
 export async function getProducts(
   perPage = 20,
   categoryId?: number | string,
 ): Promise<StorefrontProduct[]> {
-  const products = await wooRequest<WooRestProduct[]>('/products', {
-    query: {
-      per_page: Math.min(perPage, 100),
-      status: 'publish',
-      ...(categoryId ? { category: String(categoryId) } : {}),
-    },
-    next: { revalidate: 60, tags: ['woo-products'] },
-  });
+  try {
+    const products = await wooRequest<WooRestProduct[]>('/products', {
+      query: {
+        per_page: Math.min(perPage, 100),
+        status: 'publish',
+        ...(categoryId ? { category: String(categoryId) } : {}),
+      },
+      next: { revalidate: 60, tags: ['woo-products'] },
+    });
 
-  return products.map((product) => adaptRestProduct(product));
+    return products.map((product) => adaptRestProduct(product));
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        '[fabtops] WooCommerce REST API unreachable (getProducts). Returning copy fallback product data:',
+        error instanceof Error ? error.message : error,
+      );
+      return getFallbackProducts(perPage, categoryId);
+    }
+    throw error;
+  }
 }
 
 export async function getProductsByCategorySlug(
@@ -68,12 +100,23 @@ export async function searchProducts(
   const query = search.trim();
   if (!query) return [];
 
-  const products = await wooRequest<WooRestProduct[]>('/products', {
-    query: { search: query, per_page: perPage, status: 'publish' },
-    cache: 'no-store',
-  });
+  try {
+    const products = await wooRequest<WooRestProduct[]>('/products', {
+      query: { search: query, per_page: perPage, status: 'publish' },
+      cache: 'no-store',
+    });
 
-  return products.map((product) => adaptRestProduct(product));
+    return products.map((product) => adaptRestProduct(product));
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        '[fabtops] WooCommerce REST API unreachable (searchProducts). Returning copy fallback search data:',
+        error instanceof Error ? error.message : error,
+      );
+      return searchFallbackProducts(query, perPage);
+    }
+    throw error;
+  }
 }
 
 export async function getProductVariations(
@@ -100,11 +143,22 @@ async function adaptDetailedProduct(product: WooRestProduct): Promise<Storefront
 }
 
 export async function getProductBySlug(slug: string): Promise<StorefrontProduct | null> {
-  const products = await wooRequest<WooRestProduct[]>('/products', {
-    query: { slug, status: 'publish', per_page: 1 },
-    next: { revalidate: 60, tags: [`woo-product-${slug}`] },
-  });
-  return products[0] ? adaptDetailedProduct(products[0]) : null;
+  try {
+    const products = await wooRequest<WooRestProduct[]>('/products', {
+      query: { slug, status: 'publish', per_page: 1 },
+      next: { revalidate: 60, tags: [`woo-product-${slug}`] },
+    });
+    return products[0] ? adaptDetailedProduct(products[0]) : null;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        `[fabtops] WooCommerce REST API unreachable (getProductBySlug: ${slug}). Returning copy fallback product:`,
+        error instanceof Error ? error.message : error,
+      );
+      return getFallbackProductBySlug(slug);
+    }
+    throw error;
+  }
 }
 
 export async function getProductById(
@@ -117,6 +171,13 @@ export async function getProductById(
     return adaptDetailedProduct(product);
   } catch (error) {
     if (error instanceof Error && error.message.includes('404')) return null;
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        `[fabtops] WooCommerce REST API unreachable (getProductById: ${id}). Returning copy fallback product:`,
+        error instanceof Error ? error.message : error,
+      );
+      return getFallbackProductById(id);
+    }
     throw error;
   }
 }
@@ -124,16 +185,28 @@ export async function getProductById(
 export async function getProductsByIds(ids: Array<string | number>): Promise<StorefrontProduct[]> {
   if (!ids.length) return [];
 
-  const products = await wooRequest<WooRestProduct[]>('/products', {
-    query: {
-      include: ids.join(','),
-      status: 'publish',
-      per_page: Math.min(ids.length, 100),
-    },
-    next: { revalidate: 60, tags: ['woo-products'] },
-  });
+  try {
+    const products = await wooRequest<WooRestProduct[]>('/products', {
+      query: {
+        include: ids.join(','),
+        status: 'publish',
+        per_page: Math.min(ids.length, 100),
+      },
+      next: { revalidate: 60, tags: ['woo-products'] },
+    });
 
-  return products.map((product) => adaptRestProduct(product));
+    return products.map((product) => adaptRestProduct(product));
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        '[fabtops] WooCommerce REST API unreachable (getProductsByIds). Returning copy fallback products:',
+        error instanceof Error ? error.message : error,
+      );
+      const strIds = ids.map(String);
+      return FALLBACK_PRODUCTS.filter((p) => strIds.includes(p.id));
+    }
+    throw error;
+  }
 }
 
 function dedupeProducts(products: StorefrontProduct[]) {
@@ -187,9 +260,20 @@ export async function getRelatedProductsForProduct(product: StorefrontProduct, f
 }
 
 export async function getProductSlugs(): Promise<string[]> {
-  const products = await wooRequest<Array<{ slug: string }>>('/products', {
-    query: { per_page: 100, status: 'publish', _fields: 'slug' },
-    next: { revalidate: 300, tags: ['woo-products'] },
-  });
-  return products.map((product) => product.slug);
+  try {
+    const products = await wooRequest<Array<{ slug: string }>>('/products', {
+      query: { per_page: 100, status: 'publish', _fields: 'slug' },
+      next: { revalidate: 300, tags: ['woo-products'] },
+    });
+    return products.map((product) => product.slug);
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn(
+        '[fabtops] WooCommerce REST API unreachable (getProductSlugs). Returning copy fallback slugs:',
+        error instanceof Error ? error.message : error,
+      );
+      return FALLBACK_PRODUCTS.map((p) => p.handle);
+    }
+    throw error;
+  }
 }

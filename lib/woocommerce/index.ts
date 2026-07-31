@@ -43,6 +43,25 @@ export type { WooEnvironment } from './env';
 // Server-only REST client (Consumer Key + Secret — never expose to browser)
 export { buildWooRestUrl, wooRequest } from './rest-client';
 
+// Fallback copy data layer for WooCommerce unreachable/timeout states
+export {
+  FALLBACK_CATEGORIES,
+  FALLBACK_PRODUCT_REVIEWS,
+  FALLBACK_PRODUCTS,
+  FALLBACK_REST_PRODUCTS,
+  FALLBACK_STORE_CATEGORIES,
+  generateFallbackProductFromSlug,
+  getFallbackCategories,
+  getFallbackPaginatedStoreProducts,
+  getFallbackProductReviews,
+  getFallbackProductById,
+  getFallbackProductBySlug,
+  getFallbackProducts,
+  getFallbackStorefrontFilters,
+  isWooUnreachableError,
+  searchFallbackProducts,
+} from './fallback-data';
+
 // Public Store API client (no credentials)
 export { buildStoreApiUrl, formatMoney, fromMinorUnits, storeApiRequest } from './store-api';
 export type { StoreApiPaginationHeaders, StoreApiResult } from './store-api';

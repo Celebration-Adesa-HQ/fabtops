@@ -285,6 +285,62 @@ export interface StorefrontCategory {
   image: { url: string; altText: string } | null;
 }
 
+export interface StoreApiProductCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: { id?: number; src: string; alt?: string | null } | null;
+}
+
+export interface StoreApiRatingCount {
+  rating: number;
+  count: number;
+}
+
+export interface StoreApiProductReview {
+  id: number;
+  product_id: number;
+  product_name: string;
+  product_permalink: string;
+  product_image?: {
+    id: number;
+    src: string;
+    thumbnail: string;
+    srcset: string;
+    sizes: string;
+    name: string;
+    alt: string;
+  };
+  reviewer: string;
+  review: string;
+  rating: number;
+  verified: boolean;
+  formatted_date_created: string;
+  date_created: string;
+}
+
+export interface StorefrontFilterOption {
+  label: string;
+  value: string;
+  count?: number;
+}
+
+export interface StorefrontFilters {
+  categories: StorefrontFilterOption[];
+  brands: StorefrontFilterOption[];
+  sizes: StorefrontFilterOption[];
+  tags: StorefrontFilterOption[];
+  stockStatuses: StorefrontFilterOption[];
+  priceRange: {
+    min: number;
+    max: number;
+    currencyCode: string;
+    minorUnit: number;
+  } | null;
+  ratingCounts: StoreApiRatingCount[];
+}
+
 export interface PaginatedStoreResult<T> {
   items: T[];
   total: number;

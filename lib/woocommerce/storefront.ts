@@ -1,10 +1,30 @@
 import { normalizeCheckoutResult, type SafeCheckoutResult } from './checkout';
 import { adaptStoreProduct } from './adapters';
+import {
+  FALLBACK_STORE_CATEGORIES,
+  getFallbackPaginatedStoreProducts,
+  getFallbackProducts,
+  getFallbackStorefrontFilters,
+  isWooUnreachableError,
+} from './fallback-data';
 import { storeApiRequest, type StoreApiPaginationHeaders } from './store-api';
 import type {
   PaginatedStoreResult,
+  StoreApiProductCategory,
+  StoreApiProductReview,
+  StoreApiRatingCount,
+  StorefrontFilterOption,
+  StorefrontFilters,
   StorefrontProduct,
   WooStoreProduct,
+} from './types';
+export type { StoreApiPaginationHeaders } from './store-api';
+export type {
+  StoreApiProductCategory,
+  StoreApiProductReview,
+  StoreApiRatingCount,
+  StorefrontFilterOption,
+  StorefrontFilters,
 } from './types';
 import type { NormalizedShopQuery, StockStatus } from '../shop/shop-query';
 
@@ -12,11 +32,6 @@ type StorefrontQueryValue = string | number | boolean | undefined;
 
 export interface StoreApiTermCount {
   term: number;
-  count: number;
-}
-
-export interface StoreApiRatingCount {
-  rating: number;
   count: number;
 }
 
@@ -32,14 +47,6 @@ export interface StoreApiCollectionData {
   attribute_counts: StoreApiTermCount[] | null;
   rating_counts: StoreApiRatingCount[] | null;
   taxonomy_counts: StoreApiTermCount[] | null;
-}
-
-export interface StoreApiProductCategory {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  image?: { id?: number; src: string; alt?: string | null } | null;
 }
 
 export interface StoreApiProductBrand {
@@ -74,28 +81,6 @@ export interface StoreApiProductAttributeTerm {
     type: string;
     value: string;
   };
-}
-
-export interface StoreApiProductReview {
-  id: number;
-  product_id: number;
-  product_name: string;
-  product_permalink: string;
-  product_image?: {
-    id: number;
-    src: string;
-    thumbnail: string;
-    srcset: string;
-    sizes: string;
-    name: string;
-    alt: string;
-  };
-  reviewer: string;
-  review: string;
-  rating: number;
-  verified: boolean;
-  formatted_date_created: string;
-  date_created: string;
 }
 
 export interface StoreApiOrder {
@@ -152,27 +137,6 @@ export interface StoreApiOrder {
     };
     [key: string]: unknown;
   }>;
-}
-
-export interface StorefrontFilterOption {
-  label: string;
-  value: string;
-  count?: number;
-}
-
-export interface StorefrontFilters {
-  categories: StorefrontFilterOption[];
-  brands: StorefrontFilterOption[];
-  sizes: StorefrontFilterOption[];
-  tags: StorefrontFilterOption[];
-  stockStatuses: StorefrontFilterOption[];
-  priceRange: {
-    min: number;
-    max: number;
-    currencyCode: string;
-    minorUnit: number;
-  } | null;
-  ratingCounts: StoreApiRatingCount[];
 }
 
 interface BuildStorefrontFiltersInput {
@@ -397,90 +361,188 @@ export function normalizePaginatedCollectionResult<T>(
 }
 
 export async function getStoreProducts(query: StoreApiProductQuery = {}) {
-  const result = await storeApiRequest<WooStoreProduct[]>('/products', {
-    query,
-    next: { revalidate: 60, tags: ['woo-store-products'] },
-  });
+  try {
+    const result = await storeApiRequest<WooStoreProduct[]>('/products', {
+      query,
+      next: { revalidate: 60, tags: ['woo-store-products'] },
+    });
 
-  return result.data.map(adaptStoreProduct);
+    return result.data.map(adaptStoreProduct);
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn('[fabtops] WooCommerce Store API unreachable (getStoreProducts). Returning copy fallback products.');
+      return getFallbackProducts(query.per_page || 20, query.category);
+    }
+    throw error;
+  }
 }
 
 export async function getPaginatedStoreProducts(query: StoreApiProductQuery = {}) {
-  const result = await storeApiRequest<WooStoreProduct[]>('/products', {
-    query,
-    next: { revalidate: 60, tags: ['woo-store-products'] },
-  });
+  try {
+    const result = await storeApiRequest<WooStoreProduct[]>('/products', {
+      query,
+      next: { revalidate: 60, tags: ['woo-store-products'] },
+    });
 
-  return normalizePaginatedCollectionResult(
-    result.data.map(adaptStoreProduct),
-    result.pagination,
-    {
-      page: query.page || 1,
-      perPage: query.per_page || 24,
-    },
-  );
+    return normalizePaginatedCollectionResult(
+      result.data.map(adaptStoreProduct),
+      result.pagination,
+      {
+        page: query.page || 1,
+        perPage: query.per_page || 24,
+      },
+    );
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn('[fabtops] WooCommerce Store API unreachable (getPaginatedStoreProducts). Returning copy fallback paginated store products.');
+      return getFallbackPaginatedStoreProducts(query);
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductCategories() {
-  const result = await storeApiRequest<StoreApiProductCategory[]>('/products/categories', {
-    next: { revalidate: 300, tags: ['woo-store-categories'] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductCategory[]>('/products/categories', {
+      next: { revalidate: 300, tags: ['woo-store-categories'] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn('[fabtops] WooCommerce Store API unreachable (getStoreProductCategories). Returning copy fallback store categories.');
+      return FALLBACK_STORE_CATEGORIES;
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductBrands() {
-  const result = await storeApiRequest<StoreApiProductBrand[]>('/products/brands', {
-    next: { revalidate: 300, tags: ['woo-store-brands'] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductBrand[]>('/products/brands', {
+      next: { revalidate: 300, tags: ['woo-store-brands'] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return [{ id: 174, name: 'FabTops', slug: 'fabtops' }];
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductTags() {
-  const result = await storeApiRequest<StoreApiProductTag[]>('/products/tags', {
-    next: { revalidate: 300, tags: ['woo-store-tags'] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductTag[]>('/products/tags', {
+      next: { revalidate: 300, tags: ['woo-store-tags'] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return [
+        { id: 1, name: 'midi', slug: 'midi' },
+        { id: 2, name: 'satin', slug: 'satin' },
+        { id: 3, name: 'Fab Babe Circle', slug: 'fab-babe-circle' },
+      ];
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductAttributes() {
-  const result = await storeApiRequest<StoreApiProductAttribute[]>('/products/attributes', {
-    next: { revalidate: 300, tags: ['woo-store-attributes'] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductAttribute[]>('/products/attributes', {
+      next: { revalidate: 300, tags: ['woo-store-attributes'] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return [{ id: 2, name: 'Size', taxonomy: 'pa_size' }];
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductAttributeTerms(attributeId: number) {
-  const result = await storeApiRequest<StoreApiProductAttributeTerm[]>(`/products/attributes/${attributeId}/terms`, {
-    next: { revalidate: 300, tags: [`woo-store-attribute-terms-${attributeId}`] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductAttributeTerm[]>(`/products/attributes/${attributeId}/terms`, {
+      next: { revalidate: 300, tags: [`woo-store-attribute-terms-${attributeId}`] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return [
+        { id: 10, name: 'XS', slug: 'xs' },
+        { id: 11, name: 'S', slug: 's' },
+        { id: 12, name: 'M', slug: 'm' },
+        { id: 13, name: 'L', slug: 'l' },
+        { id: 14, name: 'XL', slug: 'xl' },
+      ];
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductCollectionData(
   query: StorefrontCollectionQuery = {},
   cacheTag = 'woo-store-collection-data',
 ) {
-  const result = await storeApiRequest<StoreApiCollectionData>('/products/collection-data', {
-    query,
-    next: { revalidate: 60, tags: [cacheTag] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiCollectionData>('/products/collection-data', {
+      query,
+      next: { revalidate: 60, tags: [cacheTag] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return {
+        price_range: {
+          min_price: '4500000',
+          max_price: '21000000',
+          currency_code: 'NGN',
+          currency_minor_unit: 2,
+        },
+        attribute_counts: [
+          { term: 10, count: 2 },
+          { term: 11, count: 5 },
+          { term: 12, count: 5 },
+          { term: 13, count: 5 },
+          { term: 14, count: 2 },
+        ],
+        rating_counts: [{ rating: 5, count: 12 }],
+        taxonomy_counts: [
+          { term: 94, count: 2 },
+          { term: 95, count: 2 },
+          { term: 96, count: 2 },
+          { term: 97, count: 2 },
+          { term: 98, count: 2 },
+        ],
+      };
+    }
+    throw error;
+  }
 }
 
 export async function getStoreProductReviews(query: StoreApiReviewQuery = {}) {
   const reviewScope = query.product_id || query.category_id || 'all';
-  const result = await storeApiRequest<StoreApiProductReview[]>('/products/reviews', {
-    query,
-    next: { revalidate: 60, tags: [`woo-product-reviews-${reviewScope}`] },
-  });
+  try {
+    const result = await storeApiRequest<StoreApiProductReview[]>('/products/reviews', {
+      query,
+      next: { revalidate: 60, tags: [`woo-product-reviews-${reviewScope}`] },
+    });
 
-  return result.data;
+    return result.data;
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 export async function getStoreCheckoutOrder(orderId: number | string, orderKey: string) {
@@ -569,27 +631,35 @@ export async function submitStoreCheckoutOrder(
 }
 
 export async function getStorefrontFilters(query: StorefrontCollectionQuery = {}): Promise<StorefrontFilters> {
-  const [categories, brands, tags, attributes] = await Promise.all([
-    getStoreProductCategories(),
-    getStoreProductBrands(),
-    getStoreProductTags(),
-    getStoreProductAttributes(),
-  ]);
+  try {
+    const [categories, brands, tags, attributes] = await Promise.all([
+      getStoreProductCategories(),
+      getStoreProductBrands(),
+      getStoreProductTags(),
+      getStoreProductAttributes(),
+    ]);
 
-  const sizeAttribute = attributes.find(
-    (attribute) => attribute.taxonomy === 'pa_size' || attribute.name.toLowerCase() === 'size',
-  );
+    const sizeAttribute = attributes.find(
+      (attribute) => attribute.taxonomy === 'pa_size' || attribute.name.toLowerCase() === 'size',
+    );
 
-  const [collectionData, sizeTerms] = await Promise.all([
-    getStoreProductCollectionData(query),
-    sizeAttribute ? getStoreProductAttributeTerms(sizeAttribute.id) : Promise.resolve([]),
-  ]);
+    const [collectionData, sizeTerms] = await Promise.all([
+      getStoreProductCollectionData(query),
+      sizeAttribute ? getStoreProductAttributeTerms(sizeAttribute.id) : Promise.resolve([]),
+    ]);
 
-  return buildStorefrontFilters({
-    categories,
-    brands,
-    tags,
-    sizeTerms,
-    collectionData,
-  });
+    return buildStorefrontFilters({
+      categories,
+      brands,
+      tags,
+      sizeTerms,
+      collectionData,
+    });
+  } catch (error) {
+    if (isWooUnreachableError(error)) {
+      console.warn('[fabtops] WooCommerce Store API unreachable (getStorefrontFilters). Returning copy fallback filters.');
+      return getFallbackStorefrontFilters();
+    }
+    throw error;
+  }
 }
